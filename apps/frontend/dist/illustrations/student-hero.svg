@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" fill="none">
+  <rect width="500" height="400" fill="transparent"/>
+  <!-- Abstract Shapes -->
+  <circle cx="250" cy="200" r="150" fill="#E0E7FF" opacity="0.5"/>
+  <circle cx="350" cy="150" r="80" fill="#C7D2FE" opacity="0.7"/>
+  <path d="M150 350 L250 150 L350 350 Z" fill="#6366F1" opacity="0.1"/>
+  <!-- Character Base -->
+  <rect x="220" y="180" width="60" height="120" rx="20" fill="#4F46E5"/>
+  <circle cx="250" cy="140" r="35" fill="#FBBF24"/>
+  <!-- Laptop -->
+  <rect x="180" y="240" width="140" height="10" rx="5" fill="#1F2937"/>
+  <path d="M200 240 L220 180 L280 180 L300 240 Z" fill="#D1D5DB"/>
+  <!-- Accents -->
+  <circle cx="120" cy="100" r="15" fill="#34D399"/>
+  <rect x="380" y="280" width="30" height="30" rx="8" fill="#F87171" transform="rotate(45 380 280)"/>
+  <path d="M400 80 Q430 50 450 100 T420 130 Z" fill="#A78BFA"/>
+</svg>

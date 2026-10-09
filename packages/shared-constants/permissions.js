@@ -1,0 +1,55 @@
+import { ROLES } from './roles.js';
+
+export const PERMISSIONS = {
+  // User Management
+  CREATE_USER: 'create:user',
+  READ_USER: 'read:user',
+  UPDATE_USER: 'update:user',
+  DELETE_USER: 'delete:user',
+
+  // Assessments
+  CREATE_ASSESSMENT: 'create:assessment',
+  READ_ASSESSMENT: 'read:assessment',
+  UPDATE_ASSESSMENT: 'update:assessment',
+  DELETE_ASSESSMENT: 'delete:assessment',
+  TAKE_ASSESSMENT: 'take:assessment',
+
+  // Jobs/Placements
+  CREATE_JOB: 'create:job',
+  READ_JOB: 'read:job',
+  UPDATE_JOB: 'update:job',
+  DELETE_JOB: 'delete:job',
+  APPLY_JOB: 'apply:job',
+
+  // Analytics
+  VIEW_ANALYTICS: 'view:analytics'
+};
+
+export const ROLE_PERMISSIONS = {
+  [ROLES.ADMIN]: Object.values(PERMISSIONS),
+  [ROLES.STUDENT]: [
+    PERMISSIONS.READ_USER,
+    PERMISSIONS.UPDATE_USER,
+    PERMISSIONS.READ_ASSESSMENT,
+    PERMISSIONS.TAKE_ASSESSMENT,
+    PERMISSIONS.READ_JOB,
+    PERMISSIONS.APPLY_JOB
+  ],
+  [ROLES.PLACEMENT_OFFICER]: [
+    PERMISSIONS.READ_USER,
+    PERMISSIONS.CREATE_ASSESSMENT,
+    PERMISSIONS.READ_ASSESSMENT,
+    PERMISSIONS.UPDATE_ASSESSMENT,
+    PERMISSIONS.CREATE_JOB,
+    PERMISSIONS.READ_JOB,
+    PERMISSIONS.UPDATE_JOB,
+    PERMISSIONS.VIEW_ANALYTICS
+  ],
+  [ROLES.RECRUITER]: [
+    PERMISSIONS.READ_USER,
+    PERMISSIONS.CREATE_JOB,
+    PERMISSIONS.READ_JOB,
+    PERMISSIONS.UPDATE_JOB,
+    PERMISSIONS.VIEW_ANALYTICS
+  ]
+};

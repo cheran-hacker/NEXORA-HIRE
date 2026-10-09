@@ -1,0 +1,1 @@
+console.time('auth'); await import('./src/routes/authRoutes.js'); console.timeEnd('auth'); console.time('ai'); await import('./src/routes/aiRoutes.js'); console.timeEnd('ai'); console.time('job'); await import('./src/routes/jobRoutes.js'); console.timeEnd('job');

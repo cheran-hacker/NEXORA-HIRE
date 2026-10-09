@@ -1,0 +1,40 @@
+{
+  "name": "Nexora | Integrated Student Success Ecosystem",
+  "short_name": "Nexora",
+  "description": "Unified Digital Campus Ecosystem for Students, Alumni, Recruiters & Placement Officers. AI-powered career growth platform.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1c29",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "categories": ["education", "productivity", "career"],
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    }
+  ]
+}

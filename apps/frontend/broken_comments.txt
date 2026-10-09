@@ -1,0 +1,164 @@
+--- src/components/NotificationsDropdown.jsx
+//localhost:5000';
+// Don't connect on import reconnectionAttempts: 3, // Try 3 times then give up reconnectionDelay: 2000, timeout: 5000});
+// 2. Try to connect socket — gracefully, won't spam
+--- src/pages/admin/DatabaseTools.jsx
+// Indigo '#8b5cf6', // Violet '#ec4899', // Pink '#14b8a6', // Teal '#3b82f6', // Blue ], borderWidth: 0, hoverOffset: 4 }]} options={{ cutout: '75%', 
+--- src/pages/admin/PulseHeatmap.jsx
+// Hardcoded campus zones to ensure they all render even
+// Poll every 10 seconds
+// Helper to merge predefined zones with API data
+// Helper to calculate glow and color based on intensity
+--- src/pages/alumni/AlumniDirectory.jsx
+// In a real app this comes from the date picker topic: 'General Career Guidance', durationMinutes: 30 }); addToast('Mentorship requested successfully!'
+--- src/pages/alumni/MentorshipBooking.jsx
+// Requires real video API integration }); addToast(`Successfully scheduled session!`, 'success'); setSelectedRequest(null); fetchSessions(); } catch (e
+--- src/pages/alumni/Sessions.jsx
+// 'upcoming', 'pending', 'history'
+// Empty state will be shown
+--- src/pages/auth/ResetPassword.jsx
+// Direct axios call or use authService // Assuming we have an endpoint
+//localhost:5000/api/auth/reset-password',
+--- src/pages/internships/InternshipPortal.jsx
+// Filter specifically
+// Fallback, could be mapped
+--- src/pages/recruiter/ATSDashboard.jsx
+// The valid statuses matching the backend Application model
+// Map API data to UI structure
+// Setting data is required
+// Slight delay to allow the drag ghost image to generate before hiding the original setTimeout(() =>
+// Necessary to allow dropping e.dataTransfer.dropEffect = 'move'; };
+// Optimistic UI update setCandidates(prev => prev.map(c => c._id === draggedCardId ?
+// Revert on failure by refetching fetchCandidates(selectedJob); } };
+--- src/pages/recruiter/CandidateSwipe.jsx
+// dir: 1
+//ui-avatars.com/api/?name=${activeCandidate.name}&size=400`} alt={activeCandidate.name} className="w-100 h-100 object-fit-cover pe-none" /> <div classN
+--- src/pages/shared/AssessmentManager.jsx
+// AI generation state
+// model uses 'content' not 'text' type: 'MCQ', marks: q.marks || DIFFICULTY_MARKS[aiForm.difficulty], options: q.options })) }; await assessmentService
+--- src/pages/shared/Forum.jsx
+//localhost:5000';
+// Modal State
+// WebSocket Real-time Connection
+// The socket will push the new post to us, no need to refetch } catch (err)
+// Optimistic UI update setPosts(prev => prev.map(p =>
+//ui-avatars.com/api/?name=${post.author?.name || 'User'}`} alt="avatar" className="rounded-circle" width={40} height={40} /> <div> <h6 className="fw-bo
+--- src/pages/shared/Messages.jsx
+// API integration needed
+//ui-avatars.com/api/?name=${chat.name}&size=48&background=random`} alt={chat.name} className="rounded-circle shadow-sm" width="48" height="48" /> {chat
+//ui-avatars.com/api/?name=User&size=48&background=random`} className="rounded-circle" width="48" height="48" alt="Active Chat" />
+--- src/pages/student/ARTour.jsx
+// Cleanup camera stream
+// Rear camera }); setStream(mediaStream);
+// Lock onto the first verified node from the database instead of randomly simulating setTimeout(() =>
+--- src/pages/student/AssessmentEngine.jsx
+//
+// Tab blur proctoring useEffect(() =>
+// Load assessment useEffect(() =>
+// Countdown Timer useEffect(() =>
+// Grade locally
+// ── Loading ──
+// ── Error ──
+// ── Results Screen ──
+// ── Active Exam UI ──
+--- src/pages/student/AutopsyBoard.jsx
+// Refresh to get new count } catch (err)
+--- src/pages/student/CampusPulse.jsx
+// Reset after 3 seconds so they can check in elsewhere later setTimeout(() => setHasCheckedIn(false), 3000); fetchHeatmap(); } catch (err)
+--- src/pages/student/CampusReels.jsx
+// Basic logic
+--- src/pages/student/CareerRoadmap.jsx
+// Fallback or error state can be handled here } finally
+--- src/pages/student/ClubTreasury.jsx
+// Fetch expenses
+--- src/pages/student/CodeRoast.jsx
+// Optimistically update setSnippets(prev => prev.map(s =>
+--- src/pages/student/Colosseum.jsx
+// Stream viewer state
+// Update local state to reflect vote immediately setActiveStream(prev => ({ ...prev, hireVotes: type === 'hire' ? prev.hireVotes + 1 : prev.hireVotes, 
+--- src/pages/student/EquipmentSharing.jsx
+// Simulate showing QR
+--- src/pages/student/EscapeRoom.jsx
+// For MVP demo, check localStorage
+--- src/pages/student/FreshmanARG.jsx
+// In a real app, update local state to show node as unlocked } catch (err)
+--- src/pages/student/HotSeat.jsx
+// Log error but don't fake data addToast('Failed to submit rating', 'error'); console.error(err); } };
+--- src/pages/student/InterviewSimulator.jsx
+// 'setup' | 'questions' | 'results'
+// Map API response to UI shape
+--- src/pages/student/JobBoard.jsx
+// Map API fields to UI expected structure const mappedJobs = apiJobs.map(j => ({ _id: j._id, title: j.title, company: { name: j.company || (j.recruiter
+//ui-avatars.com/api/?name=${j.company?.[0] || 'C'}&background=random&color=fff` }, jobType: j.type, location: j.location, isRemote: j.location.toLowerC
+--- src/pages/student/NoteDao.jsx
+// Local fallback
+//nexora-storage.s3.amazonaws.com/notes/${e.target.files[0].name}`}); addToast('File uploaded to decentralized storage!', 'success'); }, 1500); } }} /> 
+--- src/pages/student/PlagiarismCourt.jsx
+// Static demo case
+// Fall back to demo case on error setActiveCase(demoCase); } finally
+// Calculate heuristics
+// Calc scores
+// Calc scores`}</span>
+--- src/pages/student/Profile.jsx
+// ── Editable Profile State ──
+// ── Projects & Certificates (local state) ──
+// Load user data into form useEffect(() =>
+// Update localStorage localStorage.setItem('nexora_user', JSON.stringify(data.user)); setEditMode(false); showToast('Profile saved successfully!'); } c
+//www.transparenttextures.com/patterns/cubes.png")', opacity: 0.2 }}></div> </div> <div className="container-fluid px-xl-5 pb-5 position-position-relati
+//ui-avatars.com/api/?name=${user?.name || 'Student'}&size=256&background=10b981&color=fff&bold=true`} alt="Profile" className="rounded-circle shadow-lg
+--- src/pages/student/PulseCheckin.jsx
+// Reset after 3 seconds so they can check in elsewhere later setTimeout(() => setHasCheckedIn(false), 3000); } catch (err)
+--- src/pages/student/RoomAuction.jsx
+// Simulated Karma Balance
+// deduct locally
+// refresh bids } catch (err)
+--- src/pages/student/ScholarshipMatchmaker.jsx
+// Simulated student profile
+// Compute match score locally
+// Sort by match percentage data.sort((a, b) => b.matchPercentage - a.matchPercentage); setScholarships(data); } catch (err)
+--- src/pages/student/SosMesh.jsx
+// Geolocation would go here in a real app useEffect(() =>
+// Hold-to-Trigger Logic to prevent accidental presses useEffect(() =>
+// 2 seconds total (20 * 100ms) }); }, 100); } else
+--- src/pages/student/SpotFinder.jsx
+// Poll every 30s to simulate live updates
+// No local fallback, rely on real API addToast('Failed to update status', 'error'); console.error(err); } };
+//maps.google.com/?q=${encodeURIComponent(lot.name + ' parking')}`, '_blank')} className="btn btn-dark w-100 rounded-pill mt-4 fw-bold py-2 d-flex align
+--- src/pages/student/SprintBoard.jsx
+//www.transparenttextures.com/patterns/carbon-fibre.png")' }}></div> <div className="position-position-absolute rounded-circle pe-none" style={{ top: 0,
+--- src/pages/student/StudentAgencies.jsx
+// In MVP, backend expects an actual ObjectId. If testing UI, might fail gracefully. await agencyService.addFounder(activeAgencyForInvite,
+--- src/pages/student/SyllabusExplorer.jsx
+// Simulated unlocked courses
+//www.youtube.com/results?search_query=${encodeURIComponent(activeNode.courseCode + ' ' + activeNode.courseName + ' lecture')}`, '_blank')} className="b
+--- src/pages/student/SynergyMatch.jsx
+// Force them to create a profile } } catch (err)
+// Reload matches } catch (err)
+// Hipster };
+// Add missing icon components
+//www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLine
+//www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLine
+//www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLine
+--- src/pages/student/TimeBank.jsx
+// Spent = I am learning from them. Earned = I taught them. useEffect(() =>
+--- src/pages/student/VentSpace.jsx
+//localhost:5000';
+// Random calming gradient colors
+// Connect to WebSocket
+// Keep max 50 on client });
+// No need to fetchVents(), the socket will broadcast it back to us instantly! } catch (err)
+// Helper to format remaining time
+--- src/pages/student/Watercooler.jsx
+// 5 minutes in seconds useEffect(() =>
+--- src/shared/components/Chart.jsx
+// ── Default styling theme ──────────────────────────────────────
+// line | bar | doughnut | pie | radar | polar labels =
+--- src/shared/components/Modal.jsx
+// Close on Escape key useEffect(() =>
+--- src/shared/components/Table.jsx
+//
+// Filter
+// Sort
+// Paginate
+--- src/widgets/KPIWidget.jsx
+// Extract color name from colorClass

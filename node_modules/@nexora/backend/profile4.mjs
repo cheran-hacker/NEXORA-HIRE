@@ -1,0 +1,1 @@
+console.time('controller'); await import('./src/controllers/authController.js'); console.timeEnd('controller'); console.time('middleware'); await import('./src/middleware/auth.js'); console.timeEnd('middleware');

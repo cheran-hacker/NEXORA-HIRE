@@ -1,0 +1,1 @@
+console.time('swagger'); await import('./src/config/swagger.js'); console.timeEnd('swagger'); console.time('routes'); await Promise.all([import('./src/routes/authRoutes.js'), import('./src/routes/aiRoutes.js')]); console.timeEnd('routes');

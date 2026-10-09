@@ -1,0 +1,1 @@
+import fs from 'fs'; const t0 = Date.now(); async function run() { const routes = fs.readdirSync('./src/routes').filter(f => f.endsWith('js')); for(const r of routes) { const t1=Date.now(); await import('./src/routes/'+r); console.log(r, Date.now()-t1); } console.log('Total:', Date.now()-t0); } run();

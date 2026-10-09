@@ -1,0 +1,23 @@
+{
+  "name": "nexora-platform",
+  "version": "1.0.0",
+  "description": "NEXORA: AI-Powered Student Success & Recruitment Ecosystem",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "start:backend": "npm run start --workspace=apps/backend",
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "dev": "npm run dev:backend & npm run dev:frontend",
+    "build:frontend": "npm run build --workspace=apps/frontend",
+    "build:backend": "npm run build --workspace=apps/backend",
+    "build": "npm run build:backend && npm run build:frontend",
+    "install:all": "npm install"
+  },
+  "author": "",
+  "license": "ISC"
+}

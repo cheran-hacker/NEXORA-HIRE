@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: nexora-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - nexora-network
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: nexora-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb:27017/nexora
+      - CLIENT_URL=http://localhost:80
+      - JWT_SECRET=supersecretjwtkey_12345
+    depends_on:
+      - mongodb
+    networks:
+      - nexora-network
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    container_name: nexora-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - nexora-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  nexora-network:
+    driver: bridge

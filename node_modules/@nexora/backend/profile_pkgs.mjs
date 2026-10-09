@@ -1,0 +1,1 @@
+const pkgs = ['express', 'multer', 'mongoose', 'bcryptjs', 'jsonwebtoken', 'google-auth-library', 'pdf-parse', 'cloudinary', 'nodemailer', 'socket.io', 'swagger-jsdoc', 'speakeasy', 'qrcode']; for(const p of pkgs) { console.time(p); await import(p).catch(e=>{}); console.timeEnd(p); }
