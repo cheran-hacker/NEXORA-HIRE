@@ -22,7 +22,6 @@ import {
   Calendar,
   Lock,
   Phone,
-  Linkedin,
   CheckSquare
 } from "lucide-react";
 import { useToast } from "../../context/ToastContext";

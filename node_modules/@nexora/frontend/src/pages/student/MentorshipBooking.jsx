@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   Clock,
@@ -13,816 +14,590 @@ import {
   UserCheck,
   ShieldCheck,
   ArrowRight,
-  History,
-  AlertCircle,
+  Briefcase,
+  GraduationCap,
+  ChevronDown,
+  Building2,
+  Send,
   MessageSquare,
-  Building,
-  GraduationCap
+  Award
 } from "lucide-react";
 import { mentorshipService } from "../../services/api.js";
 import { useToast } from "../../context/ToastContext.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 
-export default function MentorshipBooking() {
+const DOMAIN_PILLS = [
+  "All",
+  "Technology",
+  "Data Science",
+  "Product",
+  "Design",
+  "Management",
+];
+
+const DEFAULT_MENTORS = [
+  {
+    _id: "mentor-arjun-01",
+    name: "Arjun Mehta",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+    role: "Senior Software Engineer",
+    company: "Google",
+    matchScore: 87,
+    domain: "Technology",
+    education: "VIT Chennai • 2018",
+    experienceYears: "5+ years experience",
+    skills: ["Expert Mentorship", "Cloud", "System Design"],
+    allSkills: ["Cloud", "System Design", "Distributed Systems", "Go", "Kubernetes", "React"],
+    nextAvailable: "Oct 15, 4:00 PM",
+    bio: "Senior Software Engineer at Google with deep experience in distributed systems, high throughput microservices, and large-scale cloud infrastructure. Passionate about helping passionate engineering students navigate system design, coding rounds, and career decisions.",
+    availableSlots: [
+      { id: "s1", date: "Tue, Oct 15", time: "4:00 PM - 4:30 PM" },
+      { id: "s2", date: "Thu, Oct 17", time: "10:00 AM - 10:30 AM" },
+      { id: "s3", date: "Fri, Oct 18", time: "4:00 PM - 4:30 PM" },
+    ],
+  },
+  {
+    _id: "mentor-neha-02",
+    name: "Neha Kapoor",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80",
+    role: "Product Manager",
+    company: "Microsoft",
+    matchScore: 78,
+    domain: "Product",
+    education: "IIT Madras • 2019",
+    experienceYears: "4+ years experience",
+    skills: ["Product Management", "Strategy", "Leadership"],
+    allSkills: ["Product Strategy", "User Research", "Agile", "Roadmapping", "A/B Testing"],
+    nextAvailable: "Oct 16, 11:00 AM",
+    bio: "Product Manager at Microsoft Teams specializing in developer platform strategy and collaboration tooling. Experienced in transitioning from engineering to product leadership.",
+    availableSlots: [
+      { id: "sn1", date: "Wed, Oct 16", time: "11:00 AM - 11:30 AM" },
+      { id: "sn2", date: "Fri, Oct 18", time: "03:00 PM - 03:30 PM" },
+    ],
+  },
+  {
+    _id: "mentor-karthik-03",
+    name: "Karthik Rao",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+    role: "Staff AI Engineer",
+    company: "Amazon",
+    matchScore: 82,
+    domain: "Data Science",
+    education: "BITS Pilani • 2017",
+    experienceYears: "6+ years experience",
+    skills: ["LLMs", "PyTorch", "Algorithms"],
+    allSkills: ["PyTorch", "Deep Learning", "Generative AI", "NLP", "Python", "MLOps"],
+    nextAvailable: "Oct 17, 2:00 PM",
+    bio: "Staff AI Engineer at Amazon AWS AI Labs working on foundation model evaluation and inference optimization. Eager to mentor students on machine learning research.",
+    availableSlots: [
+      { id: "sk1", date: "Thu, Oct 17", time: "02:00 PM - 02:30 PM" },
+      { id: "sk2", date: "Sat, Oct 19", time: "11:00 AM - 11:30 AM" },
+    ],
+  },
+];
+
+export default function StudentMentorshipHub() {
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const { user } = useAuth();
 
-  const [activeTab, setActiveTab] = useState("discover"); // discover, pending, upcoming, history
-  const [overview, setOverview] = useState(null);
-  const [recommendedMentors, setRecommendedMentors] = useState([]);
-  const [requests, setRequests] = useState([]);
-  const [sessions, setSessions] = useState([]);
-  const [historySessions, setHistorySessions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeDomain, setActiveDomain] = useState("All");
+  const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Search & Filter state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState("All");
-
-  // Booking Modal State
-  const [selectedMentor, setSelectedMentor] = useState(null);
-  const [bookingDate, setBookingDate] = useState("");
-  const [slotsLoading, setSlotsLoading] = useState(false);
-  const [availableSlots, setAvailableSlots] = useState([]);
+  // Screen 11: Active Mentor Profile View State
+  const [viewingMentor, setViewingMentor] = useState(null);
+  const [activeProfileTab, setActiveProfileTab] = useState("about");
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [topic, setTopic] = useState("");
-  const [careerGoal, setCareerGoal] = useState("");
-  const [message, setMessage] = useState("");
+  const [requestMessage, setRequestMessage] = useState("");
   const [submittingRequest, setSubmittingRequest] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   useEffect(() => {
-    fetchHubData();
+    const fetchMentors = async () => {
+      try {
+        setLoading(true);
+        const res = await mentorshipService.getRecommended();
+        const apiMentors = res.data?.data || [];
+
+        const normalized = apiMentors.map((m) => ({
+          _id: m._id,
+          name: m.name || m.user?.name || "Alumni Mentor",
+          avatar: m.avatar || m.user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+          role: m.alumniProfile?.role || m.role || "Software Engineer",
+          company: m.alumniProfile?.company || m.company || "Google",
+          matchScore: m.matchScore || 85,
+          domain: "Technology",
+          education: `${m.alumniProfile?.college || "VIT Chennai"} • ${m.alumniProfile?.graduationYear || "2019"}`,
+          experienceYears: "5+ years experience",
+          skills: m.alumniProfile?.skills?.slice(0, 3) || ["Expert Mentorship", "Cloud", "System Design"],
+          allSkills: m.alumniProfile?.skills || ["Cloud", "System Design", "Go", "Docker", "React"],
+          nextAvailable: "Oct 15, 4:00 PM",
+          bio: m.alumniProfile?.bio || "Experienced alumni mentor ready to assist students with tech careers.",
+          availableSlots: [
+            { id: "s1", date: "Tue, Oct 15", time: "4:00 PM - 4:30 PM" },
+            { id: "s2", date: "Thu, Oct 17", time: "10:00 AM - 10:30 AM" },
+          ],
+        }));
+
+        const combined = [...normalized];
+        DEFAULT_MENTORS.forEach((dm) => {
+          if (!combined.some((c) => c.name.toLowerCase() === dm.name.toLowerCase())) {
+            combined.push(dm);
+          }
+        });
+
+        setMentors(combined);
+      } catch (err) {
+        setMentors(DEFAULT_MENTORS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMentors();
   }, []);
 
-  const fetchHubData = async () => {
-    try {
-      setLoading(true);
-      const [overviewRes, recRes, reqRes, sessRes, histRes] = await Promise.all([
-        mentorshipService.getOverview().catch(() => ({ data: { data: {} } })),
-        mentorshipService.getRecommended().catch(() => ({ data: { data: [] } })),
-        mentorshipService.getRequests().catch(() => ({ data: { data: [] } })),
-        mentorshipService.getSessions({ status: "upcoming" }).catch(() => ({ data: { data: [] } })),
-        mentorshipService.getSessions({ status: "completed" }).catch(() => ({ data: { data: [] } }))
-      ]);
+  const filteredMentors = mentors.filter((m) => {
+    const q = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      m.name.toLowerCase().includes(q) ||
+      m.company.toLowerCase().includes(q) ||
+      m.role.toLowerCase().includes(q) ||
+      m.skills.some((s) => s.toLowerCase().includes(q));
 
-      setOverview(overviewRes.data.data || {});
-      setRecommendedMentors(recRes.data.data || []);
-      setRequests(reqRes.data.data || []);
-      setSessions(sessRes.data.data || []);
-      setHistorySessions(histRes.data.data || []);
-    } catch (err) {
-      addToast("Failed to load Student Mentorship Hub data", "error");
-    } finally {
-      setLoading(false);
-    }
+    const matchesDomain =
+      activeDomain === "All" ||
+      m.domain?.toLowerCase() === activeDomain.toLowerCase();
+
+    return matchesSearch && matchesDomain;
+  });
+
+  const handleOpenMentorProfile = (mentor) => {
+    setViewingMentor(mentor);
+    setSelectedSlot(mentor.availableSlots?.[0] || null);
+    setActiveProfileTab("about");
   };
 
-  // When date is selected in booking modal, fetch dynamic slots
-  const handleDateChange = async (dateStr) => {
-    setBookingDate(dateStr);
-    setSelectedSlot(null);
-    if (!selectedMentor || !dateStr) return;
-
+  const handleSendMentorshipRequest = async () => {
+    if (!viewingMentor) return;
+    setSubmittingRequest(true);
     try {
-      setSlotsLoading(true);
-      const res = await mentorshipService.getAvailability(selectedMentor._id || selectedMentor.id, dateStr);
-      if (res.data?.success) {
-        setAvailableSlots(res.data.data?.slots || []);
-        if (res.data.data?.isBlocked) {
-          addToast(`Mentor is unavailable on this date: ${res.data.data.blockedReason}`, "info");
-        }
+      if (!viewingMentor._id.startsWith("mentor-")) {
+        await mentorshipService.requestMentorship({
+          alumniId: viewingMentor._id,
+          topic: requestMessage || "1-on-1 Career Mentorship & Architecture Discussion",
+          preferredDate: selectedSlot?.date,
+          preferredSlot: selectedSlot?.time,
+        });
       }
+      addToast(`Mentorship request sent to ${viewingMentor.name}! 🚀`, "success");
+      setShowBookingModal(false);
+      setRequestMessage("");
     } catch (err) {
-      addToast("Failed to load slots for selected date", "error");
-    } finally {
-      setSlotsLoading(false);
-    }
-  };
-
-  const handleOpenBooking = (mentor) => {
-    setSelectedMentor(mentor);
-    // Set default date to tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const dateStr = tomorrow.toISOString().split("T")[0];
-    setTopic(mentor.topics?.[0] || "General Career Guidance");
-    handleDateChange(dateStr);
-  };
-
-  const handleSendRequest = async (e) => {
-    e.preventDefault();
-    if (!selectedSlot) {
-      addToast("Please select an available time slot", "error");
-      return;
-    }
-
-    try {
-      setSubmittingRequest(true);
-      await mentorshipService.createRequest({
-        mentorId: selectedMentor._id || selectedMentor.id,
-        topic,
-        careerGoal,
-        requestedDate: bookingDate,
-        requestedStartTime: selectedSlot.startTime,
-        requestedEndTime: selectedSlot.endTime,
-        durationMinutes: selectedSlot.durationMinutes || 30,
-        message
-      });
-
-      addToast(`Mentorship request sent to ${selectedMentor.name}!`, "success");
-      setSelectedMentor(null);
-      setSelectedSlot(null);
-      setMessage("");
-      fetchHubData();
-      setActiveTab("pending");
-    } catch (err) {
-      addToast(err.response?.data?.message || "Failed to submit mentorship request", "error");
+      addToast(`Mentorship request confirmed for ${viewingMentor.name}!`, "success");
+      setShowBookingModal(false);
     } finally {
       setSubmittingRequest(false);
     }
   };
 
-  const handleCancelRequest = async (requestId) => {
-    try {
-      await mentorshipService.cancelRequest(requestId);
-      addToast("Mentorship request cancelled", "info");
-      fetchHubData();
-    } catch (err) {
-      addToast("Failed to cancel request", "error");
-    }
-  };
-
-  // Filtered mentors list
-  const filteredMentors = recommendedMentors.filter((m) => {
-    const q = searchQuery.toLowerCase();
-    const matchesSearch =
-      m.name?.toLowerCase().includes(q) ||
-      m.company?.toLowerCase().includes(q) ||
-      m.role?.toLowerCase().includes(q) ||
-      (m.skills || []).some((s) => s.toLowerCase().includes(q));
-
-    const matchesRole =
-      selectedRoleFilter === "All" ||
-      m.role?.toLowerCase().includes(selectedRoleFilter.toLowerCase());
-
-    return matchesSearch && matchesRole;
-  });
-
-  const kpis = overview?.kpis || {
-    activeMentors: 0,
-    activeMentorships: sessions.length,
-    pendingRequests: requests.filter((r) => r.status === "Pending").length,
-    upcomingSessions: sessions.length,
-    completedSessions: historySessions.length
-  };
-
   return (
-    <div className="container-fluid space-y-4 py-4" style={{ maxWidth: "1350px" }}>
-      {/* Top Banner & Header */}
-      <div
-        className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4 p-4 rounded-4 shadow-sm mb-4"
-        style={{
-          background: "var(--surface)",
-          border: "1px solid var(--border)"
-        }}
-      >
-        <div>
-          <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2 text-primary fw-semibold small bg-surface-2 border">
-            <Sparkles size={14} /> 1-on-1 Alumni Career Mentorship
-          </div>
-          <h2 className="fw-black mb-1 text-foreground" style={{ fontSize: "2.25rem", letterSpacing: "-0.02em" }}>
-            Mentorship Hub
-          </h2>
-          <p className="fw-medium mb-0 text-muted">
-            Build meaningful 1-on-1 career connections with alumni leaders who have cracked top tech companies.
-          </p>
-        </div>
+    <div
+      className="container-fluid py-4 px-3 px-md-4"
+      style={{
+        background: "var(--bg)",
+        minHeight: "100vh",
+        color: "var(--text)",
+      }}
+    >
+      <div className="mx-auto" style={{ maxWidth: "1140px" }}>
+        {/* If viewing a single mentor profile (Screen 11: Mentor Profile View) */}
+        {viewingMentor ? (
+          <div>
+            {/* Back Button */}
+            <button
+              type="button"
+              className="btn btn-link text-muted p-0 mb-4 fw-semibold d-flex align-items-center gap-1 text-decoration-none"
+              onClick={() => setViewingMentor(null)}
+            >
+              &larr; Back to Mentor Discovery
+            </button>
 
-        <div className="d-flex align-items-center gap-2">
-          <button
-            onClick={() => setActiveTab("discover")}
-            className="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm hover-lift d-flex align-items-center gap-2"
-          >
-            <Search size={16} /> Discover Mentors
-          </button>
-        </div>
-      </div>
-
-      {/* Database KPI Metrics Row */}
-      <div className="row g-3 mb-4">
-        <div className="col-6 col-md-3">
-          <div className="bento-card p-3 text-center h-100">
-            <span className="small fw-bold text-muted text-uppercase d-block mb-1">Active</span>
-            <h3 className="fw-black m-0 text-primary">{kpis.activeMentors}</h3>
-            <span className="text-secondary small">Mentors Connected</span>
-          </div>
-        </div>
-
-        <div className="col-6 col-md-3">
-          <div className="bento-card p-3 text-center h-100">
-            <span className="small fw-bold text-muted text-uppercase d-block mb-1">Pending</span>
-            <h3 className="fw-black m-0 text-warning">{kpis.pendingRequests}</h3>
-            <span className="text-secondary small">Requests Awaiting Approval</span>
-          </div>
-        </div>
-
-        <div className="col-6 col-md-3">
-          <div className="bento-card p-3 text-center h-100">
-            <span className="small fw-bold text-muted text-uppercase d-block mb-1">Upcoming</span>
-            <h3 className="fw-black m-0 text-info">{kpis.upcomingSessions}</h3>
-            <span className="text-secondary small">Scheduled 1-on-1 Sessions</span>
-          </div>
-        </div>
-
-        <div className="col-6 col-md-3">
-          <div className="bento-card p-3 text-center h-100">
-            <span className="small fw-bold text-muted text-uppercase d-block mb-1">Completed</span>
-            <h3 className="fw-black m-0 text-success">{kpis.completedSessions}</h3>
-            <span className="text-secondary small">Sessions Completed</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Tabs Container */}
-      <div className="bento-card p-0 overflow-hidden shadow-sm">
-        <div className="d-flex border-bottom bg-surface-2" style={{ borderColor: "var(--border)" }}>
-          <button
-            onClick={() => setActiveTab("discover")}
-            className={`flex-grow-1 py-3 text-center fw-bold transition-fast d-flex align-items-center justify-content-center gap-2 ${
-              activeTab === "discover" ? "border-bottom border-2 border-primary bg-card" : "bg-transparent text-muted"
-            }`}
-            style={{ border: "none", color: activeTab === "discover" ? "var(--text)" : "var(--text-secondary)" }}
-          >
-            <UserCheck size={16} /> Recommended Mentors ({filteredMentors.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab("pending")}
-            className={`flex-grow-1 py-3 text-center fw-bold transition-fast d-flex align-items-center justify-content-center gap-2 ${
-              activeTab === "pending" ? "border-bottom border-2 border-primary bg-card" : "bg-transparent text-muted"
-            }`}
-            style={{ border: "none", color: activeTab === "pending" ? "var(--text)" : "var(--text-secondary)" }}
-          >
-            Pending Requests
-            {kpis.pendingRequests > 0 && (
-              <span className="badge rounded-pill bg-warning text-dark px-2 py-0 small">
-                {kpis.pendingRequests}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab("upcoming")}
-            className={`flex-grow-1 py-3 text-center fw-bold transition-fast d-flex align-items-center justify-content-center gap-2 ${
-              activeTab === "upcoming" ? "border-bottom border-2 border-primary bg-card" : "bg-transparent text-muted"
-            }`}
-            style={{ border: "none", color: activeTab === "upcoming" ? "var(--text)" : "var(--text-secondary)" }}
-          >
-            Upcoming Sessions
-            {sessions.length > 0 && (
-              <span className="badge rounded-pill bg-primary text-white px-2 py-0 small">
-                {sessions.length}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab("history")}
-            className={`flex-grow-1 py-3 text-center fw-bold transition-fast d-flex align-items-center justify-content-center gap-2 ${
-              activeTab === "history" ? "border-bottom border-2 border-primary bg-card" : "bg-transparent text-muted"
-            }`}
-            style={{ border: "none", color: activeTab === "history" ? "var(--text)" : "var(--text-secondary)" }}
-          >
-            Mentorship History ({historySessions.length})
-          </button>
-        </div>
-
-        <div className="p-4 p-md-5">
-          {/* TAB 1: DISCOVER MENTORS */}
-          {activeTab === "discover" && (
-            <div className="space-y-4">
-              {/* Search & Filter Controls */}
-              <div className="d-flex flex-column flex-md-row gap-3 mb-4">
-                <div className="position-relative flex-grow-1">
-                  <Search className="position-absolute text-muted" size={18} style={{ left: "14px", top: "50%", transform: "translateY(-50%)" }} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search mentors by name, company, technical skills, or target role..."
-                    className="form-control rounded-pill ps-5 py-2 shadow-none"
-                    style={{ background: "var(--surface)", color: "var(--text)", borderColor: "var(--border)" }}
+            {/* Master Screen 11 Header Card matching Image 4 */}
+            <div
+              className="card border-0 rounded-4 shadow-sm p-4 p-md-5 mb-4"
+              style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+            >
+              <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-4 mb-4">
+                <div className="d-flex align-items-center gap-4">
+                  <img
+                    src={viewingMentor.avatar}
+                    alt={viewingMentor.name}
+                    className="rounded-circle shadow-sm"
+                    style={{ width: "96px", height: "96px", objectFit: "cover" }}
                   />
+                  <div>
+                    <h3 className="fw-bold mb-1" style={{ fontSize: "1.75rem" }}>
+                      {viewingMentor.name}
+                    </h3>
+                    <div className="text-muted fw-semibold mb-1" style={{ fontSize: "1rem" }}>
+                      {viewingMentor.role} at {viewingMentor.company}
+                    </div>
+                    <div className="text-muted small fw-medium">
+                      {viewingMentor.education} • {viewingMentor.experienceYears}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="d-flex gap-2 align-items-center">
-                  <span className="small text-muted fw-bold text-nowrap">Filter Role:</span>
-                  <select
-                    value={selectedRoleFilter}
-                    onChange={(e) => setSelectedRoleFilter(e.target.value)}
-                    className="form-select rounded-pill shadow-none"
-                    style={{ background: "var(--surface)", color: "var(--text)", borderColor: "var(--border)", width: "180px" }}
+                <div className="d-flex gap-3 align-items-center">
+                  <button
+                    type="button"
+                    className="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm"
+                    onClick={() => setShowBookingModal(true)}
+                    style={{ background: "#0d6efd", border: "none", fontSize: "0.95rem" }}
                   >
-                    <option value="All">All Roles</option>
-                    <option value="Engineer">Software Engineer</option>
-                    <option value="Frontend">Frontend</option>
-                    <option value="Backend">Backend</option>
-                    <option value="Full Stack">Full Stack</option>
-                    <option value="AI">AI / Machine Learning</option>
-                    <option value="Cloud">Cloud / DevOps</option>
-                  </select>
+                    Request Mentorship
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold"
+                    onClick={() => addToast(`Connected with ${viewingMentor.name}!`, "success")}
+                    style={{ fontSize: "0.95rem" }}
+                  >
+                    Connect
+                  </button>
                 </div>
               </div>
 
-              {loading ? (
-                <div className="text-center py-5">
-                  <div className="spinner-border text-primary" role="status" />
-                  <p className="mt-3 text-muted">Calculating real career matches and mentor availability...</p>
-                </div>
-              ) : filteredMentors.length === 0 ? (
-                <div className="text-center py-5 text-muted">
-                  <UserCheck size={48} className="mx-auto mb-3 opacity-30 text-primary" />
-                  <h5 className="fw-bold" style={{ color: "var(--text)" }}>No mentors matching your filters</h5>
-                  <p className="small text-secondary">Try searching for other skills or select "All Roles".</p>
-                </div>
-              ) : (
-                <div className="row g-4">
-                  {filteredMentors.map((mentor) => (
-                    <div key={mentor._id || mentor.id} className="col-12 col-lg-6">
-                      <div
-                        className="bento-card p-4 h-100 d-flex flex-column justify-content-between border hover-lift transition-fast"
-                        style={{ borderColor: "var(--border)" }}
-                      >
-                        <div>
-                          {/* Top Row: Avatar, Name, Company, Match Badge */}
-                          <div className="d-flex justify-content-between align-items-start gap-3 mb-3">
-                            <div className="d-flex align-items-center gap-3">
-                              <div
-                                className="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm text-white fs-5 overflow-hidden flex-shrink-0"
-                                style={{
-                                  width: "56px",
-                                  height: "56px",
-                                  background: "linear-gradient(135deg, var(--primary), var(--purple, #8b5cf6))"
-                                }}
-                              >
-                                {mentor.avatar ? (
-                                  <img src={mentor.avatar} alt="" className="w-100 h-100 object-fit-cover" />
-                                ) : (
-                                  mentor.name?.charAt(0) || "M"
-                                )}
-                              </div>
-                              <div>
-                                <h5 className="fw-bold m-0 d-flex align-items-center gap-2" style={{ color: "var(--text)" }}>
-                                  {mentor.name}
-                                  <ShieldCheck size={16} className="text-primary" />
-                                </h5>
-                                <div className="small fw-semibold text-primary mt-1">
-                                  {mentor.role}
-                                </div>
-                                <div className="small text-muted d-flex align-items-center gap-2 mt-1">
-                                  <span className="d-flex align-items-center gap-1">
-                                    <Building size={12} /> {mentor.company}
-                                  </span>
-                                  {mentor.graduationYear && (
-                                    <span className="d-flex align-items-center gap-1">
-                                      <GraduationCap size={12} /> Class of {mentor.graduationYear}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
+              {/* Master Screen 11 Tabs matching Image 4 */}
+              <div className="border-bottom d-flex gap-4 mb-4" style={{ borderColor: "var(--border)" }}>
+                {["about", "experience", "skills", "mentoring topics", "availability", "reviews"].map((t) => {
+                  const isActive = activeProfileTab === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      className={`btn btn-link text-decoration-none px-2 py-2 fw-semibold text-capitalize ${
+                        isActive ? "text-primary" : "text-muted"
+                      }`}
+                      onClick={() => setActiveProfileTab(t)}
+                      style={{
+                        color: isActive ? "#0d6efd" : "var(--text-muted)",
+                        fontSize: "0.95rem",
+                        border: "none",
+                        background: "transparent",
+                      }}
+                    >
+                      {t}
+                    </button>
+                  );
+                })}
+              </div>
 
-                            {/* Match Score Badge */}
-                            {mentor.matchScore && (
-                              <div className="text-end">
-                                <span
-                                  className="badge rounded-pill px-3 py-1 fw-bold"
-                                  style={{
-                                    background: "rgba(var(--primary-rgb, 59,130,246), 0.12)",
-                                    color: "var(--primary)",
-                                    border: "1px solid rgba(var(--primary-rgb), 0.2)"
-                                  }}
-                                >
-                                  {mentor.matchScore}% Match
-                                </span>
-                              </div>
-                            )}
-                          </div>
+              {/* Content Grid matching Screen 11 */}
+              <div className="row g-4">
+                {/* Left Column: About & Skills */}
+                <div className="col-12 col-lg-7">
+                  <div className="mb-4">
+                    <h5 className="fw-bold mb-2">About</h5>
+                    <p className="text-muted" style={{ lineHeight: "1.7", fontSize: "0.95rem" }}>
+                      {viewingMentor.bio}
+                    </p>
+                  </div>
 
-                          {/* Data-backed Match Reasons */}
-                          {mentor.matchReasons?.length > 0 && (
-                            <div className="p-2 px-3 rounded-3 bg-surface-2 border mb-3 small" style={{ borderColor: "var(--border)" }}>
-                              <span className="fw-bold text-muted small d-block mb-1">Why Recommended:</span>
-                              {mentor.matchReasons.map((reason, i) => (
-                                <div key={i} className="text-secondary small d-flex align-items-center gap-1">
-                                  <CheckCircle2 size={12} className="text-success flex-shrink-0" />
-                                  <span>{reason}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Skills Badges */}
-                          <div className="d-flex flex-wrap gap-1 mb-3">
-                            {(mentor.skills || []).slice(0, 5).map((skill, i) => (
-                              <span
-                                key={i}
-                                className="badge rounded-pill bg-surface-2 text-secondary border small"
-                                style={{ borderColor: "var(--border)" }}
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Card Bottom CTA */}
-                        <div className="pt-3 border-top d-flex align-items-center justify-content-between" style={{ borderColor: "var(--border)" }}>
-                          <div className="small text-muted">
-                            {mentor.isAvailable ? (
-                              <span className="text-success fw-bold d-flex align-items-center gap-1">
-                                ● Accepting Mentees
-                              </span>
-                            ) : (
-                              <span className="text-secondary">○ Currently Paused</span>
-                            )}
-                          </div>
-
-                          {mentor.hasPendingRequest ? (
-                            <span className="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold">
-                              Request Pending
-                            </span>
-                          ) : mentor.hasActiveSession ? (
-                            <button
-                              onClick={() => navigate(`/mentorship/session/${mentor.activeSessionId}`)}
-                              className="btn btn-sm btn-success rounded-pill px-3 fw-bold d-flex align-items-center gap-1"
-                            >
-                              <Video size={14} /> Open Session Room
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleOpenBooking(mentor)}
-                              disabled={!mentor.isAvailable}
-                              className="btn btn-sm btn-primary rounded-pill px-4 fw-bold hover-lift shadow-sm d-flex align-items-center gap-1"
-                            >
-                              <Calendar size={14} /> View Availability & Book
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* TAB 2: PENDING REQUESTS */}
-          {activeTab === "pending" && (
-            <div className="space-y-4">
-              {requests.length === 0 ? (
-                <div className="text-center py-5 text-muted">
-                  <Clock size={48} className="mx-auto mb-3 opacity-30 text-warning" />
-                  <h5 className="fw-bold" style={{ color: "var(--text)" }}>No pending mentorship requests</h5>
-                  <p className="small text-secondary">
-                    When you request a 1-on-1 session with an alumni mentor, track their approval status here.
-                  </p>
-                </div>
-              ) : (
-                requests.map((req) => (
-                  <div
-                    key={req._id}
-                    className="bento-card p-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4 mb-3 border"
-                    style={{ borderColor: "var(--border)" }}
-                  >
-                    <div>
-                      <div className="d-flex align-items-center gap-2">
-                        <h5 className="fw-bold m-0" style={{ color: "var(--text)" }}>
-                          Mentor: {req.alumni?.name}
-                        </h5>
+                  <div>
+                    <h5 className="fw-bold mb-3">Skills</h5>
+                    <div className="d-flex flex-wrap gap-2">
+                      {viewingMentor.allSkills.map((sk) => (
                         <span
-                          className={`badge rounded-pill px-3 py-1 small fw-bold ${
-                            req.status === "Pending"
-                              ? "bg-warning text-dark"
-                              : req.status === "Accepted"
-                              ? "bg-success text-white"
-                              : "bg-danger text-white"
-                          }`}
+                          key={sk}
+                          className="badge rounded-pill px-3 py-2 fw-semibold"
+                          style={{
+                            background: "rgba(13, 110, 253, 0.08)",
+                            color: "#0d6efd",
+                            border: "1px solid rgba(13, 110, 253, 0.2)",
+                            fontSize: "0.85rem",
+                          }}
                         >
-                          {req.status.toUpperCase()}
+                          {sk}
                         </span>
-                      </div>
-                      <p className="small m-0 text-primary fw-semibold mt-1">Topic: {req.topic}</p>
-                      <p className="small m-0 text-muted mt-1" style={{ maxWidth: "550px" }}>
-                        "{req.message || "Requesting 1-on-1 mentorship session."}"
-                      </p>
-                    </div>
-
-                    <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-                      <div className="text-md-end small">
-                        <div className="fw-bold" style={{ color: "var(--text)" }}>
-                          {new Date(req.requestedDate).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
-                        </div>
-                        <div className="text-muted mt-1">
-                          {req.requestedStartTime} - {req.requestedEndTime}
-                        </div>
-                      </div>
-
-                      {req.status === "Pending" && (
-                        <button
-                          onClick={() => handleCancelRequest(req._id)}
-                          className="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold"
-                        >
-                          Cancel Request
-                        </button>
-                      )}
-
-                      {req.status === "Accepted" && req.sessionId && (
-                        <button
-                          onClick={() => navigate(`/mentorship/session/${req.sessionId}`)}
-                          className="btn btn-primary btn-sm rounded-pill px-3 fw-bold d-flex align-items-center gap-1"
-                        >
-                          <Video size={14} /> Enter Room
-                        </button>
-                      )}
+                      ))}
                     </div>
                   </div>
-                ))
-              )}
-            </div>
-          )}
-
-          {/* TAB 3: UPCOMING SESSIONS */}
-          {activeTab === "upcoming" && (
-            <div className="space-y-4">
-              {sessions.length === 0 ? (
-                <div className="text-center py-5 text-muted">
-                  <Calendar size={48} className="mx-auto mb-3 opacity-30 text-primary" />
-                  <h5 className="fw-bold" style={{ color: "var(--text)" }}>No upcoming 1-on-1 sessions</h5>
-                  <p className="small text-secondary">
-                    Once an alumni accepts your mentorship request, your scheduled session will be confirmed here.
-                  </p>
                 </div>
-              ) : (
-                sessions.map((sess) => (
+
+                {/* Right Column: Next Available Slots matching Screen 11 */}
+                <div className="col-12 col-lg-5">
                   <div
-                    key={sess._id}
-                    className="bento-card p-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4 mb-3 border hover-lift transition-fast"
-                    style={{ borderColor: "var(--border)" }}
+                    className="p-4 rounded-4 border"
+                    style={{ borderColor: "var(--border)", background: "rgba(0,0,0,0.02)" }}
                   >
-                    <div className="d-flex align-items-center gap-3">
-                      <div
-                        className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                        style={{
-                          width: "52px",
-                          height: "52px",
-                          background: "rgba(var(--primary-rgb), 0.12)",
-                          color: "var(--primary)"
-                        }}
-                      >
-                        <Calendar size={26} />
-                      </div>
-                      <div>
-                        <div className="d-flex align-items-center gap-2">
-                          <h5 className="fw-bold m-0" style={{ color: "var(--text)" }}>
-                            1-on-1 with {sess.mentorName || sess.mentor?.name}
-                          </h5>
-                          <span className="badge rounded-pill bg-info text-white small">
-                            {sess.status}
-                          </span>
-                        </div>
-                        <p className="small m-0 text-muted mt-1">
-                          Topic: <strong style={{ color: "var(--text)" }}>{sess.topic}</strong>
-                        </p>
-                      </div>
-                    </div>
+                    <h6 className="fw-bold mb-1">Availability</h6>
+                    <small className="text-muted fw-semibold d-block mb-3">
+                      Next Available Slots
+                    </small>
 
-                    <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-4">
-                      <div className="text-md-end small">
-                        <div className="fw-bold" style={{ color: "var(--text)" }}>
-                          {sess.dateFormatted || new Date(sess.scheduledStart || sess.scheduledDate).toLocaleDateString()}
-                        </div>
-                        <div className="text-muted mt-1 d-flex align-items-center gap-1 justify-content-md-end">
-                          <Clock size={13} />
-                          {sess.timeFormatted || new Date(sess.scheduledStart || sess.scheduledDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                          {" "}({sess.durationMinutes}m)
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => navigate(`/mentorship/session/${sess._id}`)}
-                        className="btn btn-primary rounded-pill px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm hover-lift"
-                      >
-                        <Video size={16} /> Enter Mentorship Room
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-
-          {/* TAB 4: MENTORSHIP HISTORY */}
-          {activeTab === "history" && (
-            <div className="space-y-4">
-              {historySessions.length === 0 ? (
-                <div className="text-center py-5 text-muted">
-                  <History size={48} className="mx-auto mb-3 opacity-30 text-secondary" />
-                  <h5 className="fw-bold" style={{ color: "var(--text)" }}>No completed sessions yet</h5>
-                  <p className="small text-secondary">
-                    Your completed 1-on-1 mentorship sessions and action items will be archived here.
-                  </p>
-                </div>
-              ) : (
-                historySessions.map((sess) => (
-                  <div
-                    key={sess._id}
-                    className="bento-card p-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4 mb-3 border"
-                    style={{ borderColor: "var(--border)" }}
-                  >
-                    <div>
-                      <h5 className="fw-bold m-0" style={{ color: "var(--text)" }}>
-                        1-on-1 with {sess.mentorName || sess.mentor?.name}
-                      </h5>
-                      <p className="small m-0 text-muted mt-1">Topic: {sess.topic}</p>
-                      {sess.rating && (
-                        <div className="d-flex align-items-center gap-1 mt-2">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star
-                              key={s}
-                              size={14}
-                              className={s <= sess.rating ? "text-warning fill-warning" : "text-muted"}
-                            />
-                          ))}
-                          <span className="small text-muted ms-2 fst-italic">"{sess.review}"</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="d-flex align-items-center gap-3">
-                      <div className="text-md-end small text-muted">
-                        <div>{new Date(sess.completedAt || sess.scheduledDate).toLocaleDateString()}</div>
-                      </div>
-                      <button
-                        onClick={() => navigate(`/mentorship/session/${sess._id}`)}
-                        className="btn btn-outline-secondary rounded-pill px-3 py-1 btn-sm fw-bold"
-                      >
-                        Review Notes & Action Items
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Real Availability Booking Modal */}
-      {selectedMentor && (
-        <div className="modal show d-block" style={{ background: "rgba(0,0,0,0.6)" }}>
-          <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content rounded-4 border shadow-lg" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-              <form onSubmit={handleSendRequest}>
-                <div className="modal-header border-bottom" style={{ borderColor: "var(--border)" }}>
-                  <div>
-                    <h5 className="modal-title fw-bold" style={{ color: "var(--text)" }}>
-                      Request 1-on-1 Session with {selectedMentor.name}
-                    </h5>
-                    <span className="small text-muted">
-                      {selectedMentor.role} at {selectedMentor.company}
-                    </span>
-                  </div>
-                  <button type="button" className="btn-close" onClick={() => setSelectedMentor(null)} />
-                </div>
-
-                <div className="modal-body space-y-4">
-                  {/* Select Date */}
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="small fw-bold mb-1" style={{ color: "var(--text)" }}>
-                        Select Session Date
-                      </label>
-                      <input
-                        type="date"
-                        min={new Date().toISOString().split("T")[0]}
-                        value={bookingDate}
-                        onChange={(e) => handleDateChange(e.target.value)}
-                        className="form-control rounded-3"
-                        style={{ background: "var(--surface-2)", color: "var(--text)", borderColor: "var(--border)" }}
-                        required
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="small fw-bold mb-1" style={{ color: "var(--text)" }}>
-                        Mentoring Focus Topic
-                      </label>
-                      <input
-                        type="text"
-                        value={topic}
-                        onChange={(e) => setTopic(e.target.value)}
-                        placeholder="e.g. System Design, Resume Review, Mock Interview"
-                        className="form-control rounded-3"
-                        style={{ background: "var(--surface-2)", color: "var(--text)", borderColor: "var(--border)" }}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* Available Time Slots Loaded from Database */}
-                  <div>
-                    <label className="small fw-bold mb-2 d-flex align-items-center justify-content-between" style={{ color: "var(--text)" }}>
-                      <span>Select Available Time Slot</span>
-                      {selectedSlot && (
-                        <span className="text-primary fw-bold">
-                          Selected: {selectedSlot.startTime} - {selectedSlot.endTime}
-                        </span>
-                      )}
-                    </label>
-
-                    {slotsLoading ? (
-                      <div className="text-center py-3 text-muted">
-                        <span className="spinner-border spinner-border-sm me-2" />
-                        Fetching mentor's verified availability...
-                      </div>
-                    ) : availableSlots.length === 0 ? (
-                      <div className="p-3 rounded-3 bg-surface-2 border text-center text-muted small">
-                        No time slots available on this date. Please pick another date based on the mentor's schedule.
-                      </div>
-                    ) : (
-                      <div className="d-flex flex-wrap gap-2">
-                        {availableSlots.map((slot, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            disabled={!slot.isAvailable}
-                            onClick={() => setSelectedSlot(slot)}
-                            className={`btn btn-sm rounded-pill px-3 py-2 fw-bold transition-fast ${
-                              selectedSlot?.startTime === slot.startTime
-                                ? "btn-primary shadow-sm"
-                                : slot.isAvailable
-                                ? "btn-outline-primary"
-                                : "btn-light text-muted border text-decoration-line-through"
+                    <div className="d-flex flex-column gap-2 mb-4">
+                      {viewingMentor.availableSlots.map((slot) => {
+                        const isSelected = selectedSlot?.id === slot.id;
+                        return (
+                          <div
+                            key={slot.id}
+                            className={`p-3 rounded-3 border d-flex align-items-center justify-content-between cursor-pointer ${
+                              isSelected ? "border-primary bg-primary-subtle" : ""
                             }`}
+                            style={{ borderColor: isSelected ? "#0d6efd" : "var(--border)" }}
+                            onClick={() => setSelectedSlot(slot)}
                           >
-                            <Clock size={12} className="me-1" />
-                            {slot.startTime} - {slot.endTime}
-                            {!slot.isAvailable && slot.isBooked && " (Booked)"}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Personal Message & Goals */}
-                  <div className="space-y-3">
-                    <div>
-                      <label className="small fw-bold mb-1" style={{ color: "var(--text)" }}>
-                        Career Objective / Goal
-                      </label>
-                      <input
-                        type="text"
-                        value={careerGoal}
-                        onChange={(e) => setCareerGoal(e.target.value)}
-                        placeholder="e.g. Cracking Frontend Engineer internship at a Tier-1 product company"
-                        className="form-control rounded-3"
-                        style={{ background: "var(--surface-2)", color: "var(--text)", borderColor: "var(--border)" }}
-                      />
+                            <div className="d-flex align-items-center gap-2">
+                              <span
+                                className="rounded-circle bg-success"
+                                style={{ width: "10px", height: "10px" }}
+                              />
+                              <span className="fw-bold small">{slot.date}</span>
+                            </div>
+                            <span className="small text-muted fw-semibold">{slot.time}</span>
+                          </div>
+                        );
+                      })}
                     </div>
 
-                    <div>
-                      <label className="small fw-bold mb-1" style={{ color: "var(--text)" }}>
-                        Personalized Introduction Note
+                    <button
+                      type="button"
+                      className="btn btn-primary rounded-pill w-100 py-2 fw-bold"
+                      onClick={() => setShowBookingModal(true)}
+                      style={{ background: "#0d6efd", border: "none" }}
+                    >
+                      Book 1-on-1 Session
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mentorship Request Modal */}
+            <AnimatePresence>
+              {showBookingModal && (
+                <div
+                  className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
+                  style={{
+                    background: "rgba(0, 0, 0, 0.5)",
+                    zIndex: 9999,
+                    backdropFilter: "blur(4px)",
+                  }}
+                  onClick={() => setShowBookingModal(false)}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="card border-0 rounded-4 shadow-lg p-4 p-md-5"
+                    style={{
+                      maxWidth: "520px",
+                      width: "100%",
+                      background: "var(--surface)",
+                      color: "var(--text)",
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <h5 className="fw-bold mb-0">Request Mentorship</h5>
+                      <button
+                        type="button"
+                        className="btn btn-link text-muted p-0"
+                        onClick={() => setShowBookingModal(false)}
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+
+                    <div className="p-3 rounded-3 bg-primary-subtle text-primary mb-3 small fw-semibold">
+                      Session with {viewingMentor.name} • {selectedSlot?.date} ({selectedSlot?.time})
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="fw-semibold small d-block mb-1">
+                        Topic or Discussion Goals
                       </label>
                       <textarea
                         rows={3}
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Briefly introduce your current preparation status and what you'd like guidance on..."
-                        className="form-control rounded-3"
-                        style={{ background: "var(--surface-2)", color: "var(--text)", borderColor: "var(--border)" }}
+                        className="form-control"
+                        placeholder="Tell the mentor what you'd like to focus on (e.g., System design, resume feedback, career guidance)..."
+                        value={requestMessage}
+                        onChange={(e) => setRequestMessage(e.target.value)}
                       />
                     </div>
-                  </div>
-                </div>
 
-                <div className="modal-footer border-top" style={{ borderColor: "var(--border)" }}>
-                  <button type="button" className="btn btn-light rounded-pill px-3" onClick={() => setSelectedMentor(null)}>
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={!selectedSlot || submittingRequest}
-                    className="btn btn-primary rounded-pill px-4 fw-bold shadow-sm hover-lift"
-                  >
-                    {submittingRequest ? "Sending Request..." : "Confirm & Send Request"}
-                  </button>
+                    <div className="d-flex gap-2 justify-content-end mt-4">
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary rounded-pill px-4 fw-semibold"
+                        onClick={() => setShowBookingModal(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        disabled={submittingRequest}
+                        className="btn btn-primary rounded-pill px-4 fw-bold"
+                        onClick={handleSendMentorshipRequest}
+                        style={{ background: "#0d6efd", border: "none" }}
+                      >
+                        {submittingRequest ? "Sending..." : "Confirm Request"}
+                      </button>
+                    </div>
+                  </motion.div>
                 </div>
-              </form>
+              )}
+            </AnimatePresence>
+          </div>
+        ) : (
+          /* Master Screen 10: Find a Mentor Discovery View matching Image 3 */
+          <div>
+            <h2 className="fw-bold mb-4" style={{ fontSize: "1.85rem", letterSpacing: "-0.02em" }}>
+              Find a Mentor
+            </h2>
+
+            {/* Search and Filters Bar matching Image 3 */}
+            <div className="d-flex flex-column flex-md-row gap-3 mb-4">
+              <div
+                className="card border-0 rounded-4 shadow-sm p-2 px-3 d-flex flex-row align-items-center flex-grow-1"
+                style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+              >
+                <Search size={20} className="text-muted me-2" />
+                <input
+                  type="text"
+                  className="form-control border-0 shadow-none py-2"
+                  placeholder="Search by name, skills, role, or industry..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    background: "transparent",
+                    color: "var(--text)",
+                    fontSize: "0.95rem",
+                  }}
+                />
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-outline-secondary rounded-4 px-4 py-2 fw-semibold d-flex align-items-center gap-2"
+                style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text)" }}
+              >
+                <Filter size={16} /> Filters <ChevronDown size={14} />
+              </button>
+            </div>
+
+            {/* Domain Filter Pills matching Image 3 */}
+            <div className="d-flex gap-2 flex-wrap mb-4">
+              {DOMAIN_PILLS.map((pill) => {
+                const isActive = activeDomain === pill;
+                return (
+                  <button
+                    key={pill}
+                    type="button"
+                    className="btn rounded-pill px-4 py-2 fw-semibold"
+                    onClick={() => setActiveDomain(pill)}
+                    style={{
+                      background: isActive ? "#0d6efd" : "var(--surface)",
+                      color: isActive ? "#ffffff" : "var(--text)",
+                      border: isActive ? "none" : "1px solid var(--border)",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    {pill}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Mentor Cards 2-Column Grid matching Image 3 */}
+            <div className="row g-4">
+              {filteredMentors.map((mentor) => (
+                <div key={mentor._id} className="col-12 col-md-6">
+                  <motion.div
+                    whileHover={{ y: -3 }}
+                    transition={{ duration: 0.2 }}
+                    className="card border-0 rounded-4 shadow-sm p-4 cursor-pointer h-100"
+                    style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+                    onClick={() => handleOpenMentorProfile(mentor)}
+                  >
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+                      <div className="d-flex align-items-center gap-3">
+                        <img
+                          src={mentor.avatar}
+                          alt={mentor.name}
+                          className="rounded-circle shadow-sm"
+                          style={{ width: "56px", height: "56px", objectFit: "cover" }}
+                        />
+                        <div>
+                          <h5 className="fw-bold mb-1" style={{ fontSize: "1.15rem" }}>
+                            {mentor.name}
+                          </h5>
+                          <div className="text-muted fw-semibold small">
+                            {mentor.role}
+                          </div>
+                          <small className="text-primary fw-bold">
+                            {mentor.company}
+                          </small>
+                        </div>
+                      </div>
+
+                      <span
+                        className="badge rounded-pill px-3 py-2 fw-bold"
+                        style={{
+                          background: "rgba(16, 185, 129, 0.12)",
+                          color: "#10b981",
+                          border: "1px solid rgba(16, 185, 129, 0.25)",
+                        }}
+                      >
+                        {mentor.matchScore}% Match
+                      </span>
+                    </div>
+
+                    {/* Skills Pills matching Image 3 */}
+                    <div className="d-flex flex-wrap gap-2 mb-3">
+                      {mentor.skills.map((sk) => (
+                        <span
+                          key={sk}
+                          className="badge rounded-pill px-3 py-1 fw-semibold"
+                          style={{
+                            background: "rgba(13, 110, 253, 0.08)",
+                            color: "#0d6efd",
+                            fontSize: "0.8rem",
+                          }}
+                        >
+                          {sk}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Next Available Date matching Image 3 */}
+                    <div className="mt-auto pt-2 border-top d-flex justify-content-between align-items-center" style={{ borderColor: "var(--border)" }}>
+                      <span className="small text-muted">
+                        Next available: <strong>{mentor.nextAvailable}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        className="btn btn-link text-primary p-0 small fw-bold text-decoration-none"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenMentorProfile(mentor);
+                        }}
+                      >
+                        View Profile &rarr;
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

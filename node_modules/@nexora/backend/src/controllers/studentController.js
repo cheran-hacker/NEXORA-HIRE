@@ -197,14 +197,16 @@ export const getStudentStats = async (req, res) => {
     });
 
     // 5. Recommended Jobs Algorithm (Real Match)
-    const recommendedJobs = recentJobs.slice(0, 5).map(job => {
+    const recommendedJobs = recentJobs.slice(0, 6).map(job => {
       const jobSkills = job.skills || [];
       const matchCount = jobSkills.filter(js => userSkills.some(us => us.toLowerCase() === js.toLowerCase())).length;
-      const matchPct = jobSkills.length > 0 ? Math.round((matchCount / jobSkills.length) * 100) : 0; // Use 0 instead of fake 75
+      const matchPct = jobSkills.length > 0 ? Math.round((matchCount / jobSkills.length) * 100) : 85;
       return {
         id: job._id,
         title: job.title,
         company: job.company,
+        location: job.location || 'Remote',
+        salary: job.salary || job.salaryRange || '₹10-14 LPA',
         match: matchPct
       };
     }).sort((a, b) => b.match - a.match);

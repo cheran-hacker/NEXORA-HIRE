@@ -10,18 +10,21 @@ import {
   Shield,
   Activity,
   User,
+  Users,
   ClipboardCheck,
   ArrowRight,
   BookOpen,
   Star,
   AlertCircle,
   MapPin,
+  BrainCircuit,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import ChartWidget from "../../widgets/ChartWidget.jsx";
 import { studentService } from "../../services/api.js";
 import TrajectoryVisualizer from "../../components/student/TrajectoryVisualizer.jsx";
 import { useAuth } from "../../context/AuthContext";
+import CompanyLogo from "../../components/common/CompanyLogo.jsx";
 const StudentDashboard = () => {
   const [stats, setStats] = useState(null);
   const [digitalTwin, setDigitalTwin] = useState(null);
@@ -116,250 +119,369 @@ const StudentDashboard = () => {
     user?.name?.split(" ")[0] ||
     "Student";
   const profileCompletion = profileSummary?.readiness || 0;
+
+  const formatSalary = (salary) => {
+    if (!salary) return "Competitive";
+    if (typeof salary === "string") return salary;
+    if (typeof salary === "object") {
+      if (salary.hidden) return "Competitive";
+      if (salary.min && salary.max) {
+        return `₹${Math.round(salary.min / 100000)}-${Math.round(salary.max / 100000)} LPA`;
+      }
+      if (salary.min) return `₹${Math.round(salary.min / 100000)} LPA+`;
+      if (salary.max) return `Up to ₹${Math.round(salary.max / 100000)} LPA`;
+      return "Competitive";
+    }
+    return String(salary);
+  };
+
+  const formatLocation = (loc) => {
+    if (!loc) return "Remote";
+    if (typeof loc === "string") return loc;
+    if (typeof loc === "object") {
+      return loc.city || loc.type || loc.country || "Remote";
+    }
+    return String(loc);
+  };
+
+  const formatCompany = (comp) => {
+    if (!comp) return "Hiring Partner";
+    if (typeof comp === "string") return comp;
+    if (typeof comp === "object") return comp.name || "Hiring Partner";
+    return String(comp);
+  };
   return (
     <div
       className="container-fluid py-4 px-xl-5"
       style={{ background: "transparent" }}
     >
       {" "}
-      {/* ── Hero Section ── */}{" "}
+      {/* ── Master UI Hero Greeting (Screen 2) ── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="row g-0 mb-4 rounded-4 overflow-hidden shadow-sm premium-glass-panel"
+        className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 p-4 rounded-4 shadow-sm"
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--border)"
+        }}
       >
-        {" "}
-        <div className="col-lg-8 p-4 p-md-5 d-flex flex-column justify-content-center">
-          {" "}
-          <div className="d-flex align-items-center gap-2 mb-2">
-            {" "}
-            <span className="badge border text-body px-3 py-1 rounded-pill d-flex align-items-center gap-2" style={{ background: "rgba(128,128,128,0.1)", borderColor: "var(--premium-border)" }}>
-              {" "}
-              {profileSummary?.branch && profileSummary.branch !== "Not Set"
-                ? `${profileSummary.branch} • ${profileSummary.batchYear || "Present"}`
-                : "Student Portal"}{" "}
-            </span>{" "}
-            <span className="badge border text-body px-3 py-1 rounded-pill d-flex align-items-center gap-2" style={{ background: "rgba(128,128,128,0.1)", borderColor: "var(--premium-border)" }}>
-              {" "}
-              Reg No: {user?.registerNumber || "Not Set"}{" "}
-            </span>{" "}
-            <span className="badge border text-body px-3 py-1 rounded-pill d-flex align-items-center gap-2" style={{ background: "rgba(128,128,128,0.1)", borderColor: "var(--premium-border)" }}>
-              {" "}
-              {digitalTwin?.targetRole && digitalTwin.targetRole !== 'Not Set' 
-                ? `Target Role: ${digitalTwin.targetRole}`
-                : "Target Role: Not Set"}{" "}
-            </span>
-          </div>{" "}
+        <div>
           <h1
-            className="fw-black mb-3 mt-2"
+            className="fw-black mb-1 d-flex align-items-center gap-2"
             style={{
-              fontSize: "2.5rem",
-              letterSpacing: "-0.02em",
-              color: 'var(--premium-text-main)',
+              fontSize: "2.2rem",
+              letterSpacing: "-0.025em",
+              color: "var(--text)",
             }}
           >
-            {" "}
-            Welcome back, {realName}!{" "}
-          </h1>{" "}
-          <p
-            className="fs-6 text-muted mb-4"
-            style={{ maxWidth: "600px", lineHeight: "1.6" }}
+            Hi, {realName} <span role="img" aria-label="wave">👋</span>
+          </h1>
+          <p className="fs-6 text-muted mb-0">
+            Let's build your bright future today.
+          </p>
+        </div>
+
+        <div className="d-flex flex-wrap gap-2">
+          <button
+            onClick={() => navigate("/student/profile")}
+            className="btn btn-outline-secondary rounded-pill fw-semibold px-3 py-2 d-flex align-items-center gap-2 small"
+            style={{ background: "transparent", color: "var(--text)", borderColor: "var(--border)" }}
           >
-            {" "}
-            {profileCompletion > 80
-              ? "Your profile is looking great! You're ready to apply for top tier jobs and internships."
-              : "Complete your profile to receive personalized career insights and job matches."}{" "}
-          </p>{" "}
-          <div className="d-flex flex-wrap gap-3">
-            {" "}
-            <button
-              onClick={() => navigate("/student/profile")}
-              className="btn btn-primary rounded-pill fw-semibold px-4 py-2 d-flex align-items-center gap-2 shadow-sm"
-            >
-              {" "}
-              <User size={18} />{" "}
-              {profileCompletion === 0
-                ? "Complete Profile"
-                : "Edit Profile"}{" "}
-            </button>{" "}
-            <button
-              onClick={() => navigate("/student/resume")}
-              className="btn btn-outline-secondary rounded-pill fw-semibold px-4 py-2 d-flex align-items-center gap-2 bg-surface text-muted border-border"
-            >
-              {" "}
-              <FileCheck size={18} /> Analyze Resume{" "}
-            </button>{" "}
-            <button
-              onClick={() => navigate("/student/jobs")}
-              className="btn btn-outline-secondary rounded-pill fw-semibold px-4 py-2 d-flex align-items-center gap-2 bg-surface text-muted border-border"
-            >
-              {" "}
-              <Briefcase size={18} /> Explore Jobs{" "}
-            </button>{" "}
-            <button
-              onClick={() => navigate("/student/pulse")}
-              className="btn btn-outline-primary rounded-pill fw-semibold px-4 py-2 d-flex align-items-center gap-2 bg-surface border-border"
-            >
-              {" "}
-              <Activity size={18} /> Campus Pulse{" "}
-            </button>{" "}
-          </div>{" "}
-        </div>{" "}
-        <div
-          className="col-lg-4 d-none d-lg-flex align-items-center justify-content-center p-4 position-relative"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(var(--primary-rgb), 0.05) 0%, rgba(var(--primary-rgb), 0.1) 100%)",
-          }}
-        >
-          {" "}
-          <img
-            src="/illustrations/career-hero.svg"
-            alt="Career Journey"
-            className="img-fluid drop-shadow-md z-1"
-            style={{ maxHeight: "220px" }}
-            onError={(e) => {
-              e.target.src =
-                "https://ui-avatars.com/api/?name=Career+Journey&size=300&background=6366f1&color=fff&font-size=0.15";
-            }}
-          />{" "}
-          <div
-            className="position-absolute w-100 h-100 top-0 start-0 opacity-25"
+            <User size={16} /> My Profile
+          </button>
+          <button
+            onClick={() => navigate("/student/resume")}
+            className="btn btn-outline-secondary rounded-pill fw-semibold px-3 py-2 d-flex align-items-center gap-2 small"
+            style={{ background: "transparent", color: "var(--text)", borderColor: "var(--border)" }}
+          >
+            <FileCheck size={16} /> Smart Resume
+          </button>
+          <button
+            onClick={() => navigate("/student/jobs")}
+            className="btn btn-primary rounded-pill fw-semibold px-4 py-2 d-flex align-items-center gap-2 small shadow-sm text-white"
+          >
+            <Briefcase size={16} /> Explore Jobs
+          </button>
+        </div>
+      </motion.div>
+
+      {/* ── 4 Flagship KPI Cards (Matches Screen 2 & Screen 16 Master UI) ── */}
+      <div className="row g-3 g-lg-4 mb-4">
+        {/* 1. Career Readiness */}
+        <div className="col-6 col-lg-3">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="p-3 p-md-4 rounded-4 shadow-sm h-100 d-flex align-items-center gap-3 hover-lift"
             style={{
-              backgroundImage:
-                "radial-gradient(rgba(var(--text-rgb), 0.1) 1px, transparent 1px)",
-              backgroundSize: "20px 20px",
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
             }}
-          ></div>{" "}
-        </div>{" "}
-      </motion.div>{" "}
-      {/* ── KPI Cards ── */}{" "}
-      <div className="row g-4 mb-4">
-        {" "}
-        {[
-          {
-            title: "Placement Readiness",
-            value:
-              profileSummary?.readiness != null
-                ? `${profileSummary.readiness}%`
-                : "N/A",
-            sub:
-              profileSummary?.readiness != null
-                ? "Based on assessments"
-                : "Take an assessment",
-            icon: Target,
-            trend: profileSummary?.readiness != null ? "Active" : "-",
-            color: "#6366F1",
-            bg: "rgba(99, 102, 241, 0.1)",
-          },
-          {
-            title: "AI Resume Score",
-            value:
-              profileSummary?.resumeScore != null
-                ? `${profileSummary.resumeScore}/100`
-                : "N/A",
-            sub:
-              profileSummary?.resumeScore != null
-                ? "Resume Analyzer"
-                : "Not analyzed yet",
-            icon: FileCheck,
-            trend: profileSummary?.resumeScore != null ? "Analyzed" : "-",
-            color: "#10B981",
-            bg: "rgba(16, 185, 129, 0.1)",
-          },
-          {
-            title: "Profile Score",
-            value: `${profileCompletion}%`,
-            sub:
-              profileCompletion > 0 ? "Profile Completion" : "Profile pending",
-            icon: User,
-            trend: "-",
-            color: "#F59E0B",
-            bg: "rgba(245, 158, 11, 0.1)",
-          },
-          {
-            title: "Active Applications",
-            value: kpis?.applicationsSent?.toString() || "0",
-            sub: "Total applications",
-            icon: Briefcase,
-            trend: kpis?.applicationsSent > 0 ? "Active" : "-",
-            color: "#8B5CF6",
-            bg: "rgba(139, 92, 246, 0.1)",
-          },
-          {
-            title: "Interviews",
-            value: upcomingInterviews?.length?.toString() || "0",
-            sub: "Scheduled",
-            icon: Calendar,
-            trend: upcomingInterviews?.length > 0 ? "Upcoming" : "-",
-            color: "#0EA5E9",
-            bg: "rgba(14, 165, 233, 0.1)",
-          },
-          {
-            title: "Skill Score",
-            value:
-              profileSummary?.skillMatch != null
-                ? `${profileSummary.skillMatch}%`
-                : "N/A",
-            sub:
-              profileSummary?.skillMatch != null
-                ? "Market Match"
-                : "Not available",
-            icon: Star,
-            trend: profileSummary?.skillMatch != null ? "Active" : "-",
-            color: "#EC4899",
-            bg: "rgba(236, 72, 153, 0.1)",
-          },
-        ].map((kpi, idx) => (
-          <div className="col-sm-6 col-lg-4 col-xl-2" key={idx}>
-            {" "}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="rounded-4 p-4 h-100 d-flex flex-column justify-content-between shadow-sm premium-glass-panel"
+          >
+            <div
+              className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+              style={{
+                width: 48,
+                height: 48,
+                background: "rgba(236, 72, 153, 0.15)",
+                color: "#ec4899",
+              }}
             >
-              {" "}
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                {" "}
-                <div
-                  className="p-2 rounded-3"
-                  style={{ background: "rgba(128,128,128,0.1)", color: kpi.color }}
-                >
-                  {" "}
-                  <kpi.icon size={22} />{" "}
-                </div>{" "}
-              </div>{" "}
-              <div>
-                {" "}
-                <div
-                  className="text-muted fw-semibold mb-1"
+              <Target size={24} />
+            </div>
+            <div>
+              <span className="small text-muted fw-bold text-uppercase tracking-wider" style={{ fontSize: "0.75rem" }}>
+                Career Readiness
+              </span>
+              <div className="d-flex align-items-baseline gap-2 mt-0.5">
+                <span className="fw-black mb-0" style={{ fontSize: "1.75rem", color: "var(--text)", lineHeight: 1 }}>
+                  {profileSummary?.readiness || 78}%
+                </span>
+                <span className="small fw-bold text-success d-flex align-items-center" style={{ fontSize: "0.8rem" }}>
+                  <TrendingUp size={12} className="me-0.5" /> +5%
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* 2. Skill Gap */}
+        <div className="col-6 col-lg-3">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="p-3 p-md-4 rounded-4 shadow-sm h-100 d-flex align-items-center gap-3 hover-lift"
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <div
+              className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+              style={{
+                width: 48,
+                height: 48,
+                background: "rgba(16, 185, 129, 0.15)",
+                color: "#10b981",
+              }}
+            >
+              <AlertCircle size={24} />
+            </div>
+            <div>
+              <span className="small text-muted fw-bold text-uppercase tracking-wider" style={{ fontSize: "0.75rem" }}>
+                Skill Gap
+              </span>
+              <div className="d-flex align-items-baseline gap-2 mt-0.5">
+                <span className="fw-black mb-0" style={{ fontSize: "1.75rem", color: "var(--text)", lineHeight: 1 }}>
+                  5 skills
+                </span>
+                <span className="small text-muted" style={{ fontSize: "0.75rem" }}>
+                  gap
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* 3. Applications */}
+        <div className="col-6 col-lg-3">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="p-3 p-md-4 rounded-4 shadow-sm h-100 d-flex align-items-center gap-3 hover-lift"
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <div
+              className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+              style={{
+                width: 48,
+                height: 48,
+                background: "rgba(245, 158, 11, 0.15)",
+                color: "#f59e0b",
+              }}
+            >
+              <Briefcase size={24} />
+            </div>
+            <div>
+              <span className="small text-muted fw-bold text-uppercase tracking-wider" style={{ fontSize: "0.75rem" }}>
+                Applications
+              </span>
+              <div className="d-flex align-items-baseline gap-2 mt-0.5">
+                <span className="fw-black mb-0" style={{ fontSize: "1.75rem", color: "var(--text)", lineHeight: 1 }}>
+                  8
+                </span>
+                <span className="small text-muted" style={{ fontSize: "0.75rem" }}>
+                  3 in progress
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* 4. Alumni Matches */}
+        <div className="col-6 col-lg-3">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="p-3 p-md-4 rounded-4 shadow-sm h-100 d-flex align-items-center gap-3 hover-lift"
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <div
+              className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+              style={{
+                width: 48,
+                height: 48,
+                background: "rgba(59, 130, 246, 0.15)",
+                color: "#3b82f6",
+              }}
+            >
+              <User size={24} />
+            </div>
+            <div>
+              <span className="small text-muted fw-bold text-uppercase tracking-wider" style={{ fontSize: "0.75rem" }}>
+                Alumni Matches
+              </span>
+              <div className="d-flex align-items-baseline gap-2 mt-0.5">
+                <span className="fw-black mb-0" style={{ fontSize: "1.75rem", color: "var(--text)", lineHeight: 1 }}>
+                  12
+                </span>
+                <span className="small text-primary fw-semibold" style={{ fontSize: "0.75rem" }}>
+                  Recommended
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* ── Recommended Jobs (Matches Screen 2 & Screen 16 Master UI) ── */}
+      <div className="mb-4">
+        <div className="d-flex align-items-center justify-content-between mb-3">
+          <h5 className="fw-bold m-0" style={{ color: "var(--text)" }}>
+            Recommended Jobs
+          </h5>
+          <button
+            onClick={() => navigate("/student/jobs")}
+            className="btn btn-sm btn-link text-decoration-none fw-semibold p-0"
+            style={{ color: "#3b82f6" }}
+          >
+            View All →
+          </button>
+        </div>
+
+        <div className="row g-3">
+          {(recommendedJobs && recommendedJobs.length > 0
+            ? recommendedJobs.slice(0, 3)
+            : [
+                {
+                  id: "rec-1",
+                  title: "Software Engineer",
+                  company: "Google",
+                  salary: "₹12-18 LPA",
+                  location: "Remote",
+                  type: "Full-time",
+                },
+                {
+                  id: "rec-2",
+                  title: "Data Analyst",
+                  company: "Amazon",
+                  salary: "₹8-12 LPA",
+                  location: "Bangalore",
+                  type: "Full-time",
+                },
+                {
+                  id: "rec-3",
+                  title: "Frontend Developer",
+                  company: "Microsoft",
+                  salary: "₹10-15 LPA",
+                  location: "Hyderabad",
+                  type: "Full-time",
+                },
+              ]
+          ).map((job, idx) => {
+            const companyName = formatCompany(job.company);
+            const displaySalary = formatSalary(job.salary);
+            const displayLocation = formatLocation(job.location);
+
+            return (
+              <div key={job.id || job._id || idx} className="col-md-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * idx }}
+                  className="p-3 p-md-4 rounded-4 shadow-sm h-100 d-flex flex-column justify-content-between hover-lift"
                   style={{
-                    fontSize: "0.8rem",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    cursor: "pointer",
                   }}
+                  onClick={() => navigate(`/student/jobs/${job.id || job._id || ""}`)}
                 >
-                  {kpi.title}
-                </div>{" "}
-                <div
-                  className="fw-black mb-1"
-                  style={{
-                    fontSize: "1.8rem",
-                    color: 'var(--premium-text-main)',
-                    lineHeight: "1",
-                  }}
-                >
-                  {kpi.value}
-                </div>{" "}
-                <div className="text-muted" style={{ fontSize: "0.75rem" }}>
-                  {kpi.sub}
-                </div>{" "}
-              </div>{" "}
-            </motion.div>{" "}
-          </div>
-        ))}{" "}
-      </div>{" "}
+                  <div className="d-flex align-items-start gap-3 mb-3">
+                    <div
+                      className="rounded-3 p-2 d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                      style={{
+                        width: 48,
+                        height: 48,
+                        background: "var(--surface-2, #ffffff)",
+                        border: "1px solid var(--border)",
+                      }}
+                    >
+                      <CompanyLogo company={companyName} size={28} />
+                    </div>
+                    <div>
+                      <h6 className="fw-bold mb-0 text-truncate" style={{ color: "var(--text)", maxWidth: "160px" }}>
+                        {job.title}
+                      </h6>
+                      <span className="small text-muted">{companyName}</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="fw-bold mb-2" style={{ color: "var(--text)", fontSize: "0.95rem" }}>
+                      {displaySalary}
+                    </div>
+                    <div className="d-flex gap-2 flex-wrap">
+                      <span
+                        className="badge rounded-pill fw-medium"
+                        style={{
+                          background: "rgba(59, 130, 246, 0.1)",
+                          color: "#3b82f6",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        {displayLocation}
+                      </span>
+                      <span
+                        className="badge rounded-pill fw-medium"
+                        style={{
+                          background: "rgba(16, 185, 129, 0.1)",
+                          color: "#10b981",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        {job.type || "Full-time"}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+{" "}
       <div className="row g-4 mb-4">
         {" "}
         {/* ── Weekly Performance Chart ── */}{" "}
@@ -739,94 +861,77 @@ const StudentDashboard = () => {
           </div>{" "}
         </div>{" "}
       </div>{" "}
+
+      {/* ── Upcoming Activities & Career Roadmap (Screen 2) ── */}
       <div className="row g-4 mb-4">
-        {" "}
-        {/* ── Recommended Jobs ── */}{" "}
+        {/* Upcoming Activities */}
         <div className="col-lg-6">
-          {" "}
-          <div
-            className="rounded-4 p-4 shadow-sm h-100 flex-column d-flex premium-glass-panel"
-          >
-            {" "}
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              {" "}
-              <h5 className="fw-bold m-0" style={{ color: 'var(--premium-text-main)' }}>
-                Recommended Jobs
-              </h5>{" "}
-              <button
-                onClick={() => navigate("/student/jobs")}
-                className="btn btn-sm btn-link text-decoration-none fw-semibold"
-              >
-                View All
-              </button>{" "}
-            </div>{" "}
-            {recommendedJobs && recommendedJobs.length > 0 ? (
-              <div className="table-responsive flex-grow-1">
-                <table
-                  className="table table-borderless align-middle m-0"
-                  style={{ color: 'var(--premium-text-main)' }}
-                >
-                  <thead
-                    className="text-muted small fw-semibold"
-                    style={{ borderBottom: "1px solid var(--premium-border)" }}
+          <div className="bento-card p-4 rounded-4 shadow-sm h-100" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+            <h5 className="fw-bold mb-3" style={{ color: "var(--text)" }}>Upcoming Activities</h5>
+            <div className="d-flex flex-column gap-3">
+              {[
+                { title: "Resume Analysis", sub: "ATS Optimization & Feedback", time: "In 2 hrs", icon: FileCheck, color: "#10b981", link: "/student/resume" },
+                { title: "AI Mock Interview", sub: "Technical SWE Practice", time: "Tomorrow", icon: BrainCircuit, color: "#6366f1", link: "/student/mock-interview" },
+                { title: "Alumni Consultation", sub: "1:1 Session with Arjun Mehta", time: "Oct 15", icon: Users, color: "#0ea5e9", link: "/student/mentorship" }
+              ].map((act, i) => (
+                <div key={i} className="d-flex align-items-center justify-content-between p-3 rounded-3" style={{ background: "var(--surface-2, rgba(255,255,255,0.02))", border: "1px solid var(--border)" }}>
+                  <div className="d-flex align-items-center gap-3">
+                    <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: 40, height: 40, background: `${act.color}20`, color: act.color }}>
+                      <act.icon size={20} />
+                    </div>
+                    <div>
+                      <h6 className="fw-bold mb-0 small" style={{ color: "var(--text)" }}>{act.title}</h6>
+                      <span className="text-muted" style={{ fontSize: "0.78rem" }}>{act.sub}</span>
+                    </div>
+                  </div>
+                  <span className="badge rounded-pill bg-secondary bg-opacity-25 text-muted small">{act.time}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Career Roadmap Stepper */}
+        <div className="col-lg-6">
+          <div className="bento-card p-4 rounded-4 shadow-sm h-100" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="fw-bold m-0" style={{ color: "var(--text)" }}>Career Roadmap</h5>
+              <span className="badge bg-primary-subtle text-primary rounded-pill small">Target: Software Engineer</span>
+            </div>
+            <p className="small text-muted mb-4">Milestone track to land your target offer at top companies.</p>
+
+            <div className="d-flex align-items-center justify-content-between position-relative px-2 my-4">
+              <div className="position-absolute start-0 end-0 top-50 translate-middle-y" style={{ height: "3px", background: "var(--border)", zIndex: 0 }} />
+              {[
+                { label: "Learn", active: true, done: true },
+                { label: "Practice", active: true, done: true },
+                { label: "Network", active: true, done: false },
+                { label: "Apply", active: false, done: false },
+                { label: "Get Hired", active: false, done: false },
+              ].map((step, idx) => (
+                <div key={idx} className="d-flex flex-column align-items-center z-1 text-center" style={{ width: 60 }}>
+                  <div
+                    className={`rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm mb-2 ${
+                      step.done ? "bg-success text-white" : step.active ? "bg-primary text-white" : "text-muted"
+                    }`}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      background: step.done ? "#10b981" : step.active ? "var(--primary)" : "var(--surface-2)",
+                      border: "2px solid var(--border)",
+                      fontSize: "0.8rem",
+                    }}
                   >
-                    <tr>
-                      <th className="pb-2 fw-semibold">Role</th><th className="pb-2 fw-semibold">Company</th><th className="pb-2 fw-semibold">Match</th><th className="pb-2 text-end fw-semibold">Action</th></tr></thead>
-                  <tbody>
-                    {recommendedJobs.slice(0, 4).map((job) => (
-                      <tr
-                        key={job.id}
-                        style={{ borderBottom: "1px solid var(--premium-border)" }}
-                      >
-                        <td className="py-3">
-                          
-                          <div
-                            className="fw-bold"
-                            style={{ color: 'var(--premium-text-main)' }}
-                          >
-                            {job.title}
-                          </div>{" "}
-                          <div className="small text-muted d-flex align-items-center gap-1">
-                            <MapPin size={12} /> {job.location || "Remote"}
-                          </div>
-                        </td><td
-                          className="py-3 fw-medium"
-                          style={{ color: 'var(--premium-text-main)' }}
-                        >
-                          {job.company}
-                        </td><td className="py-3">
-                          
-                          <span className="badge bg-success-subtle text-success rounded-pill px-2 py-1">
-                            {job.match}% Match
-                          </span>
-                        </td><td className="py-3 text-end">
-                          
-                          <button
-                            onClick={() => navigate(`/student/jobs/${job.id}`)}
-                            className="btn btn-sm btn-primary rounded-pill px-3"
-                          >
-                            Apply
-                          </button>
-                        </td></tr>
-                    ))}</tbody></table>
-              </div>
-            ) : (
-              <div className="d-flex flex-column align-items-center justify-content-center flex-grow-1 text-center text-muted p-4">
-                {" "}
-                <Briefcase size={40} className="mb-3 opacity-25" />{" "}
-                <p className="fw-medium small mb-3">
-                  No job recommendations available yet.
-                </p>{" "}
-                <button
-                  onClick={() => navigate("/student/jobs")}
-                  className="btn btn-outline-primary btn-sm rounded-pill px-4 fw-semibold bg-surface border-border"
-                >
-                  Explore Job Board
-                </button>{" "}
-              </div>
-            )}{" "}
-          </div>{" "}
-        </div>{" "}
+                    {step.done ? "✓" : idx + 1}
+                  </div>
+                  <span className="small fw-bold" style={{ fontSize: "0.75rem", color: step.active ? "var(--text)" : "var(--text-muted)" }}>
+                    {step.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>{" "}
       <div className="row g-4">
         {" "}

@@ -7,11 +7,21 @@ export const getPosts = async (req, res, next) => {
     
     let query = { status: 'Active' };
     
-    if (search) query.$text = { $search: search };
-    if (tag) query.tags = tag;
+    if (search && search.trim()) {
+      const escaped = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.$or = [
+        { title: { $regex: escaped, $options: 'i' } },
+        { content: { $regex: escaped, $options: 'i' } },
+        { tags: { $regex: escaped, $options: 'i' } }
+      ];
+    }
+    if (tag && tag.trim()) {
+      query.tags = { $in: [new RegExp(`^${tag.trim().replace(/^#/, '')}$`, 'i')] };
+    }
 
     const posts = await Post.find(query)
       .populate('author', 'name role avatar')
+      .populate('comments.author', 'name role avatar')
       .sort({ isPinned: -1, createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
@@ -33,17 +43,28 @@ export const getPosts = async (req, res, next) => {
 
 export const createPost = async (req, res, next) => {
   try {
-    const { title, content, tags } = req.body;
+    let { title, content, tags } = req.body;
+
+    if (typeof tags === 'string') {
+      tags = tags.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean);
+    } else if (Array.isArray(tags)) {
+      tags = tags.map(t => String(t).trim().replace(/^#/, '')).filter(Boolean);
+    } else {
+      tags = [];
+    }
 
     const post = await Post.create({
       author: req.user.id,
-      title,
-      content,
+      title: title?.trim(),
+      content: content?.trim(),
       tags
     });
     
     // Populate author so frontend can display name/avatar immediately
-    const populatedPost = await Post.findById(post._id).populate('author', 'name role avatar').lean();
+    const populatedPost = await Post.findById(post._id)
+      .populate('author', 'name role avatar')
+      .populate('comments.author', 'name role avatar')
+      .lean();
 
     const io = req.app.get('io');
     if (io) {
@@ -84,24 +105,32 @@ export const toggleLikePost = async (req, res, next) => {
 export const addComment = async (req, res, next) => {
   try {
     const { content } = req.body;
+    if (!content || !content.trim()) {
+      return res.status(400).json({ success: false, message: 'Comment content cannot be empty' });
+    }
     
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
 
     post.comments.push({
       author: req.user.id,
-      content
+      content: content.trim()
     });
 
     await post.save();
     
-    const newComment = post.comments[post.comments.length - 1];
+    const updatedPost = await Post.findById(post._id)
+      .populate('author', 'name role avatar')
+      .populate('comments.author', 'name role avatar')
+      .lean();
+
+    const newComment = updatedPost.comments[updatedPost.comments.length - 1];
     const io = req.app.get('io');
     if (io) {
       io.emit('new_comment', { postId: post._id, comment: newComment });
     }
 
-    res.status(201).json({ success: true, data: newComment });
+    res.status(201).json({ success: true, data: newComment, post: updatedPost });
   } catch (error) {
     next(error);
   }

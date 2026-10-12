@@ -3,10 +3,12 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Menu, X } from "lucide-react";
 const NAV_LINKS = [
-  { label: "Features", href: "/#features", isHash: true },
+  { label: "Home", to: "/" },
   { label: "About", to: "/about" },
+  { label: "Features", href: "/#features", isHash: true },
+  { label: "Alumni", to: "/alumni/directory" },
+  { label: "Recruiters", to: "/placement/dashboard" },
   { label: "Contact", to: "/contact" },
-  { label: "FAQ", to: "/faq" },
 ];
 import { useTheme } from "../context/ThemeContext.jsx";
 const PublicLayout = () => {
@@ -74,27 +76,43 @@ const PublicLayout = () => {
       {/* ── Navbar ─────────────────────────────── */}
       <nav className="public-navbar fixed-top" style={{
           background: scrolled ? "var(--surface)" : "var(--bg)",
-          backdropFilter: scrolled ? "blur(10px)" : "none",
+          backdropFilter: scrolled ? "blur(12px)" : "none",
           borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
           transition: "all 0.3s ease",
           zIndex: 1030,
         }}>
-        <div className="container d-flex align-items-center h-100" style={{ height: "68px" }}>
+        <div className="container d-flex align-items-center h-100" style={{ height: "72px" }}>
+          {/* Master UI Brand: Blue Icon Box + NEXORA */}
           <Link
             to="/"
-            className="fw-black"
-            style={{
-              fontSize: "1.6rem",
-              textDecoration: "none",
-              letterSpacing: "-0.05em",
-              color: "var(--text)",
-            }}
+            className="d-flex align-items-center gap-2 text-decoration-none"
           >
-            Nexora Campus
+            <div
+              className="d-flex align-items-center justify-content-center text-white fw-black rounded-3 shadow-sm"
+              style={{
+                width: 38,
+                height: 38,
+                background: "linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)",
+                fontSize: "1.25rem",
+                letterSpacing: "-0.03em"
+              }}
+            >
+              N
+            </div>
+            <span
+              className="fw-black tracking-tight"
+              style={{
+                fontSize: "1.45rem",
+                color: "var(--text)",
+                letterSpacing: "0.02em"
+              }}
+            >
+              NEXORA
+            </span>
           </Link>
 
           {/* Desktop links */}
-          <div className="d-none d-md-flex align-items-center gap-2 mx-auto">
+          <div className="d-none d-md-flex align-items-center gap-1 mx-auto">
             {NAV_LINKS.map((link) =>
               link.to ? (
                 <Link
@@ -105,7 +123,8 @@ const PublicLayout = () => {
                     padding: "8px 16px",
                     borderRadius: 99,
                     color: location.pathname === link.to ? "var(--primary)" : "var(--text-secondary)",
-                    textDecoration: "none"
+                    textDecoration: "none",
+                    fontSize: "0.92rem"
                   }}
                 >
                   {link.label}
@@ -121,7 +140,8 @@ const PublicLayout = () => {
                     borderRadius: 99,
                     color: "var(--text-secondary)",
                     textDecoration: "none",
-                    cursor: "pointer"
+                    cursor: "pointer",
+                    fontSize: "0.92rem"
                   }}
                 >
                   {link.label}
@@ -130,17 +150,18 @@ const PublicLayout = () => {
             )}
           </div>
 
-          <div className="d-flex align-items-center gap-3 ms-auto">
+          <div className="d-flex align-items-center gap-2 ms-auto">
             <button
               className="btn btn-link p-0 d-none d-md-flex align-items-center justify-content-center hover-scale"
               onClick={toggleTheme}
+              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
               style={{
                 transition: "color 0.2s",
                 color: "var(--text-secondary)",
-                width: 36,
-                height: 36,
+                width: 38,
+                height: 38,
                 borderRadius: "50%",
-                background: "var(--bg-secondary)",
+                background: "var(--surface-2, rgba(255,255,255,0.05))",
                 border: "1px solid var(--border)",
               }}
             >
@@ -148,15 +169,24 @@ const PublicLayout = () => {
             </button>
             <Link
               to="/login"
-              className="btn btn-link text-decoration-none fw-bold d-none d-md-block"
-              style={{ fontSize: "0.9rem", color: "var(--text)" }}
+              className="btn rounded-pill px-4 py-2 fw-bold text-decoration-none d-none d-md-inline-flex align-items-center justify-content-center transition-fast"
+              style={{
+                fontSize: "0.9rem",
+                color: "var(--text)",
+                border: "1px solid var(--border)",
+                background: "transparent"
+              }}
             >
-              Sign In
+              Login
             </Link>
             <Link
               to="/login"
-              className="btn btn-primary rounded-pill px-4 fw-bold shadow-sm hover-scale"
-              style={{ fontSize: "0.9rem" }}
+              className="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm hover-scale d-inline-flex align-items-center justify-content-center text-white"
+              style={{
+                fontSize: "0.9rem",
+                background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
+                border: "none"
+              }}
             >
               Get Started
             </Link>

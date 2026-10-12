@@ -108,60 +108,68 @@ export default function AskAlumni() {
       ) : (
         <div className="row g-4">
           {filteredAlumni.length > 0 ? (
-            filteredAlumni.map((alum) => (
-              <motion.div key={alum._id} className="col-md-6 col-lg-4" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                <div className="bento-card p-4 h-100 hover-glow d-flex flex-column" style={{ borderColor: "var(--border)" }}>
-                  <div className="d-flex align-items-center gap-3 mb-4">
-                    <img
-                      src={`https://ui-avatars.com/api/?name=${alum.user?.name}&background=random&color=fff`}
-                      alt="Avatar"
-                      className="rounded-circle border"
-                      style={{ width: 56, height: 56, borderColor: "var(--border)" }}
-                    />
-                    <div>
-                      <h6 className="fw-bold mb-0">{alum.user?.name}</h6>
-                      <p className="text-primary small fw-semibold mb-0 d-flex align-items-center gap-1">
-                        <Building size={12} /> {alum.currentRole} @ {alum.companyName}
-                      </p>
-                    </div>
-                  </div>
+            filteredAlumni.map((alum) => {
+              const alumName = alum.name || alum.user?.name || "Alumni Mentor";
+              const alumCompany = alum.company || alum.companyName || "Tech Industry";
+              const alumRole = alum.title || alum.currentRole || "Engineer";
+              const isMentorshipAvail = alum.mentorshipAvailable ?? alum.availableForMentorship ?? true;
+              const avatarSrc = alum.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(alumName)}&background=random&color=fff`;
 
-                  <div className="mb-4 flex-grow-1">
-                    <p className="small text-muted mb-2 d-flex align-items-center gap-2">
-                      <MapPin size={14} /> {alum.location || "Remote"}
-                    </p>
-                    <p className="small text-muted mb-2 d-flex align-items-center gap-2">
-                      <GraduationCap size={14} /> Class of {alum.graduationYear}
-                    </p>
-                    {alum.expertise?.length > 0 && (
-                      <div className="d-flex flex-wrap gap-1 mt-3">
-                        {alum.expertise.map((skill, idx) => (
-                          <span key={idx} className="badge bg-secondary-subtle text-secondary border border-secondary-subtle fw-semibold px-2 py-1">
-                            {skill}
-                          </span>
-                        ))}
+              return (
+                <motion.div key={alum._id || alum.id} className="col-md-6 col-lg-4" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+                  <div className="bento-card p-4 h-100 hover-glow d-flex flex-column" style={{ borderColor: "var(--border)" }}>
+                    <div className="d-flex align-items-center gap-3 mb-4">
+                      <img
+                        src={avatarSrc}
+                        alt="Avatar"
+                        className="rounded-circle border"
+                        style={{ width: 56, height: 56, borderColor: "var(--border)", objectFit: "cover" }}
+                      />
+                      <div>
+                        <h6 className="fw-bold mb-0">{alumName}</h6>
+                        <p className="text-primary small fw-semibold mb-0 d-flex align-items-center gap-1">
+                          <Building size={12} /> {alumRole} @ {alumCompany}
+                        </p>
                       </div>
-                    )}
-                  </div>
+                    </div>
 
-                  <button
-                    onClick={() => setBookingFor(alum)}
-                    disabled={!alum.availableForMentorship}
-                    className={`btn w-100 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm ${alum.availableForMentorship ? "btn-primary hover-scale" : "btn-light text-muted"}`}
-                  >
-                    {alum.availableForMentorship ? (
-                      <>
-                        <MessageSquare size={16} /> Request Mentorship
-                      </>
-                    ) : (
-                      <>
-                        <Clock size={16} /> Currently Unavailable
-                      </>
-                    )}
-                  </button>
-                </div>
-              </motion.div>
-            ))
+                    <div className="mb-4 flex-grow-1">
+                      <p className="small text-muted mb-2 d-flex align-items-center gap-2">
+                        <MapPin size={14} /> {alum.location || "Remote"}
+                      </p>
+                      <p className="small text-muted mb-2 d-flex align-items-center gap-2">
+                        <GraduationCap size={14} /> Class of {alum.graduationYear || "Alumni"}
+                      </p>
+                      {alum.expertise?.length > 0 && (
+                        <div className="d-flex flex-wrap gap-1 mt-3">
+                          {alum.expertise.map((skill, idx) => (
+                            <span key={idx} className="badge bg-secondary-subtle text-secondary border border-secondary-subtle fw-semibold px-2 py-1">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => setBookingFor(alum)}
+                      disabled={!isMentorshipAvail}
+                      className={`btn w-100 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm ${isMentorshipAvail ? "btn-primary hover-scale" : "btn-light text-muted"}`}
+                    >
+                      {isMentorshipAvail ? (
+                        <>
+                          <MessageSquare size={16} /> Request Mentorship
+                        </>
+                      ) : (
+                        <>
+                          <Clock size={16} /> Currently Unavailable
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })
           ) : (
             <div className="col-12 text-center py-5">
               <GraduationCap size={48} className="text-muted mb-3 opacity-50" />

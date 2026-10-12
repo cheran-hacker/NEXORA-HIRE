@@ -267,13 +267,15 @@ export const hiringDriveService = {
 };
 
 
-// ─── Community Services ────────────────────────────────────────────────────────
+// ─── Community / Post Services ─────────────────────────────────────────────────
 export const communityService = {
   getPosts: (params) => api.get('/posts', { params }),
   createPost: (data) => api.post('/posts', data),
   toggleLike: (id) => api.put(`/posts/${id}/like`),
-  addComment: (id, content) => api.post(`/posts/${id}/comments`, { content })
+  addComment: (id, data) => api.post(`/posts/${id}/comments`, typeof data === 'string' ? { content: data } : data)
 };
+
+export const postService = communityService;
 
 // ─── Swipe Match Services ────────────────────────────────────────────────────────
 export const swipeService = {

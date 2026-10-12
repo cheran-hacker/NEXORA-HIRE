@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5.97% </span>
+                <span class="strong">6.16% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/134</span>
+                <span class='fraction'>9/146</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/152</span>
+                <span class='fraction'>0/154</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>0/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.1% </span>
+                <span class="strong">6.33% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/131</span>
+                <span class='fraction'>9/142</span>
             </div>
         
             
@@ -379,7 +379,27 @@
 <a name='L314'></a><a href='#L314'>314</a>
 <a name='L315'></a><a href='#L315'>315</a>
 <a name='L316'></a><a href='#L316'>316</a>
-<a name='L317'></a><a href='#L317'>317</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L317'></a><a href='#L317'>317</a>
+<a name='L318'></a><a href='#L318'>318</a>
+<a name='L319'></a><a href='#L319'>319</a>
+<a name='L320'></a><a href='#L320'>320</a>
+<a name='L321'></a><a href='#L321'>321</a>
+<a name='L322'></a><a href='#L322'>322</a>
+<a name='L323'></a><a href='#L323'>323</a>
+<a name='L324'></a><a href='#L324'>324</a>
+<a name='L325'></a><a href='#L325'>325</a>
+<a name='L326'></a><a href='#L326'>326</a>
+<a name='L327'></a><a href='#L327'>327</a>
+<a name='L328'></a><a href='#L328'>328</a>
+<a name='L329'></a><a href='#L329'>329</a>
+<a name='L330'></a><a href='#L330'>330</a>
+<a name='L331'></a><a href='#L331'>331</a>
+<a name='L332'></a><a href='#L332'>332</a>
+<a name='L333'></a><a href='#L333'>333</a>
+<a name='L334'></a><a href='#L334'>334</a>
+<a name='L335'></a><a href='#L335'>335</a>
+<a name='L336'></a><a href='#L336'>336</a>
+<a name='L337'></a><a href='#L337'>337</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -457,6 +477,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -686,6 +710,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -693,6 +721,18 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import crypto from 'crypto';
@@ -772,12 +812,16 @@ export const inviteAlumni = <span class="fstat-no" title="function not covered" 
     };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (isEmailConfigured()) {</span>
-<span class="cstat-no" title="statement not covered" >      await getTransporter().sendMail(mailOptions);</span>
+<span class="cstat-no" title="statement not covered" >      try {</span>
+<span class="cstat-no" title="statement not covered" >        await getTransporter().sendMail(mailOptions);</span>
+      } catch (emailErr) {
+<span class="cstat-no" title="statement not covered" >        console.error('Email failed to send but Invitation was created. Link:', invitationLink, emailErr);</span>
+      }
     } else {
 <span class="cstat-no" title="statement not covered" >      console.log('⚠️ Email not configured (GMAIL_EMAIL/GMAIL_APP_PASSWORD missing). Invitation link:', invitationLink);</span>
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    res.status(200).json({ success: true, message: 'Invitation sent', data: invitation });</span>
+<span class="cstat-no" title="statement not covered" >    res.status(200).json({ success: true, message: 'Invitation processed', data: invitation, link: invitationLink });</span>
   } catch (error) {
 <span class="cstat-no" title="statement not covered" >    res.status(500).json({ success: false, message: error.message });</span>
   }
@@ -1000,8 +1044,12 @@ export const approveAlumni = <span class="fstat-no" title="function not covered"
       `
     };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (process.env.EMAIL_USER &amp;&amp; process.env.EMAIL_PASSWORD) {</span>
-<span class="cstat-no" title="statement not covered" >      await getTransporter().sendMail(mailOptions);</span>
+<span class="cstat-no" title="statement not covered" >    if (process.env.EMAIL_USER || process.env.GMAIL_EMAIL) {</span>
+<span class="cstat-no" title="statement not covered" >      try {</span>
+<span class="cstat-no" title="statement not covered" >        await getTransporter().sendMail(mailOptions);</span>
+      } catch (emailErr) {
+<span class="cstat-no" title="statement not covered" >        console.error('Activation Email failed to send but user was approved. Link:', activationLink, emailErr);</span>
+      }
     } else {
 <span class="cstat-no" title="statement not covered" >      console.log('Skipping real activation email because EMAIL_USER is not configured. Link:', activationLink);</span>
     }
@@ -1011,6 +1059,18 @@ export const approveAlumni = <span class="fstat-no" title="function not covered"
 <span class="cstat-no" title="statement not covered" >    res.status(500).json({ success: false, message: error.message });</span>
   }
 };
+&nbsp;
+export const deleteInvitation = <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
+<span class="cstat-no" title="statement not covered" >  try {</span>
+    const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
+    const inv = <span class="cstat-no" title="statement not covered" >await AlumniInvitation.findByIdAndDelete(id);</span>
+<span class="cstat-no" title="statement not covered" >    if (!inv) <span class="cstat-no" title="statement not covered" >return res.status(404).json({ success: false, message: 'Invitation not found' });</span></span>
+<span class="cstat-no" title="statement not covered" >    res.json({ success: true, message: 'Invitation deleted successfully' });</span>
+  } catch (error) {
+<span class="cstat-no" title="statement not covered" >    res.status(500).json({ success: false, message: error.message });</span>
+  }
+};
+&nbsp;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -1018,7 +1078,7 @@ export const approveAlumni = <span class="fstat-no" title="function not covered"
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-09-29T05:32:08.754Z
+                at 2026-10-12T15:29:14.875Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

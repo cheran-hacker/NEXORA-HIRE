@@ -4,11 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight, Sparkles, Network, Briefcase, Shield, CheckCircle2,
   FileText, BrainCircuit, Users, Target, BarChart3, ChevronDown, Rocket, Layout,
-  Layers, MessagesSquare, Lightbulb, GraduationCap, Map, Cpu, Zap, Activity, UserCheck
+  Layers, MessagesSquare, Lightbulb, GraduationCap, Map, Cpu, Zap, Activity, UserCheck,
+  PlayCircle, X, Check
 } from "lucide-react";
 
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState(0);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   // Simplified and guaranteed visible variants
   const fadeIn = {
@@ -44,91 +46,293 @@ export default function Landing() {
   return (
     <div style={{ background: "var(--bg)", minHeight: "100dvh", overflowX: "hidden" }}>
       
-      {/* ── 1. HERO SECTION ─────────────────────────────── */}
-      <section className="position-relative d-flex align-items-center" style={{ paddingTop: "140px", paddingBottom: "100px", minHeight: "90vh" }}>
-        <div className="position-absolute rounded-circle" style={{ top: "10%", left: "20%", width: "50vw", height: "50vw", background: "radial-gradient(circle, rgba(var(--primary-rgb), 0.12) 0%, transparent 60%)", filter: "blur(80px)", zIndex: 0, pointerEvents: "none" }}></div>
+      {/* ── 1. HERO SECTION (MASTER UI PREVIEW 100% FIDELITY) ─────────────────── */}
+      <section className="position-relative d-flex align-items-center" style={{ paddingTop: "120px", paddingBottom: "70px", minHeight: "92vh" }}>
+        {/* Ambient atmospheric backdrop */}
+        <div className="position-absolute rounded-circle" style={{ top: "5%", left: "15%", width: "45vw", height: "45vw", background: "radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 65%)", filter: "blur(90px)", zIndex: 0, pointerEvents: "none" }}></div>
+        <div className="position-absolute rounded-circle" style={{ top: "20%", right: "10%", width: "40vw", height: "40vw", background: "radial-gradient(circle, rgba(147, 51, 234, 0.12) 0%, transparent 65%)", filter: "blur(90px)", zIndex: 0, pointerEvents: "none" }}></div>
         
         <div className="container position-relative z-1">
           <div className="row align-items-center g-5">
-            {/* HERO CONTENT: Animate immediately on load */}
+            {/* HERO LEFT COLUMN */}
             <motion.div 
               className="col-lg-6"
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
-              <div className="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill mb-4" style={{ background: "rgba(var(--primary-rgb), 0.1)", border: "1px solid rgba(var(--primary-rgb), 0.2)", color: "var(--primary)", fontWeight: "700", fontSize: "0.85rem" }}>
-                <Sparkles size={16} /> AI-POWERED STUDENT SUCCESS ECOSYSTEM
+              <div className="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-4" style={{ background: "rgba(37, 99, 235, 0.08)", border: "1px solid rgba(37, 99, 235, 0.2)", color: "var(--primary)", fontWeight: "700", fontSize: "0.82rem" }}>
+                <Sparkles size={15} /> NEXORA CAREER ECOSYSTEM
               </div>
-              <h1 className="fw-black mb-4" style={{ fontSize: "clamp(2.5rem, 5vw, 4.5rem)", lineHeight: "1.1", letterSpacing: "-0.03em", color: "var(--text)" }}>
-                Build Your Career.<br/>
-                Discover Your Potential.<br/>
-                <span style={{ background: "linear-gradient(to right, var(--primary), var(--secondary))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Shape Your Future.</span>
+
+              {/* Exact Master UI Headline */}
+              <h1 className="fw-black mb-3" style={{ fontSize: "clamp(2.7rem, 5.2vw, 4.4rem)", lineHeight: "1.08", letterSpacing: "-0.035em", color: "var(--text)" }}>
+                Your Career<br />
+                Journey Starts<br />
+                Here
               </h1>
-              <p className="mb-5" style={{ fontSize: "1.1rem", color: "var(--text)", opacity: 0.8, maxWidth: "550px", lineHeight: "1.6" }}>
-                One intelligent ecosystem connecting students, alumni, placement teams and career opportunities through personalized skills, assessments, guidance and recruitment.
+
+              {/* Exact Master UI Subtitle */}
+              <p className="mb-4" style={{ fontSize: "1.15rem", color: "var(--text-secondary)", maxWidth: "520px", lineHeight: "1.6" }}>
+                AI-powered career guidance, alumni mentorship, and placement opportunities — all in one platform.
               </p>
-              <div className="d-flex flex-wrap gap-3">
-                <Link to="/login" className="btn btn-primary btn-lg fw-bold rounded-pill px-5 d-flex align-items-center gap-2 hover-scale">
-                  Get Started <ArrowRight size={20} />
+
+              {/* CTA Action Buttons */}
+              <div className="d-flex flex-wrap align-items-center gap-3 mb-5">
+                <Link
+                  to="/login"
+                  className="btn btn-primary rounded-pill px-5 py-3 fw-bold d-flex align-items-center gap-2 shadow-lg hover-scale text-white"
+                  style={{
+                    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
+                    border: "none",
+                    fontSize: "1.02rem"
+                  }}
+                >
+                  Get Started
                 </Link>
-                <a href="#features" className="btn btn-outline-secondary btn-lg fw-bold rounded-pill px-5 hover-scale" style={{ color: "var(--text)", borderColor: "var(--border)" }}>
-                  Explore Platform
-                </a>
+
+                <button
+                  type="button"
+                  onClick={() => setShowVideoModal(true)}
+                  className="btn rounded-pill px-4 py-3 fw-bold d-flex align-items-center gap-2 transition-fast hover-lift"
+                  style={{
+                    border: "1px solid var(--border)",
+                    background: "var(--surface)",
+                    color: "var(--text)",
+                    fontSize: "1.02rem"
+                  }}
+                >
+                  <PlayCircle size={22} className="text-primary" />
+                  <span>Watch Video</span>
+                </button>
+              </div>
+
+              {/* Key Metrics Counter Strip (Matches Screen 1 bottom-left) */}
+              <div className="d-flex flex-wrap align-items-center gap-4 gap-md-5 pt-3 border-top" style={{ borderColor: "var(--border)" }}>
+                <div>
+                  <div className="fw-black mb-0 text-primary" style={{ fontSize: "1.85rem", letterSpacing: "-0.03em" }}>10K+</div>
+                  <div className="small fw-semibold text-muted">Students</div>
+                </div>
+                <div>
+                  <div className="fw-black mb-0 text-primary" style={{ fontSize: "1.85rem", letterSpacing: "-0.03em" }}>5K+</div>
+                  <div className="small fw-semibold text-muted">Alumni</div>
+                </div>
+                <div>
+                  <div className="fw-black mb-0 text-primary" style={{ fontSize: "1.85rem", letterSpacing: "-0.03em" }}>500+</div>
+                  <div className="small fw-semibold text-muted">Companies</div>
+                </div>
+                <div>
+                  <div className="fw-black mb-0 text-primary" style={{ fontSize: "1.85rem", letterSpacing: "-0.03em" }}>95%</div>
+                  <div className="small fw-semibold text-muted">Placement Rate</div>
+                </div>
               </div>
             </motion.div>
             
-            {/* HERO VISUAL DASHBOARD: Animate immediately on load */}
+            {/* HERO RIGHT COLUMN (Matches Screen 1 Visual with Student Portrait & Floating Glass Cards) */}
             <motion.div 
-              className="col-lg-6 d-none d-lg-block"
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+              className="col-lg-6"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
             >
-              <div className="position-relative w-100 rounded-4 p-4 shadow-lg" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-                <div className="d-flex align-items-center gap-2 mb-4 border-bottom pb-3" style={{ borderColor: "var(--border) !important" }}>
-                  <div className="rounded-circle bg-danger" style={{width: 12, height: 12}}></div>
-                  <div className="rounded-circle bg-warning" style={{width: 12, height: 12}}></div>
-                  <div className="rounded-circle bg-success" style={{width: 12, height: 12}}></div>
-                  <span className="ms-2 fw-medium text-muted" style={{fontSize: "0.85rem"}}>Premium Student Career Intelligence</span>
+              <div className="position-relative mx-auto" style={{ maxWidth: "540px" }}>
+                {/* Circular soft aura glow */}
+                <div
+                  className="position-absolute rounded-circle"
+                  style={{
+                    inset: "-30px",
+                    background: "radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, rgba(147, 51, 234, 0.12) 50%, transparent 75%)",
+                    filter: "blur(40px)",
+                    zIndex: 0
+                  }}
+                />
+
+                {/* Main Hero Student Portrait */}
+                <div
+                  className="position-relative rounded-5 overflow-hidden shadow-2xl z-1"
+                  style={{
+                    border: "3px solid rgba(255, 255, 255, 0.4)",
+                    background: "var(--surface)",
+                  }}
+                >
+                  <img
+                    src="/hero-student.jpg"
+                    alt="Nexora University Student"
+                    className="w-100 h-auto object-cover d-block"
+                    style={{ maxHeight: "560px" }}
+                  />
                 </div>
-                
-                <div className="row g-3">
-                  <div className="col-12">
-                    <div className="p-3 rounded-3" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}>
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <span className="fw-semibold text-muted" style={{fontSize: "0.9rem"}}><Activity size={16} className="me-2 text-primary"/> Career Readiness</span>
-                        <span className="fw-bold text-success">85% High</span>
-                      </div>
-                      <div className="progress" style={{ height: "8px", background: "var(--bg)" }}>
-                        <div className="progress-bar bg-success" style={{ width: "85%" }}></div>
-                      </div>
-                    </div>
+
+                {/* Floating Badge 1: Alumni Mentor (Middle Left) */}
+                <motion.div
+                  initial={{ y: 0 }}
+                  animate={{ y: [-4, 4, -4] }}
+                  transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }}
+                  className="position-absolute d-flex align-items-center gap-3 p-3 rounded-4 shadow-lg z-2"
+                  style={{
+                    bottom: "28%",
+                    left: "-30px",
+                    background: "rgba(255, 255, 255, 0.92)",
+                    backdropFilter: "blur(14px)",
+                    border: "1px solid rgba(255, 255, 255, 0.8)",
+                    color: "#1e293b",
+                    minWidth: "220px"
+                  }}
+                >
+                  <div
+                    className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+                    style={{ width: 44, height: 44, background: "linear-gradient(135deg, #10b981 0%, #059669 100%)" }}
+                  >
+                    <UserCheck size={22} />
                   </div>
-                  <div className="col-6">
-                    <div className="p-3 rounded-3 h-100" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}>
-                      <span className="d-block fw-semibold text-muted mb-1" style={{fontSize: "0.85rem"}}>Target Role</span>
-                      <span className="fw-bold" style={{color: "var(--text)"}}>Frontend Engineer</span>
-                      <div className="mt-3 d-flex align-items-center gap-2 text-primary fw-medium" style={{fontSize: "0.85rem"}}>
-                        <Target size={16} /> 92% Skill Match
-                      </div>
-                    </div>
+                  <div>
+                    <h6 className="fw-black mb-0" style={{ fontSize: "0.92rem", color: "#0f172a" }}>Alumni Mentor</h6>
+                    <span className="small text-muted" style={{ fontSize: "0.78rem" }}>Top Tech Companies</span>
                   </div>
-                  <div className="col-6">
-                    <div className="p-3 rounded-3 h-100" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}>
-                      <span className="d-block fw-semibold text-muted mb-1" style={{fontSize: "0.85rem"}}>Alumni Connection</span>
-                      <span className="fw-bold" style={{color: "var(--text)"}}>3 Mentors Available</span>
-                      <div className="mt-3 d-flex align-items-center gap-2 text-info fw-medium" style={{fontSize: "0.85rem"}}>
-                        <Users size={16} /> Book Session
-                      </div>
-                    </div>
+                </motion.div>
+
+                {/* Floating Badge 2: 87% Match Score (Top Right / Edge) */}
+                <motion.div
+                  initial={{ y: 0 }}
+                  animate={{ y: [4, -4, 4] }}
+                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                  className="position-absolute p-3 rounded-4 shadow-lg z-2"
+                  style={{
+                    top: "35%",
+                    right: "-25px",
+                    background: "rgba(255, 255, 255, 0.94)",
+                    backdropFilter: "blur(14px)",
+                    border: "1px solid rgba(255, 255, 255, 0.8)",
+                    color: "#1e293b",
+                    minWidth: "160px"
+                  }}
+                >
+                  <div className="d-flex align-items-center justify-content-between mb-1.5">
+                    <span className="small fw-bold text-muted" style={{ fontSize: "0.75rem" }}>Role Match</span>
+                    <span className="badge rounded-pill bg-success-subtle text-success fw-black" style={{ fontSize: "0.82rem" }}>
+                      87%
+                    </span>
                   </div>
-                </div>
+                  <div className="progress" style={{ height: "6px", background: "rgba(0,0,0,0.06)" }}>
+                    <div className="progress-bar bg-success" style={{ width: "87%" }}></div>
+                  </div>
+                </motion.div>
+
+                {/* Floating Brand Badges (Micro Bubbles) */}
+                <motion.div
+                  initial={{ scale: 1 }}
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
+                  className="position-absolute rounded-circle shadow-md d-flex align-items-center justify-content-center z-2"
+                  style={{
+                    top: "12%",
+                    left: "-12px",
+                    width: 46,
+                    height: 46,
+                    background: "#ffffff",
+                    border: "1px solid rgba(0,0,0,0.06)",
+                    fontSize: "1.2rem"
+                  }}
+                  title="Cloud & Enterprise Network"
+                >
+                  💼
+                </motion.div>
+
+                <motion.div
+                  initial={{ scale: 1 }}
+                  animate={{ scale: [1.05, 1, 1.05] }}
+                  transition={{ repeat: Infinity, duration: 3.8, ease: "easeInOut" }}
+                  className="position-absolute rounded-circle shadow-md d-flex align-items-center justify-content-center z-2"
+                  style={{
+                    bottom: "8%",
+                    right: "15px",
+                    width: 48,
+                    height: 48,
+                    background: "#ffffff",
+                    border: "1px solid rgba(0,0,0,0.06)",
+                    fontSize: "1.2rem"
+                  }}
+                  title="AI Assessments & Guidance"
+                >
+                  🚀
+                </motion.div>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
+
+      {/* Video Walkthrough Modal */}
+      <AnimatePresence>
+        {showVideoModal && (
+          <div
+            className="position-fixed inset-0 d-flex align-items-center justify-content-center p-3"
+            style={{
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(8px)",
+              zIndex: 9999
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              className="bento-card p-4 rounded-4 shadow-2xl position-relative w-100"
+              style={{
+                maxWidth: "760px",
+                background: "var(--surface)",
+                border: "1px solid var(--border)"
+              }}
+            >
+              <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style={{ borderColor: "var(--border)" }}>
+                <div className="d-flex align-items-center gap-2">
+                  <PlayCircle size={22} className="text-primary" />
+                  <h5 className="fw-bold mb-0" style={{ color: "var(--text)" }}>Nexora Platform Overview</h5>
+                </div>
+                <button
+                  onClick={() => setShowVideoModal(false)}
+                  className="btn btn-sm btn-link text-muted p-1"
+                  style={{ textDecoration: "none" }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-4 rounded-3 text-center my-3" style={{ background: "var(--surface-2, rgba(0,0,0,0.04))", border: "1px dashed var(--border)" }}>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 text-primary"
+                  style={{ width: 68, height: 68, background: "rgba(var(--primary-rgb), 0.1)" }}
+                >
+                  <Rocket size={36} />
+                </div>
+                <h5 className="fw-bold mb-2" style={{ color: "var(--text)" }}>Experience NEXORA Firsthand</h5>
+                <p className="text-muted small mb-4" style={{ maxWidth: "480px", margin: "0 auto" }}>
+                  Take a guided tour through personalized career readiness, AI skill gap analysis, alumni 1-on-1 mentorship, and streamlined campus placement workflows.
+                </p>
+                <div className="d-flex justify-content-center gap-3">
+                  <Link
+                    to="/login"
+                    onClick={() => setShowVideoModal(false)}
+                    className="btn btn-primary rounded-pill px-4 fw-bold"
+                  >
+                    Launch Live Interactive Demo
+                  </Link>
+                  <button
+                    onClick={() => setShowVideoModal(false)}
+                    className="btn btn-outline-secondary rounded-pill px-4 fw-bold"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ── 2. TRUST / VALUE STRIP ─────────────────────────────── */}
       <section className="py-4 border-top border-bottom" style={{ borderColor: "var(--border) !important", background: "var(--surface-2)" }}>
