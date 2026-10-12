@@ -410,7 +410,7 @@
   z-index: calc(var(--z-sidebar) - 1);
   backdrop-filter: blur(4px);
 }
-@media (max-width: 768px) {
+@media (max-width: 991px) {
   .sidebar-overlay.show { display: block; }
 }
 

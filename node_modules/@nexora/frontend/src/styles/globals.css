@@ -338,6 +338,16 @@ img { max-width: 100%; display: block; }
 .cursor-pointer { cursor: pointer; }
 .overflow-hidden { overflow: hidden; }
 
+.hover-bg-subtle {
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+.hover-bg-subtle:hover {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text) !important;
+}
+
+.text-foreground { color: var(--text) !important; }
+
 /* =========================================
    ANIMATION CLASSES
    ========================================= */

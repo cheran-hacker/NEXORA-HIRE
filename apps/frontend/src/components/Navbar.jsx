@@ -21,9 +21,10 @@ import { useNavigate } from "react-router-dom";
 import { notificationService } from "../services/api.js";
 import { useTheme } from "../context/ThemeContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { getAvatarUrl, handleImageError } from "../utils/avatar.js";
 export default function Navbar({ pageTitle, user, onToggleSidebar }) {
   const navigate = useNavigate();
-  const { theme, setTheme, toggleTheme } = useTheme();
+  const { theme, actualTheme, setTheme, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -99,16 +100,13 @@ export default function Navbar({ pageTitle, user, onToggleSidebar }) {
           <button
             className="navbar-icon-btn"
             onClick={toggleTheme}
-            title="Toggle Theme"
+            title={`Switch to ${actualTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
           >
-            {" "}
-            {theme === "light" ? (
+            {actualTheme === "dark" ? (
               <Sun size={20} style={{ color: "var(--text-muted)" }} />
-            ) : theme === "dark" ? (
-              <Moon size={20} style={{ color: "var(--text-muted)" }} />
             ) : (
-              <Monitor size={20} style={{ color: "var(--text-muted)" }} />
-            )}{" "}
+              <Moon size={20} style={{ color: "var(--text-muted)" }} />
+            )}
           </button>{" "}
         </div>{" "}
         <button
@@ -245,18 +243,12 @@ export default function Navbar({ pageTitle, user, onToggleSidebar }) {
                 height: "32px",
               }}
             >
-              {" "}
-              {user?.avatar || user?.avatarUrl ? (
-                <img
-                  src={(user.avatar?.includes(" ") ? encodeURI(user.avatar) : user.avatar) || (user.avatarUrl?.includes(" ") ? encodeURI(user.avatarUrl) : user.avatarUrl)}
-                  alt="Avatar"
-                  className="w-100 h-100 object-fit-cover"
-                />
-              ) : (
-                <div className="d-flex align-items-center justify-content-center w-100 h-100 fw-bold">
-                  {user?.name?.charAt(0) || "U"}
-                </div>
-              )}{" "}
+              <img
+                src={getAvatarUrl(user?.name, user?.avatar || user?.avatarUrl)}
+                alt="Avatar"
+                onError={(e) => handleImageError(e, user?.name)}
+                className="w-100 h-100 object-fit-cover"
+              />
             </div>{" "}
             <div className="user-info pr-1 d-none d-md-block">
               {" "}

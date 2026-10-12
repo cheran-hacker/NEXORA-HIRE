@@ -123,7 +123,9 @@ const Hackathons = lazy(() => import("../pages/community/Hackathons.jsx"));
 
 // Alumni Pages
 const AlumniDashboard = lazy(() => import("../pages/alumni/Dashboard.jsx"));
-const MentorshipBooking = lazy(() => import("../pages/alumni/MentorshipBooking.jsx"));
+const AlumniMentorshipHub = lazy(() => import("../pages/alumni/MentorshipBooking.jsx"));
+const StudentMentorshipHub = lazy(() => import("../pages/student/MentorshipBooking.jsx"));
+const MentorshipSessionRoom = lazy(() => import("../pages/shared/MentorshipSessionRoom.jsx"));
 const MyBounties = lazy(() => import("../pages/alumni/MyBounties.jsx"));
 const Donations = lazy(() => import("../pages/alumni/Donations.jsx"));
 const Sessions = lazy(() => import("../pages/alumni/Sessions.jsx"));
@@ -257,6 +259,8 @@ const App = () => {
                 <Route path="/alumni-register/:token" element={<AlumniRegistration />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/recruiter/dashboard" element={<Navigate to="/placement/dashboard" replace />} />
+                <Route path="/mentorship/session/:sessionId" element={<MentorshipSessionRoom />} />
 
                 {/* Student Routes */}
                 <Route path="/student" element={<StudentLayout />}>
@@ -265,6 +269,7 @@ const App = () => {
                   <Route path="resume" element={<ResumeAnalyzer />} />
                   <Route path="interviews" element={<MockInterview />} />
                   <Route path="learning" element={<CareerRoadmap />} />
+                  <Route path="learning-paths" element={<CareerRoadmap />} />
                   <Route path="assessments" element={<Assessments />} />
                   <Route
                     path="assessments/:id"
@@ -284,7 +289,8 @@ const App = () => {
                   />
                   <Route path="ask-alumni" element={<AskAlumni />} />
                   <Route path="alumni-mentors" element={<AlumniMentors />} />
-                  <Route path="mentorship" element={<MentorshipBooking />} />
+                  <Route path="mentorship" element={<StudentMentorshipHub />} />
+                  <Route path="session/:sessionId" element={<MentorshipSessionRoom />} />
                   <Route path="internships" element={<InternshipPortal />} />
                   <Route path="bounties" element={<BountyBoard />} />
                   <Route path="code-roast" element={<CodeRoast />} />
@@ -373,7 +379,8 @@ const App = () => {
                 <Route path="/alumni" element={<AlumniLayout />}>
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<AlumniDashboard />} />
-                  <Route path="mentorship" element={<MentorshipBooking />} />
+                  <Route path="mentorship" element={<AlumniMentorshipHub />} />
+                  <Route path="session/:sessionId" element={<MentorshipSessionRoom />} />
                   <Route path="bounties" element={<MyBounties />} />
                   <Route path="donations" element={<Donations />} />
                   <Route path="forum" element={<Forum />} />
@@ -390,6 +397,7 @@ const App = () => {
                   <Route path="settings" element={<AlumniSettings />} />
                   <Route path="validation-inbox" element={<ValidationInbox />} />
                   <Route path="connections" element={<ConnectionRequests />} />
+                  <Route path="students" element={<Navigate to="/alumni/network" replace />} />
                 </Route>
 
                 {/* Admin Routes */}

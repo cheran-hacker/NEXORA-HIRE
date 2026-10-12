@@ -1,6 +1,7 @@
 import express from 'express';
 import { 
   getAlumniStats, 
+  getAvailability,
   toggleAvailability,
   getAlumniDirectory,
   bookMentorship,
@@ -27,13 +28,14 @@ router.get('/directory', protect, getAlumniDirectory);
 router.get('/rooms', protect, getLiveRooms);
 router.get('/trajectory-match', protect, authorize('Student'), getTrajectorySimilarities);
 router.get('/insights', protect, getAggregatedInsights);
-router.post('/mentorship/book', protect, authorize('Student'), bookMentorship);
+router.post('/mentorship/book', protect, authorize('Student', 'Alumni', 'Admin'), bookMentorship);
 
 // Alumni/Student shared routes
 router.get('/mentorship/my-sessions', protect, getMyMentorships);
 
 // Alumni only routes
 router.get('/stats', protect, authorize('Alumni', 'Admin'), getAlumniStats);
+router.get('/availability', protect, authorize('Alumni', 'Admin'), getAvailability);
 router.put('/availability', protect, authorize('Alumni', 'Admin'), toggleAvailability);
 
 router.put('/mentorship/:id/status', protect, authorize('Alumni', 'Admin'), updateMentorshipStatus);

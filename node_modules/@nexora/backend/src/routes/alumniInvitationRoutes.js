@@ -5,7 +5,8 @@ import {
   registerAlumni, 
   getInvitations, 
   approveAlumni,
-  resendInvitation
+  resendInvitation,
+  deleteInvitation
 } from '../controllers/alumniInvitationController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
@@ -23,5 +24,6 @@ router.post('/invite', inviteAlumni);
 router.post('/resend/:id', resendInvitation);
 router.get('/', getInvitations);
 router.post('/approve/:id', approveAlumni);
+router.delete('/:id', deleteInvitation);
 
 export default router;

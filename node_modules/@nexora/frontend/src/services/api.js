@@ -145,13 +145,21 @@ export const aiService = {
 // ─── Admin Services ────────────────────────────────────────────────────────────
 export const adminService = {
   getStats: () => api.get('/admin/stats'),
+  globalSearch: (q) => api.get(`/admin/search?q=${encodeURIComponent(q)}`),
   getJobMetrics: () => api.get('/admin/jobs/metrics'),
   getUsers: () => api.get('/admin/users'),
+  getUserDetails: (id) => api.get(`/admin/users/${id}/details`),
   createUser: (data) => api.post('/admin/users', data),
+  updateUser: (id, data) => api.put(`/admin/users/${id}`, data),
   validateStudentsImport: (data) => api.post('/admin/import-students/validate', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   confirmStudentsImport: (students) => api.post('/admin/import-students/confirm', { students }),
   verifyUser: (id, status) => api.put(`/admin/users/${id}/verify`, { status }),
   deleteUser: (id) => api.delete(`/admin/users/${id}`),
+  deleteAlumniInvitation: (id) => api.delete(`/alumni-invitations/${id}`),
+  getAuditLogs: (params) => api.get('/admin/audit-logs', { params }),
+  getAnnouncements: () => api.get('/admin/announcements'),
+  createAnnouncement: (data) => api.post('/admin/announcements', data),
+  deleteAnnouncement: (id) => api.delete(`/admin/announcements/${id}`),
   getSystemHealth: () => api.get('/admin/health'),
   getDatabaseStats: () => api.get('/admin/db/stats'),
   getCollections: () => api.get('/admin/db/collections'),
@@ -172,7 +180,10 @@ export const recruiterService = {
 export const alumniService = {
   getStats: () => api.get('/alumni/stats'),
   getDirectory: () => api.get('/alumni/directory'),
+  getAvailability: () => api.get('/alumni/availability'),
+  updateAvailability: (data) => api.put('/alumni/availability', data),
   toggleAvailability: () => api.put('/alumni/availability'),
+  bookMentorship: (data) => api.post('/alumni/mentorship/book', data),
   getMentorshipSessions: () => api.get('/alumni/mentorship/my-sessions'),
   acceptSession: (id) => api.put(`/alumni/mentorship/${id}/status`, { status: 'Scheduled' }),
   declineSession: (id) => api.put(`/alumni/mentorship/${id}/status`, { status: 'Declined' }),
@@ -180,6 +191,30 @@ export const alumniService = {
   generateReferralLink: (data) => api.post('/alumni/referrals', data),
   getConnectionRequests: () => api.get('/alumni/connections'),
   updateConnectionRequest: (id, status) => api.put(`/alumni/connections/${id}`, { status })
+};
+
+export const mentorshipService = {
+  getOverview: () => api.get('/mentorship/overview'),
+  getMentors: (params) => api.get('/mentorship/mentors', { params }),
+  getRecommended: () => api.get('/mentorship/recommended'),
+  getAvailability: (alumniId, date) => api.get(`/mentorship/availability/${alumniId}${date ? `?date=${date}` : ''}`),
+  getMyAvailability: () => api.get('/mentorship/my-availability'),
+  updateMyAvailability: (data) => api.put('/mentorship/my-availability', data),
+  createRequest: (data) => api.post('/mentorship/requests', data),
+  bookSession: (data) => api.post('/mentorship/requests', data),
+  getRequests: (params) => api.get('/mentorship/requests', { params }),
+  acceptRequest: (id) => api.patch(`/mentorship/requests/${id}/accept`),
+  rejectRequest: (id, reason) => api.patch(`/mentorship/requests/${id}/reject`, { reason }),
+  cancelRequest: (id) => api.patch(`/mentorship/requests/${id}/cancel`),
+  getSessions: (params) => api.get('/mentorship/sessions', { params }),
+  getMySessions: () => api.get('/mentorship/sessions'),
+  getSessionById: (id) => api.get(`/mentorship/sessions/${id}`),
+  updateSessionStatus: (id, data) => api.patch(`/mentorship/sessions/${id}/status`, data),
+  updateStatus: (id, status) => api.patch(`/mentorship/sessions/${id}/status`, { status }),
+  updateNotes: (id, data) => api.patch(`/mentorship/sessions/${id}/notes`, data),
+  addActionItem: (id, data) => api.post(`/mentorship/sessions/${id}/action-items`, data),
+  updateActionItem: (id, itemId, data) => api.patch(`/mentorship/sessions/${id}/action-items/${itemId}`, data),
+  submitFeedback: (id, data) => api.post(`/mentorship/sessions/${id}/feedback`, data)
 };
 
 // ─── Notification Services ───────────────────────────────────────────────────
@@ -196,6 +231,7 @@ export const studentService = {
   getDigitalTwin: () => api.get('/student/digital-twin'),
   getMatchedAlumniNetwork: () => api.get('/student/matched-alumni'),
   requestConnection: (data) => api.post('/student/connect-alumni', data),
+  disconnectAlumni: (data) => api.post('/student/disconnect-alumni', data),
   toggleSavedJob: (jobId) => api.post(`/student/saved-jobs/${jobId}`),
   uploadResume: (payload) => api.post('/student/resume/upload', payload, {
     headers: { 'Content-Type': 'multipart/form-data' }
@@ -239,12 +275,6 @@ export const communityService = {
   addComment: (id, content) => api.post(`/posts/${id}/comments`, { content })
 };
 
-// ─── Mentorship Services ───────────────────────────────────────────────────────
-export const mentorshipService = {
-  getMentors: (params) => api.get('/alumni/directory', { params }),
-  bookSession: (data) => api.post('/alumni/mentorship/book', data),
-  getMySessions: () => api.get('/alumni/mentorship/my-sessions')
-};
 // ─── Swipe Match Services ────────────────────────────────────────────────────────
 export const swipeService = {
   getJobsForStudent: () => api.get('/swipe/jobs'),

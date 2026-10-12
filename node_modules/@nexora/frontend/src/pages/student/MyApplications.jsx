@@ -11,6 +11,14 @@ import {
   Clock3,
 } from "lucide-react";
 import { jobService } from "../../services/api.js";
+
+const resolveResumeUrl = (url) => {
+  if (!url) return "#";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  if (url.startsWith("/uploads/")) return url;
+  return `/api/student/resume/file/${encodeURIComponent(url.replace(/^\/+/, ""))}`;
+};
+
 const MyApplications = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -153,7 +161,7 @@ const MyApplications = () => {
                       Applied on {new Date(app.createdAt).toLocaleDateString()}
                     </span>{" "}
                     <a
-                      href={app.resumeUrl}
+                      href={resolveResumeUrl(app.resumeUrl)}
                       target="_blank"
                       rel="noreferrer"
                       className="text-primary fw-bold text-decoration-none"

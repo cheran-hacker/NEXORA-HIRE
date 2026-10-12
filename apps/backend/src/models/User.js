@@ -135,6 +135,8 @@ const userSchema = new mongoose.Schema({
     rating: { type: Number, default: 0 },
     sessionsCompleted: { type: Number, default: 0 },
     available: { type: Boolean, default: true },
+    schedule: { type: mongoose.Schema.Types.Mixed, default: {} },
+    timezone: { type: String, default: 'Asia/Kolkata' },
     
     // Legacy mapping (keeping for compatibility)
     contributionPreferences: {
@@ -190,9 +192,25 @@ const userSchema = new mongoose.Schema({
 
 // Virtual for avatar fallback
 userSchema.virtual('avatarUrl').get(function() {
-  if (this.avatar) return this.avatar;
-  const init = this.name ? this.name.substring(0, 2).toUpperCase() : 'NA';
-  return `https://ui-avatars.com/api/?name=${init}&background=random`;
+  if (this.avatar && typeof this.avatar === 'string' && this.avatar.trim() !== '' && !this.avatar.includes('ui-avatars.com')) {
+    return this.avatar;
+  }
+  const name = this.name || 'User';
+  const init = name
+    .split(/\s+/)
+    .map(p => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || name.substring(0, 2).toUpperCase() || 'U';
+  
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  const hues = [220, 260, 280, 160, 330, 200];
+  const hue = hues[Math.abs(hash) % hues.length];
+  
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="hsl(${hue}, 75%, 55%)"/><stop offset="100%" stop-color="hsl(${(hue + 40) % 360}, 75%, 45%)"/></linearGradient></defs><rect width="128" height="128" rx="64" fill="url(#g)"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif" font-weight="700" font-size="50px">${init}</text></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 });
 
 export const User = mongoose.models.User || mongoose.model('User', userSchema);

@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { authService } from "../../services/api.js";
+import { getAvatarUrl, handleImageError } from "../../utils/avatar.js";
 const BADGES = [
   { name: "DSA Champion", icon: Trophy, color: "warning" },
   { name: "Mock Maestro", icon: Mic, color: "info" },
@@ -322,18 +323,16 @@ const StudentProfile = () => {
             <div className="position-relative">
               {" "}
               <img
-                src={
-                  (user?.avatar && !user.avatar.includes(" ") ? user.avatar : null) ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "Student")}&size=256&background=10b981&color=fff&bold=true`
-                }
-                alt="Profile"
+                src={getAvatarUrl(user?.name, user?.avatar)}
+                alt={user?.name || "Profile"}
+                onError={(e) => handleImageError(e, user?.name)}
                 className="rounded-circle shadow-lg border border-4"
                 style={{
                   width: "160px",
                   height: "160px",
                   objectFit: "cover",
                   borderColor: "var(--bg)",
-                  background: "var(--bg)",
+                  background: "transparent",
                 }}
               />{" "}
             </div>{" "}

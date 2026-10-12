@@ -9,6 +9,7 @@ import { AnonymousChat } from '../models/AnonymousChat.js';
 import { matchVacancyToStudents } from '../modules/matching/vacancyMatcher.service.js';
 import { AlumniMicroContribution } from '../models/AlumniMicroContribution.js';
 import { AlumniConnection } from '../models/AlumniConnection.js';
+import { SkillValidationRequest } from '../models/SkillValidationRequest.js';
 import { Job } from '../models/Job.js';
 
 export const getAlumniStats = async (req, res) => {
@@ -121,25 +122,64 @@ export const getAlumniStats = async (req, res) => {
   }
 };
 
+export const getAvailability = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, message: 'Alumni not found' });
+    
+    const defaultSchedule = {
+      monday: [{ start: "09:00", end: "11:00" }],
+      tuesday: [],
+      wednesday: [{ start: "14:00", end: "16:00" }],
+      thursday: [],
+      friday: [],
+      saturday: [{ start: "10:00", end: "12:00" }],
+      sunday: [],
+    };
+    
+    return res.json({
+      success: true,
+      available: user.alumniProfile?.available ?? user.alumniProfile?.availability ?? true,
+      schedule: user.alumniProfile?.schedule || defaultSchedule
+    });
+  } catch (error) {
+    console.error('getAvailability Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch availability' });
+  }
+};
+
 export const toggleAvailability = async (req, res) => {
   try {
     const alumniId = req.user.id;
-    // Find the user
     const user = await User.findById(alumniId);
     if (!user) {
       return res.status(404).json({ message: 'Alumni not found' });
     }
     
-    // Toggle the availability
-    // Note: Assuming we have an `availability` boolean inside `alumniProfile`
-    // If not, we can just return a success for the mock dashboard for now
-    const currentStatus = user.alumniProfile?.availability || false;
-    if (user.alumniProfile) {
-      user.alumniProfile.availability = !user.alumniProfile.availability;
-      await user.save();
+    if (!user.alumniProfile) user.alumniProfile = {};
+    
+    if (req.body.schedule) {
+      user.alumniProfile.schedule = req.body.schedule;
     }
     
-    res.json({ message: 'Availability toggled successfully', available: !currentStatus });
+    if (typeof req.body.available === 'boolean') {
+      user.alumniProfile.available = req.body.available;
+      user.alumniProfile.availability = req.body.available;
+    } else if (req.body.schedule === undefined) {
+      const current = user.alumniProfile.available ?? user.alumniProfile.availability ?? true;
+      user.alumniProfile.available = !current;
+      user.alumniProfile.availability = !current;
+    }
+    
+    user.markModified('alumniProfile');
+    await user.save();
+    
+    res.json({
+      success: true,
+      message: 'Availability updated successfully',
+      available: user.alumniProfile.available,
+      schedule: user.alumniProfile.schedule
+    });
   } catch (error) {
     console.error('Toggle Error:', error);
     res.status(500).json({ message: 'Server error toggling availability' });
@@ -154,14 +194,20 @@ export const getAlumniDirectory = async (req, res, next) => {
     // Merge user data with embedded alumniProfile data
     const directory = alumniUsers.map(user => ({
       id: user._id,
+      _id: user._id,
       name: user.name,
       email: user.email,
       avatar: user.avatarUrl || user.avatar,
       company: user.alumniProfile?.company || '',
+      companyName: user.alumniProfile?.company || '',
       title: user.alumniProfile?.designation || '',
+      currentRole: user.alumniProfile?.designation || '',
       graduationYear: user.alumniProfile?.graduationYear || '',
+      location: user.alumniProfile?.location || 'Remote',
       expertise: user.alumniProfile?.expertise || [],
       mentorshipAvailable: user.alumniProfile?.available !== false,
+      availableForMentorship: user.alumniProfile?.available !== false,
+      user: { name: user.name, email: user.email, avatar: user.avatarUrl || user.avatar },
       karma: user.alumniProfile?.rating || 0,
       linkedIn: user.alumniProfile?.linkedinUrl || user.linkedinUrl || ''
     }));
@@ -187,23 +233,24 @@ export const getLiveRooms = async (req, res, next) => {
 // ─── MENTORSHIP BOOKING ──────────────────────────────────────────────────────
 export const bookMentorship = async (req, res, next) => {
   try {
-    const { mentorId, scheduledDate, topic, durationMinutes } = req.body;
+    const { mentorId, alumniId, scheduledDate, scheduledAt, topic, notes, durationMinutes } = req.body;
+    const targetMentorId = mentorId || alumniId;
     
     // Verify mentor exists and is an alumni
-    const mentor = await User.findOne({ _id: mentorId, role: 'Alumni' });
+    const mentor = await User.findOne({ _id: targetMentorId, role: 'Alumni' });
     if (!mentor) {
       return res.status(404).json({ success: false, message: 'Mentor not found or is not an Alumni.' });
     }
     
     const session = await MentorshipSession.create({
-      mentor: mentorId,
+      mentor: targetMentorId,
       mentee: req.user.id,
-      scheduledDate,
-      topic,
+      scheduledDate: scheduledDate || scheduledAt || new Date(Date.now() + 86400000),
+      topic: topic || notes || 'General Career Guidance',
       durationMinutes: durationMinutes || 30
     });
     
-    res.status(201).json({ success: true, data: session });
+    res.status(201).json({ success: true, data: session, message: 'Mentorship requested successfully!' });
   } catch (error) {
     next(error);
   }

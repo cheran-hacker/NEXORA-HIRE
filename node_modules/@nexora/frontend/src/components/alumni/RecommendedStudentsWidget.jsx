@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Users, ExternalLink, ArrowRight, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { alumniService } from "../../services/api";
+import { getAvatarUrl, handleImageError } from "../../utils/avatar";
 
 export default function RecommendedStudentsWidget() {
   const [students, setStudents] = useState([]);
@@ -35,7 +36,7 @@ export default function RecommendedStudentsWidget() {
         <h5 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: "var(--text)" }}>
           <Star className="text-warning" /> Recommended Students For You
         </h5>
-        <Link to="/alumni/students" className="badge bg-secondary bg-opacity-25 rounded-pill text-muted px-3 py-2 text-decoration-none hover-glow d-flex align-items-center gap-1">
+        <Link to="/alumni/network" className="badge bg-secondary bg-opacity-25 rounded-pill text-muted px-3 py-2 text-decoration-none hover-glow d-flex align-items-center gap-1">
           View All <ArrowRight size={14} />
         </Link>
       </div>
@@ -51,10 +52,11 @@ export default function RecommendedStudentsWidget() {
               >
                 <div className="d-flex gap-3 align-items-center mb-3">
                   <img 
-                    src={student.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}`} 
+                    src={getAvatarUrl(student.name, student.avatar)} 
                     alt={student.name}
+                    onError={(e) => handleImageError(e, student.name)}
                     className="rounded-circle border"
-                    style={{ width: 48, height: 48, borderColor: 'rgba(255,255,255,0.1)' }}
+                    style={{ width: 48, height: 48, borderColor: 'rgba(255,255,255,0.1)', objectFit: 'cover' }}
                   />
                   <div>
                     <h6 className="fw-bold mb-0 text-truncate" style={{ color: "var(--text)" }}>{student.name}</h6>

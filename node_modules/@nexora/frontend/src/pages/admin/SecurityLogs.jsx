@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ShieldAlert,
   Search,
@@ -8,169 +8,287 @@ import {
   Terminal,
   Clock,
   Download,
+  RefreshCw,
+  User,
+  Activity,
+  AlertTriangle
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { adminService } from "../../services/api";
+import { useToast } from "../../context/ToastContext";
+
 export default function SecurityLogs() {
   const [search, setSearch] = useState("");
   const [filterSeverity, setFilterSeverity] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("All");
   const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { addToast } = useToast();
+
+  const fetchLogs = async () => {
+    try {
+      setLoading(true);
+      const res = await adminService.getAuditLogs();
+      const logsData = res.data?.data || res.data || [];
+      setLogs(logsData);
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to fetch security audit logs", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLogs();
+  }, []);
+
   const filteredLogs = logs.filter((log) => {
+    const action = log.action || log.type || "";
+    const userName = log.user?.name || log.user?.email || (typeof log.user === 'string' ? log.user : "") || "System";
+    const ip = log.ipAddress || "";
+    const details = log.details || "";
+
     const matchesSearch =
-      log.type.toLowerCase().includes(search.toLowerCase()) ||
-      log.user.toLowerCase().includes(search.toLowerCase());
+      action.toLowerCase().includes(search.toLowerCase()) ||
+      userName.toLowerCase().includes(search.toLowerCase()) ||
+      ip.toLowerCase().includes(search.toLowerCase()) ||
+      details.toLowerCase().includes(search.toLowerCase());
+
     const matchesSev =
-      filterSeverity === "All" || log.severity === filterSeverity;
-    return matchesSearch && matchesSev;
+      filterSeverity === "All" || (log.severity || "Info") === filterSeverity;
+
+    const matchesStatus =
+      filterStatus === "All" || (log.status || "SUCCESS") === filterStatus;
+
+    return matchesSearch && matchesSev && matchesStatus;
   });
-  const getSeverityBadge = (severity) => {
+
+  const getSeverityBadge = (severity = "Info") => {
     switch (severity) {
       case "High":
         return (
-          <span className="badge bg-danger-subtle text-danger border border-danger rounded-pill px-3 py-1 fw-bold">
+          <span className="badge bg-danger-subtle text-danger border border-danger border-opacity-25 rounded-pill px-3 py-1 fw-bold">
             <ShieldOff size={12} className="me-1" /> High
           </span>
         );
       case "Warning":
         return (
-          <span className="badge bg-warning-subtle text-warning border border-warning rounded-pill px-3 py-1 fw-bold">
+          <span className="badge bg-warning-subtle text-warning border border-warning border-opacity-25 rounded-pill px-3 py-1 fw-bold">
             <ShieldAlert size={12} className="me-1" /> Warning
           </span>
         );
       default:
         return (
-          <span className="badge bg-info-subtle text-info border border-info rounded-pill px-3 py-1 fw-bold">
+          <span className="badge bg-info-subtle text-info border border-info border-opacity-25 rounded-pill px-3 py-1 fw-bold">
             <ShieldCheck size={12} className="me-1" /> Info
           </span>
         );
     }
   };
+
+  const handleExportLogs = () => {
+    if (!logs.length) {
+      addToast("No logs available to export", "info");
+      return;
+    }
+
+    const csvRows = [
+      ["TIMESTAMP", "ACTION", "SEVERITY", "STATUS", "USER", "IP", "TARGET", "DETAILS"]
+    ];
+
+    filteredLogs.forEach(l => {
+      csvRows.push([
+        new Date(l.createdAt || Date.now()).toISOString(),
+        l.action || l.type || "EVENT",
+        l.severity || "Info",
+        l.status || "SUCCESS",
+        l.user?.email || l.user?.name || "System",
+        l.ipAddress || "127.0.0.1",
+        l.target || "",
+        (l.details || "").replace(/,/g, ';')
+      ]);
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.map(e => e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `NEXORA_Audit_Logs_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    addToast("Audit logs exported to CSV successfully", "success");
+  };
+
   return (
-    <div className="container-fluid py-4 px-xl-5">
-      {" "}
-      <div className="d-flex align-items-center justify-content-between mb-5 flex-wrap gap-3">
-        {" "}
+    <div className="container-fluid py-4 px-xl-5" style={{ maxWidth: '1440px', margin: '0 auto' }}>
+      
+      {/* HEADER */}
+      <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div>
-          {" "}
-          <h2 className="fw-black mb-1 text-gradient-primary">
-            Security Logs 🛡️
-          </h2>{" "}
-          <p className="fw-medium m-0 text-muted">
-            Monitor system events, authentication, and data modifications.
-          </p>{" "}
-        </div>{" "}
+          <h2 className="fw-black mb-1 text-white d-flex align-items-center gap-3" style={{ fontSize: "2.2rem" }}>
+            <ShieldAlert size={34} className="text-primary" /> Security & Audit Trail 🛡️
+          </h2>
+          <p className="fw-medium m-0 text-muted small">
+            Immutable tracking of user authentication, privilege escalations, database mutations, and administrative actions.
+          </p>
+        </div>
         <div className="d-flex gap-2">
-          {" "}
-          <button className="btn btn-outline-primary rounded-pill fw-bold d-flex align-items-center gap-2">
-            {" "}
-            <Download size={16} /> Export Logs{" "}
-          </button>{" "}
-        </div>{" "}
-      </div>{" "}
-      <div className="bento-card mb-4 p-4">
-        {" "}
+          <button 
+            className="btn btn-outline-secondary rounded-pill fw-bold d-flex align-items-center gap-2"
+            onClick={fetchLogs}
+            disabled={loading}
+          >
+            <RefreshCw size={15} className={loading ? "spin" : ""} /> Refresh
+          </button>
+          <button 
+            className="btn btn-primary rounded-pill fw-bold d-flex align-items-center gap-2 px-3 shadow-sm"
+            onClick={handleExportLogs}
+            style={{ background: "linear-gradient(135deg, var(--primary), #8b5cf6)", border: "none" }}
+          >
+            <Download size={15} /> Export CSV
+          </button>
+        </div>
+      </div>
+
+      {/* FILTER CONTROLS */}
+      <div className="bento-card mb-4 p-3">
         <div className="row g-3">
-          {" "}
-          <div className="col-md-6 col-lg-8">
-            {" "}
+          <div className="col-md-6 col-lg-6">
             <div className="position-relative">
-              {" "}
               <Search
                 className="position-absolute top-50 translate-middle-y ms-3 text-muted"
                 size={18}
-              />{" "}
+              />
               <input
                 type="text"
                 className="form-control ps-5 rounded-pill"
-                placeholder="Search logs by user, IP, or event type..."
+                placeholder="Search audit trail by user, IP, action, or details..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 style={{
-                  height: "48px",
-                  background: "var(--surface-2)",
+                  height: "44px",
+                  background: "var(--surface-2, rgba(255,255,255,0.04))",
                   color: "var(--text)",
                   border: "1px solid var(--border)",
                 }}
-              />{" "}
-            </div>{" "}
-          </div>{" "}
-          <div className="col-md-6 col-lg-4 d-flex gap-2">
-            {" "}
+              />
+            </div>
+          </div>
+          <div className="col-md-3 col-lg-3">
             <select
-              className="form-select rounded-pill ps-4"
+              className="form-select rounded-pill ps-3"
               value={filterSeverity}
               onChange={(e) => setFilterSeverity(e.target.value)}
               style={{
-                height: "48px",
-                background: "var(--surface-2)",
+                height: "44px",
+                background: "var(--surface-2, rgba(255,255,255,0.04))",
                 border: "1px solid var(--border)",
                 color: "var(--text)",
               }}
             >
-              {" "}
-              <option value="All">All Severities</option>{" "}
-              <option value="Info">Info</option>{" "}
-              <option value="Warning">Warning</option>{" "}
-              <option value="High">High</option>{" "}
-            </select>{" "}
-          </div>{" "}
-        </div>{" "}
-      </div>{" "}
+              <option value="All">All Severities</option>
+              <option value="Info">Info (Standard)</option>
+              <option value="Warning">Warning</option>
+              <option value="High">High (Security Alert)</option>
+            </select>
+          </div>
+          <div className="col-md-3 col-lg-3">
+            <select
+              className="form-select rounded-pill ps-3"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              style={{
+                height: "44px",
+                background: "var(--surface-2, rgba(255,255,255,0.04))",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
+              }}
+            >
+              <option value="All">All Statuses</option>
+              <option value="SUCCESS">SUCCESS</option>
+              <option value="FAILED">FAILED</option>
+              <option value="WARNING">WARNING</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* AUDIT LOG TABLE */}
       <div className="bento-card p-0 overflow-hidden">
-        {" "}
-        <div className="table-responsive" style={{ minHeight: "500px" }}>
-          <table className="table table-hover align-middle mb-0 font-monospace small">
-            <thead style={{ background: "var(--bg-secondary)" }}>
-              <tr>
-                <th className="py-3 px-4 border-0 text-muted">
-                  TIMESTAMP
-                </th><th className="py-3 border-0 text-muted">EVENT TYPE</th><th className="py-3 border-0 text-muted">SEVERITY</th><th className="py-3 border-0 text-muted">USER / IP</th><th className="py-3 border-0 text-muted w-25">DETAILS</th></tr></thead>
-            <tbody>
-              {filteredLogs.length === 0 ? (
+        {loading ? (
+          <div className="text-center p-5">
+            <div className="spinner-border text-primary" role="status" />
+            <p className="text-muted mt-3 fw-medium">Loading security audit records...</p>
+          </div>
+        ) : (
+          <div className="table-responsive" style={{ minHeight: "450px" }}>
+            <table className="table table-hover align-middle mb-0 font-monospace small">
+              <thead style={{ background: "rgba(255, 255, 255, 0.03)", borderBottom: "1px solid var(--border)" }}>
                 <tr>
-                  <td colSpan="5" className="text-center py-5 text-muted">
-                    No logs found matching criteria.
-                  </td>
+                  <th className="py-3 px-4 border-0 text-muted">TIMESTAMP</th>
+                  <th className="py-3 border-0 text-muted">ACTION EVENT</th>
+                  <th className="py-3 border-0 text-muted">SEVERITY</th>
+                  <th className="py-3 border-0 text-muted">STATUS</th>
+                  <th className="py-3 border-0 text-muted">ACTOR / IP</th>
+                  <th className="py-3 border-0 text-muted pe-4">EVENT DETAILS</th>
                 </tr>
-              ) : (
-                filteredLogs.map((log, idx) => (
-                  <motion.tr
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    key={log.id}
-                  >
-                    <td className="py-3 px-4 text-muted">
-                      <Clock size={14} className="me-1 d-inline" /> {log.time}
-                    </td><td
-                      className="py-3 fw-bold"
-                      style={{ color: "var(--text)" }}
-                    >
-                      
-                      <Terminal
-                        size={14}
-                        className="me-2 text-primary d-inline"
-                      />{" "}
-                      {log.type}
-                    </td><td className="py-3">{getSeverityBadge(log.severity)}</td><td className="py-3 text-muted">
-                      
-                      <div
-                        className="text-truncate"
-                        style={{ maxWidth: "150px" }}
-                      >
-                        {log.user}
-                      </div>{" "}
-                      <small className="opacity-75">{log.ip}</small>
-                    </td><td
-                      className="py-3"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      {log.details}
+              </thead>
+              <tbody>
+                {filteredLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-5 text-muted">
+                      No security audit events match the specified filters.
                     </td>
-                  </motion.tr>
-                ))
-              )}</tbody></table>
-        </div>{" "}
-      </div>{" "}
+                  </tr>
+                ) : (
+                  filteredLogs.map((log, idx) => {
+                    const actorName = log.user?.name || log.user?.email || (typeof log.user === 'string' ? log.user : null) || "System";
+                    return (
+                      <motion.tr
+                        initial={{ opacity: 0, x: -6 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.02 }}
+                        key={log._id || idx}
+                        style={{ borderTop: "1px solid var(--border)" }}
+                      >
+                        <td className="py-3 px-4 text-muted" style={{ whiteSpace: 'nowrap' }}>
+                          <Clock size={13} className="me-1 d-inline text-primary" /> 
+                          {log.createdAt ? new Date(log.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Recent'}
+                        </td>
+                        <td className="py-3 fw-bold text-white">
+                          <Terminal size={14} className="me-2 text-primary d-inline" /> 
+                          {log.action || log.type || "SECURITY_EVENT"}
+                        </td>
+                        <td className="py-3">
+                          {getSeverityBadge(log.severity)}
+                        </td>
+                        <td className="py-3">
+                          <span className={`badge ${log.status === 'SUCCESS' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} small px-2 py-1`}>
+                            {log.status || 'LOGGED'}
+                          </span>
+                        </td>
+                        <td className="py-3 text-muted">
+                          <div className="fw-semibold text-white">{actorName}</div>
+                          <div className="small text-secondary">{log.ipAddress || "Localhost"}</div>
+                        </td>
+                        <td className="py-3 pe-4 text-muted">
+                          <div className="text-truncate" style={{ maxWidth: "380px" }} title={log.details}>
+                            {log.details || log.target || "Administrative operation executed"}
+                          </div>
+                        </td>
+                      </motion.tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }

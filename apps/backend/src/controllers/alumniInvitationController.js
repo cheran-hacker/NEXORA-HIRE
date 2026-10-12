@@ -322,3 +322,15 @@ export const approveAlumni = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const deleteInvitation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const inv = await AlumniInvitation.findByIdAndDelete(id);
+    if (!inv) return res.status(404).json({ success: false, message: 'Invitation not found' });
+    res.json({ success: true, message: 'Invitation deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

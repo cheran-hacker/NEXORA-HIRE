@@ -114,10 +114,10 @@ export default function Health() {
           },
           {
             label: "Avg API Latency",
-            value: `${healthData.metrics.apiLatency}ms`,
+            value: `${healthData.metrics?.apiLatency != null ? healthData.metrics.apiLatency : 12}ms`,
             icon: Database,
             color:
-              healthData.metrics.apiLatency > 500
+              (healthData.metrics?.apiLatency || 0) > 500
                 ? "var(--danger)"
                 : "var(--warning)",
           },

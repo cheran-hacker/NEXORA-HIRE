@@ -4,6 +4,7 @@ import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { authService } from '../../services/api.js';
+import { getAvatarUrl, handleImageError } from '../../utils/avatar.js';
 
 export default function AlumniProfile() {
   const { user, setUser } = useAuth();
@@ -92,10 +93,11 @@ export default function AlumniProfile() {
           <div className="d-flex align-items-center gap-4">
             <div className="position-relative">
               <img 
-                src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&size=120&background=9333ea&color=fff&bold=true`} 
+                src={getAvatarUrl(profile.name || user?.name, user?.avatar)} 
                 alt="Avatar" 
+                onError={(e) => handleImageError(e, profile.name || user?.name)}
                 className="rounded-circle shadow-lg" 
-                style={{ width: 90, height: 90, border: '4px solid rgba(255,255,255,0.1)' }} 
+                style={{ width: 90, height: 90, border: '4px solid rgba(255,255,255,0.1)', objectFit: 'cover' }} 
               />
             </div>
             <div>

@@ -7,11 +7,13 @@ import {
   getPublicProfile,
   getCareerDigitalTwin,
   uploadStudentResume,
+  serveResumeFile,
   getResumeAnalysis,
   analyzeResumeForProfile,
   applyResumeProfile,
   toggleSavedJob,
-  requestConnection
+  requestConnection,
+  disconnectAlumni
 } from '../controllers/studentController.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { cacheMiddleware } from '../utils/cache.js';
@@ -33,15 +35,20 @@ const router = express.Router();
 // Public route for Smart Resume
 router.get('/public/:id', getPublicProfile);
 
+// Public routes for viewing uploaded resume documents (in new tab or iframe)
+router.get('/resume/file/:filename', serveResumeFile);
+router.get('/resume/file', serveResumeFile);
+
 // Apply auth middleware to all student routes
 router.use(protect);
 router.use(authorize('Student', 'Admin'));
 
 router.get('/stats', getStudentStats);
 
-// Alumni Network Matching
-router.get('/matched-alumni', cacheMiddleware(300), getMatchedAlumniNetwork);
+// Alumni Network Matching (dynamic connection statuses)
+router.get('/matched-alumni', getMatchedAlumniNetwork);
 router.post('/connect-alumni', requestConnection);
+router.post('/disconnect-alumni', disconnectAlumni);
 
 // Career Digital Twin
 router.get('/digital-twin', cacheMiddleware(300), getCareerDigitalTwin);

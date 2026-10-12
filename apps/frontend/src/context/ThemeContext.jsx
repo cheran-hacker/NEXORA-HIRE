@@ -25,6 +25,10 @@ export const ThemeProvider = ({ children }) => {
       setActualTheme(resolvedTheme);
       document.documentElement.setAttribute("data-theme", resolvedTheme);
       document.documentElement.setAttribute("data-bs-theme", resolvedTheme);
+      if (document.body) {
+        document.body.setAttribute("data-theme", resolvedTheme);
+        document.body.className = resolvedTheme === 'dark' ? 'dark-theme' : 'light-theme';
+      }
       localStorage.setItem("theme", theme);
     };
 
@@ -38,11 +42,8 @@ export const ThemeProvider = ({ children }) => {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => {
-      if (prevTheme === "light") return "dark";
-      if (prevTheme === "dark") return "system";
-      return "light";
-    });
+    const nextTheme = actualTheme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
   };
 
   return (

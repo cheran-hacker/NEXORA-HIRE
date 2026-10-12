@@ -14,6 +14,7 @@ import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 export default function AlumniDirectory() {
   const { user } = useAuth();
+  const { addToast } = useToast();
   const [alumni, setAlumni] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,8 +44,10 @@ export default function AlumniDirectory() {
     e.preventDefault();
     try {
       await api.post("/alumni/mentorship/book", {
-        mentorId: selectedAlum.id,
-        scheduledDate: new Date().toISOString(), // In a real app this comes from the date picker topic: 'General Career Guidance', durationMinutes: 30
+        mentorId: selectedAlum?.id || selectedAlum?._id,
+        scheduledDate: new Date(Date.now() + 86400000).toISOString(),
+        topic: 'General Career Guidance',
+        durationMinutes: 30
       });
       addToast("Mentorship requested successfully!", "success");
       setSelectedAlum(null);

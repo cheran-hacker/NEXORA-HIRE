@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 const ThemeToggle = ({ collapsed = false, className = "" }) => {
-  const { theme, toggleTheme } = useTheme();
-  const isDark = theme === "dark";
+  const { actualTheme, toggleTheme } = useTheme();
+  const isDark = actualTheme === "dark";
   return (
     <motion.button
       onClick={toggleTheme}
