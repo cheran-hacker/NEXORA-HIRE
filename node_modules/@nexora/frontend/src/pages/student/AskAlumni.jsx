@@ -39,10 +39,15 @@ export default function AskAlumni() {
     }
     try {
       setIsBooking(true);
-      await mentorshipService.bookSession({
-        alumniId: bookingFor._id,
-        notes: bookingMessage,
-        scheduledAt: new Date(Date.now() + 86400000).toISOString() // schedule for tomorrow as default
+      const mentorTargetId = bookingFor._id || bookingFor.id;
+      await mentorshipService.createRequest({
+        mentorId: mentorTargetId,
+        alumniId: mentorTargetId,
+        topic: "General Career Guidance",
+        message: bookingMessage,
+        requestedDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
+        requestedStartTime: "18:00",
+        requestedEndTime: "18:30"
       });
       addToast("Mentorship request sent successfully!", "success");
       setBookingFor(null);
@@ -55,12 +60,18 @@ export default function AskAlumni() {
     }
   };
 
-  const filteredAlumni = alumni.filter(
-    (a) =>
-      a.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.currentRole?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAlumni = alumni.filter((a) => {
+    const name = a.name || a.user?.name || "";
+    const company = a.company || a.companyName || "";
+    const role = a.title || a.currentRole || "";
+    const q = searchTerm.toLowerCase();
+    return (
+      name.toLowerCase().includes(q) ||
+      company.toLowerCase().includes(q) ||
+      role.toLowerCase().includes(q) ||
+      (a.expertise || []).some((s) => String(s).toLowerCase().includes(q))
+    );
+  });
 
   return (
     <div className="container-fluid py-4 px-xl-5" style={{ background: "var(--bg)", minHeight: "100dvh", color: "var(--text)" }}>
