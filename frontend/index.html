@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1a1c29" />
+    <meta name="description" content="Nexora Campus: A unified digital ecosystem for students, alumni, and recruiters. Elevating careers through AI, mentorship, and synergy." />
+    <meta property="og:title" content="Nexora | Unified Digital Campus Ecosystem" />
+    <meta property="og:description" content="Elevating careers through AI, mentorship, and synergy." />
+    <meta property="og:type" content="website" />
+    <title>Nexora | Unified Digital Campus Ecosystem</title>
+    <style>
+      #initial-loader {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: #09090b;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+      }
+      .loader-glow {
+        position: absolute;
+        width: 300px; height: 300px;
+        background: radial-gradient(circle, rgba(92,106,196,0.2) 0%, transparent 60%);
+        animation: pulse-glow 2s infinite alternate;
+        filter: blur(40px);
+      }
+      .loader-container {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .loader-logo {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #5c6ac4, #10b981);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(92, 106, 196, 0.4);
+        margin-bottom: 24px;
+        animation: float 3s ease-in-out infinite;
+      }
+      .loader-logo svg {
+        width: 32px; height: 32px; fill: white;
+      }
+      .loader-track {
+        width: 200px;
+        height: 4px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 16px;
+      }
+      .loader-bar {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #5c6ac4, #10b981);
+        animation: load-progress 1.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+      }
+      .loader-text {
+        color: rgba(255, 255, 255, 0.6);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-weight: 500;
+        letter-spacing: 4px;
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+      @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+      @keyframes load-progress { 0% { width: 0%; transform: translateX(-100%); } 100% { width: 100%; transform: translateX(100%); } }
+      @keyframes pulse-glow { 0% { opacity: 0.5; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
+    </style>
+    <script>
+      (function() {
+        try {
+          const theme = localStorage.getItem('theme') || 'system';
+          let resolvedTheme = theme;
+          if (theme === 'system') {
+            resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', resolvedTheme);
+          document.documentElement.setAttribute('data-bs-theme', resolvedTheme);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="initial-loader">
+      <div class="loader-glow"></div>
+      <div class="loader-container">
+        <div class="loader-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        </div>
+        <div class="loader-track"><div class="loader-bar"></div></div>
+        <div class="loader-text">NEXORA OS</div>
+      </div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
