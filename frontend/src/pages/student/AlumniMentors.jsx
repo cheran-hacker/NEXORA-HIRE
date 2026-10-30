@@ -600,67 +600,91 @@ export default function AlumniMentors() {
       <AnimatePresence>
         {showConnectModal && selectedAlumni && (
           <div 
-            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center p-3" 
-            style={{ background: "rgba(0,0,0,0.8)", zIndex: 1050, backdropFilter: 'blur(8px)' }}
+            className="nexora-modal-backdrop"
             onClick={() => setShowConnectModal(false)}
           >
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bento-card p-4 shadow-2xl w-100" 
-              style={{ maxWidth: 520, background: 'var(--surface-2)', border: '1px solid var(--border)' }}
+              className="nexora-modal-container size-sm"
               onClick={e => e.stopPropagation()}
             >
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h5 className="modal-title fw-black d-flex align-items-center gap-2 text-foreground m-0">
-                  <LinkIcon className="text-primary" size={20} /> Request Mentorship Connection
-                </h5>
-                <button type="button" className="btn btn-sm btn-outline-secondary rounded-circle p-1" onClick={() => setShowConnectModal(false)}>
+              <div className="nexora-modal-header">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="nexora-modal-icon-badge">
+                    <LinkIcon size={20} />
+                  </div>
+                  <div>
+                    <h4 className="nexora-modal-title">Request Mentorship Connection</h4>
+                    <p className="nexora-modal-subtitle">Connect with industry alumni for career guidance</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="nexora-modal-close-btn"
+                  onClick={() => setShowConnectModal(false)}
+                  aria-label="Close"
+                >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="d-flex align-items-center gap-3 mb-4 p-3 rounded-4" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}>
-                <img 
-                  src={getAvatarUrl(selectedAlumni.name, selectedAlumni.avatar)} 
-                  alt={selectedAlumni.name} 
-                  onError={(e) => handleImageError(e, selectedAlumni.name)}
-                  className="rounded-circle shadow-sm object-fit-cover" 
-                  style={{ width: 50, height: 50 }} 
-                />
-                <div>
-                  <h6 className="fw-bold mb-0 text-foreground">{selectedAlumni.name}</h6>
-                  <div className="small text-muted">{selectedAlumni.alumniProfile?.designation || 'Alumnus'} at {selectedAlumni.alumniProfile?.company || 'Industry Partner'}</div>
+              <div className="nexora-modal-body">
+                <div className="d-flex align-items-center gap-3 mb-4 p-3 rounded-4" style={{ background: "#ffffff", border: "1px solid #e2e8f0" }}>
+                  <img 
+                    src={getAvatarUrl(selectedAlumni.name, selectedAlumni.avatar)} 
+                    alt={selectedAlumni.name} 
+                    onError={(e) => handleImageError(e, selectedAlumni.name)}
+                    className="rounded-circle shadow-sm object-fit-cover" 
+                    style={{ width: 48, height: 48 }} 
+                  />
+                  <div>
+                    <h6 className="fw-bold mb-0" style={{ color: "#0f172a" }}>{selectedAlumni.name}</h6>
+                    <div className="small text-muted">{selectedAlumni.alumniProfile?.designation || 'Alumnus'} at {selectedAlumni.alumniProfile?.company || 'Industry Partner'}</div>
+                  </div>
+                </div>
+                
+                <div className="mb-2">
+                  <label className="nexora-form-label">
+                    Personalized Note <span className="nexora-form-req">*</span>
+                  </label>
+                  <textarea 
+                    className="nexora-form-textarea" 
+                    style={{ minHeight: "110px" }}
+                    placeholder="Introduce yourself and share what advice or mentorship you're looking for..."
+                    value={connectMessage}
+                    onChange={e => setConnectMessage(e.target.value)}
+                  />
+                  <small className="text-muted mt-2 d-block" style={{ fontSize: "0.74rem" }}>
+                    Mentors are 3x more likely to accept requests with a clear, personalized goal.
+                  </small>
                 </div>
               </div>
-              
-              <div className="form-group mb-4">
-                <label className="form-label fw-bold small text-muted text-uppercase">Personalized Note</label>
-                <textarea 
-                  className="form-control rounded-3 p-3 bg-transparent text-foreground" 
-                  style={{ border: "1px solid var(--border)", minHeight: "110px", fontSize: '0.9rem', color: "var(--text)" }}
-                  placeholder="Introduce yourself and share what advice or mentorship you're looking for..."
-                  value={connectMessage}
-                  onChange={e => setConnectMessage(e.target.value)}
-                />
-                <small className="text-muted mt-2 d-block">Mentors are 3x more likely to accept requests with a clear, personalized goal.</small>
-              </div>
 
-              <div className="d-flex justify-content-end gap-2">
-                <button type="button" className="btn btn-sm btn-outline-secondary rounded-pill px-4" onClick={() => setShowConnectModal(false)} disabled={submittingId === selectedAlumni._id}>
-                  Cancel
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-sm btn-primary rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2" 
-                  onClick={handleConnectWithNote}
-                  disabled={submittingId === selectedAlumni._id}
-                  style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', border: 'none' }}
-                >
-                  {submittingId === selectedAlumni._id ? <span className="spinner-border spinner-border-sm"></span> : <Send size={15} />}
-                  {submittingId === selectedAlumni._id ? "Sending..." : "Send Request"}
-                </button>
+              <div className="nexora-modal-footer">
+                <span className="nexora-modal-footer-hint">
+                  * Required fields must be completed
+                </span>
+                <div className="nexora-modal-footer-actions">
+                  <button
+                    type="button"
+                    className="nexora-modal-btn-cancel"
+                    onClick={() => setShowConnectModal(false)}
+                    disabled={submittingId === selectedAlumni._id}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="button" 
+                    className="nexora-modal-btn-primary" 
+                    onClick={handleConnectWithNote}
+                    disabled={submittingId === selectedAlumni._id}
+                  >
+                    {submittingId === selectedAlumni._id ? <span className="spinner-border spinner-border-sm" /> : <Send size={15} />}
+                    {submittingId === selectedAlumni._id ? "Sending..." : "Send Request"}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -671,56 +695,69 @@ export default function AlumniMentors() {
       <AnimatePresence>
         {showQuestionModal && selectedAlumni && (
           <div 
-            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center p-3" 
-            style={{ background: "rgba(0,0,0,0.8)", zIndex: 1050, backdropFilter: 'blur(8px)' }}
+            className="nexora-modal-backdrop"
             onClick={() => setShowQuestionModal(false)}
           >
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bento-card p-4 shadow-2xl w-100" 
-              style={{ maxWidth: 540, background: 'var(--surface-2)', border: '1px solid var(--border)' }}
+              className="nexora-modal-container size-sm"
               onClick={e => e.stopPropagation()}
             >
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h5 className="modal-title fw-black d-flex align-items-center gap-2 text-foreground m-0">
-                  <MessageSquare className="text-success" size={20} /> Ask Mentorship Question
-                </h5>
-                <button type="button" className="btn btn-sm btn-outline-secondary rounded-circle p-1" onClick={() => setShowQuestionModal(false)}>
+              <div className="nexora-modal-header">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="nexora-modal-icon-badge">
+                    <MessageSquare size={20} />
+                  </div>
+                  <div>
+                    <h4 className="nexora-modal-title">Ask Mentorship Question</h4>
+                    <p className="nexora-modal-subtitle">Direct message to your verified alumni mentor</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="nexora-modal-close-btn"
+                  onClick={() => setShowQuestionModal(false)}
+                  aria-label="Close"
+                >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="d-flex align-items-center gap-3 mb-4 p-3 rounded-4" style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.2)" }}>
-                <img 
-                  src={getAvatarUrl(selectedAlumni.name, selectedAlumni.avatar)} 
-                  alt={selectedAlumni.name} 
-                  onError={(e) => handleImageError(e, selectedAlumni.name)}
-                  className="rounded-circle shadow-sm object-fit-cover" 
-                  style={{ width: 48, height: 48 }} 
-                />
-                <div>
-                  <h6 className="fw-bold mb-0 text-foreground">{selectedAlumni.name}</h6>
-                  <div className="small text-muted">{selectedAlumni.alumniProfile?.designation} • {selectedAlumni.alumniProfile?.company}</div>
+              <div className="nexora-modal-body">
+                <div className="d-flex align-items-center gap-3 mb-4 p-3 rounded-4" style={{ background: "#ffffff", border: "1px solid #e2e8f0" }}>
+                  <img 
+                    src={getAvatarUrl(selectedAlumni.name, selectedAlumni.avatar)} 
+                    alt={selectedAlumni.name} 
+                    onError={(e) => handleImageError(e, selectedAlumni.name)}
+                    className="rounded-circle shadow-sm object-fit-cover" 
+                    style={{ width: 48, height: 48 }} 
+                  />
+                  <div>
+                    <h6 className="fw-bold mb-0" style={{ color: "#0f172a" }}>{selectedAlumni.name}</h6>
+                    <div className="small text-muted">{selectedAlumni.alumniProfile?.designation} • {selectedAlumni.alumniProfile?.company}</div>
+                  </div>
+                </div>
+                
+                <div className="mb-2">
+                  <label className="nexora-form-label">
+                    Your Question / Career Topic <span className="nexora-form-req">*</span>
+                  </label>
+                  <textarea 
+                    className="nexora-form-textarea" 
+                    style={{ minHeight: "120px" }}
+                    placeholder="Ask about interview preparation, technical system design, day-to-day work, or company hiring tips..."
+                    value={questionText}
+                    onChange={e => setQuestionText(e.target.value)}
+                  />
                 </div>
               </div>
-              
-              <div className="form-group mb-4">
-                <label className="form-label fw-bold small text-muted text-uppercase">Your Question / Career Topic</label>
-                <textarea 
-                  className="form-control rounded-3 p-3 bg-transparent text-foreground" 
-                  style={{ border: "1px solid var(--border)", minHeight: "130px", fontSize: '0.9rem', color: "var(--text)" }}
-                  placeholder="Ask about interview preparation, technical system design, day-to-day work, or company hiring tips..."
-                  value={questionText}
-                  onChange={e => setQuestionText(e.target.value)}
-                />
-              </div>
 
-              <div className="d-flex justify-content-between align-items-center">
+              <div className="nexora-modal-footer">
                 <button 
                   type="button" 
-                  className="btn btn-sm btn-outline-primary rounded-pill px-3"
+                  className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold"
                   onClick={() => {
                     setShowQuestionModal(false);
                     navigate('/student/ask-alumni');
@@ -728,17 +765,21 @@ export default function AlumniMentors() {
                 >
                   <GraduationCap size={14} className="me-1" /> Book 1-on-1 Session
                 </button>
-                <div className="d-flex gap-2">
-                  <button type="button" className="btn btn-sm btn-outline-secondary rounded-pill px-4" onClick={() => setShowQuestionModal(false)}>
-                    Close
+                <div className="nexora-modal-footer-actions">
+                  <button
+                    type="button"
+                    className="nexora-modal-btn-cancel"
+                    onClick={() => setShowQuestionModal(false)}
+                  >
+                    Cancel
                   </button>
                   <button 
                     type="button" 
-                    className="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2" 
+                    className="nexora-modal-btn-primary" 
                     onClick={handleSendQuestion}
                     disabled={isSendingQuestion || !questionText.trim()}
                   >
-                    {isSendingQuestion ? <span className="spinner-border spinner-border-sm"></span> : <Send size={15} />}
+                    {isSendingQuestion ? <span className="spinner-border spinner-border-sm" /> : <Send size={15} />}
                     {isSendingQuestion ? "Sending..." : "Send Message"}
                   </button>
                 </div>

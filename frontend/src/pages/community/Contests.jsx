@@ -14,8 +14,19 @@ import { hackathonService } from "../../services/api";
 export default function Contests() {
   const { addToast } = useToast();
   const [selectedContest, setSelectedContest] = useState(null);
+  const [showRankingsModal, setShowRankingsModal] = useState(false);
   const [activeContests, setActiveContests] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const fullLeaderboard = [
+    { rank: 1, name: "David K.", dept: "Computer Science", score: 4520, badge: "Grandmaster" },
+    { rank: 2, name: "Alice M.", dept: "Data Science", score: 3890, badge: "Master" },
+    { rank: 3, name: "James L.", dept: "Software Eng.", score: 3120, badge: "Expert" },
+    { rank: 4, name: "Priya S.", dept: "Artificial Intelligence", score: 2980, badge: "Specialist" },
+    { rank: 5, name: "Rahul V.", dept: "Information Tech", score: 2840, badge: "Specialist" },
+    { rank: 6, name: "Emma W.", dept: "Cybersecurity", score: 2610, badge: "Knight" },
+    { rank: 7, name: "Kiran R.", dept: "Electronics (ECE)", score: 2450, badge: "Knight" },
+  ];
   React.useEffect(() => {
     const fetchContests = async () => {
       try {
@@ -202,13 +213,16 @@ export default function Contests() {
             {" "}
             <h3 className="fs-4 fw-bold text-foreground">Active Challenges</h3>{" "}
             <button
-              onClick={() => addToast("View all challenges", "info")}
-              className="text-primary small fw-medium hover:underline"
+              onClick={() => {
+                const el = document.getElementById("active-challenges-grid");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="text-primary small fw-medium hover:underline bg-transparent border-0 p-0"
             >
               View All
             </button>{" "}
           </div>{" "}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div id="active-challenges-grid" className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {" "}
             {activeContests.map((contest) => (
               <div
@@ -431,7 +445,7 @@ export default function Contests() {
               </div>{" "}
             </div>{" "}
             <button
-              onClick={() => addToast("View full rankings", "info")}
+              onClick={() => setShowRankingsModal(true)}
               className="btn w-100 mt-4 small fw-medium text-muted transition-fast hover-text-foreground"
             >
               {" "}
@@ -512,6 +526,52 @@ export default function Contests() {
           </div>
         )}{" "}
       </Modal>{" "}
+      <Modal
+        isOpen={showRankingsModal}
+        onClose={() => setShowRankingsModal(false)}
+        title="🏆 Campus Contest Leaderboard"
+        actions={
+          <button
+            className="btn btn-primary rounded-pill px-4 py-2 fw-bold"
+            onClick={() => setShowRankingsModal(false)}
+          >
+            Close
+          </button>
+        }
+      >
+        <div className="d-flex flex-column gap-2" style={{ maxHeight: "400px", overflowY: "auto" }}>
+          {fullLeaderboard.map((item) => (
+            <div
+              key={item.rank}
+              className="d-flex align-items-center justify-content-between p-3 rounded-3"
+              style={{
+                background: item.rank <= 3 ? "rgba(var(--primary-rgb), 0.08)" : "var(--surface)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              <div className="d-flex align-items-center gap-3">
+                <span
+                  className="fw-black fs-6 text-center"
+                  style={{
+                    width: 28,
+                    color: item.rank === 1 ? "var(--warning)" : item.rank === 2 ? "var(--text-secondary)" : item.rank === 3 ? "var(--danger)" : "var(--muted)",
+                  }}
+                >
+                  #{item.rank}
+                </span>
+                <div>
+                  <h6 className="fw-bold mb-0 text-foreground">{item.name}</h6>
+                  <small className="text-muted">{item.dept}</small>
+                </div>
+              </div>
+              <div className="text-end">
+                <div className="fw-black text-primary">{item.score.toLocaleString()} pts</div>
+                <span className="badge bg-secondary-subtle text-secondary small">{item.badge}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Modal>
     </div>
   );
 }

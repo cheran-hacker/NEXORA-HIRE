@@ -21,7 +21,10 @@ const submissionSchema = new mongoose.Schema({
 
 submissionSchema.pre('save', function (next) {
   if (this.answers && this.answers.length > 0) {
-    this.totalScore = this.answers.reduce((acc, curr) => acc + (curr.marksAwarded || 0), 0);
+    const sum = this.answers.reduce((acc, curr) => acc + (curr.marksAwarded || 0), 0);
+    if (sum > 0 || this.totalScore === undefined || this.totalScore === null) {
+      this.totalScore = sum;
+    }
   }
   
   if (this.status === 'Submitted') {

@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Users, Search, Plus, MapPin, Tag, Star } from "lucide-react";
 import { useToast } from "../../context/ToastContext";
 import { clubService } from "../../services/api";
+import Modal from "../../shared/components/Modal";
+
 const ClubsDirectory = () => {
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
@@ -10,6 +12,13 @@ const ClubsDirectory = () => {
   const [category, setCategory] = useState("All");
   const [clubs, setClubs] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [clubForm, setClubForm] = useState({
+    name: "",
+    category: "Technical",
+    description: "",
+    tags: "Coding, AI, Web",
+  });
   useEffect(() => {
     const fetchUser = async () => {
       try {

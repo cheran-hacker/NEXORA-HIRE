@@ -5,6 +5,7 @@
    ========================================= */
 
 :root {
+  color-scheme: light;
   /* Brand Colors - Premium Indigo/Purple Blend */
   --primary: #5c6ac4;
   --primary-dark: #4338ca;
@@ -110,6 +111,7 @@
    DARK THEME (Ultra-Sleek)
    ========================================= */
 [data-theme="dark"] {
+  color-scheme: dark;
   --bg: #09090e; 
   --bg-secondary: #121218; 
   --bg-tertiary: #1c1c24;
@@ -984,7 +986,6 @@ span:not([class*="badge"]):not([class*="btn"]) { color: inherit; }
 }
 
 .form-control::placeholder { color: var(--text-muted) !important; opacity: 1; }
-.form-select option { background: var(--surface); color: var(--text); }
 
 /* ── textarea specifically ── */
 textarea.form-control {
@@ -1397,4 +1398,56 @@ main.position-relative > * {
   background-color: var(--bg-secondary) !important;
   color: var(--text) !important;
   border: 1px solid var(--border);
+}
+
+/* Ensure all select elements, options, and dropdowns have high-contrast, crystal-clear text across all browsers and OS themes */
+select,
+.form-select {
+  color-scheme: light !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+select option,
+.form-select option,
+select optgroup {
+  color-scheme: light !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  background-color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+select option:checked,
+select option:hover,
+select option:focus {
+  background-color: #4338ca !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* In Dark Theme */
+[data-theme="dark"] select,
+[data-theme="dark"] .form-select {
+  color-scheme: dark !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+[data-theme="dark"] select option,
+[data-theme="dark"] .form-select option,
+[data-theme="dark"] select optgroup {
+  color-scheme: dark !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  background-color: #1e293b !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="dark"] select option:checked,
+[data-theme="dark"] select option:hover,
+[data-theme="dark"] select option:focus {
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }

@@ -114,6 +114,7 @@ export default function AdminImport() {
             <h5 className="fw-bold mb-4">Select Import Destination</h5>
             <div className="d-flex gap-3 mb-4">
               <button
+                type="button"
                 className="btn d-flex align-items-center gap-2 px-4 py-3 rounded-4 transition-fast btn-primary shadow-sm"
               >
                 <GraduationCap size={20} />

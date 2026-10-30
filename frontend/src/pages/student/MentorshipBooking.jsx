@@ -103,6 +103,7 @@ export default function StudentMentorshipHub() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeDomain, setActiveDomain] = useState("All");
+  const [showFilters, setShowFilters] = useState(true);
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -624,35 +625,38 @@ export default function StudentMentorshipHub() {
 
                   <button
                     type="button"
+                    onClick={() => setShowFilters(p => !p)}
                     className="btn btn-outline-secondary rounded-4 px-4 py-2 fw-semibold d-flex align-items-center gap-2"
                     style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text)" }}
                   >
-                    <Filter size={16} /> Filters <ChevronDown size={14} />
+                    <Filter size={16} /> Filters <ChevronDown size={14} style={{ transform: showFilters ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
                   </button>
                 </div>
 
                 {/* Domain Filter Pills */}
-                <div className="d-flex gap-2 flex-wrap mb-4">
-                  {DOMAIN_PILLS.map((pill) => {
-                    const isActive = activeDomain === pill;
-                    return (
-                      <button
-                        key={pill}
-                        type="button"
-                        className="btn rounded-pill px-4 py-2 fw-semibold"
-                        onClick={() => setActiveDomain(pill)}
-                        style={{
-                          background: isActive ? "#0d6efd" : "var(--surface)",
-                          color: isActive ? "#ffffff" : "var(--text)",
-                          border: isActive ? "none" : "1px solid var(--border)",
-                          fontSize: "0.9rem",
-                        }}
-                      >
-                        {pill}
-                      </button>
-                    );
-                  })}
-                </div>
+                {showFilters && (
+                  <div className="d-flex gap-2 flex-wrap mb-4">
+                    {DOMAIN_PILLS.map((pill) => {
+                      const isActive = activeDomain === pill;
+                      return (
+                        <button
+                          key={pill}
+                          type="button"
+                          className="btn rounded-pill px-4 py-2 fw-semibold"
+                          onClick={() => setActiveDomain(pill)}
+                          style={{
+                            background: isActive ? "#0d6efd" : "var(--surface)",
+                            color: isActive ? "#ffffff" : "var(--text)",
+                            border: isActive ? "none" : "1px solid var(--border)",
+                            fontSize: "0.9rem",
+                          }}
+                        >
+                          {pill}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Mentor Cards 2-Column Grid */}
                 <div className="row g-4">

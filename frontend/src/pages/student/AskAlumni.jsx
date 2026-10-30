@@ -3,15 +3,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   MapPin,
-  Building,
-  Award,
-  Calendar,
-  CheckCircle2,
-  MessageSquare,
-  Clock,
+  Briefcase,
   GraduationCap,
+  Users,
+  MessageSquare,
+  TrendingUp,
+  Filter,
+  MoreHorizontal,
+  Clock,
+  Calendar,
   X,
-  Send
+  Send,
+  CheckCircle2,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { alumniService, mentorshipService } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
@@ -23,6 +28,8 @@ export default function AskAlumni() {
   const [alumni, setAlumni] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedCompanyFilter, setSelectedCompanyFilter] = useState("All");
 
   // Booking modal state
   const [bookingFor, setBookingFor] = useState(null);
@@ -89,7 +96,7 @@ export default function AskAlumni() {
         message: bookingMessage.trim(),
         requestedDate: bookingDate || tomorrowStr,
         requestedStartTime: bookingTime || "18:00",
-        requestedEndTime: endTime
+        requestedEndTime: endTime,
       });
 
       const mentorName = bookingFor.name || bookingFor.user?.name || "Alumni Mentor";
@@ -104,121 +111,471 @@ export default function AskAlumni() {
     }
   };
 
+  // Helper to extract clean initials (e.g. "Cheran Suresh" -> "CS")
+  const getInitials = (name) => {
+    if (!name) return "AL";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  // Extract unique companies for filtering
+  const companiesList = ["All", ...new Set(
+    alumni
+      .map((a) => a.alumniProfile?.company || a.company || a.companyName)
+      .filter(Boolean)
+  )];
+
   const filteredAlumni = alumni.filter((a) => {
     const name = a.name || a.user?.name || "";
-    const company = a.company || a.companyName || "";
-    const role = a.title || a.currentRole || "";
+    const company = a.alumniProfile?.company || a.company || a.companyName || "";
+    const role = a.alumniProfile?.designation || a.title || a.currentRole || "";
+    const skills = a.alumniProfile?.expertise || a.expertise || a.skills || [];
     const q = searchTerm.toLowerCase();
-    return (
+
+    const matchesSearch =
       name.toLowerCase().includes(q) ||
       company.toLowerCase().includes(q) ||
       role.toLowerCase().includes(q) ||
-      (a.expertise || []).some((s) => String(s).toLowerCase().includes(q))
-    );
+      skills.some((s) => String(s).toLowerCase().includes(q));
+
+    const matchesCompany =
+      selectedCompanyFilter === "All" ||
+      company.toLowerCase() === selectedCompanyFilter.toLowerCase();
+
+    return matchesSearch && matchesCompany;
   });
 
   return (
-    <div className="container-fluid py-4 px-xl-5" style={{ background: "var(--bg)", minHeight: "100dvh", color: "var(--text)" }}>
-      {/* Header */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 mb-5">
+    <div
+      className="container-fluid py-4 px-3 px-md-5"
+      style={{
+        background: "radial-gradient(ellipse at top left, rgba(124, 58, 237, 0.04) 0%, rgba(248, 250, 252, 0.8) 100%)",
+        minHeight: "100dvh",
+        color: "var(--text)",
+      }}
+    >
+      {/* Header Container */}
+      <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4 mb-4 pb-2">
         <div>
-          <motion.h2 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="fw-black mb-1 d-flex align-items-center gap-3 text-ultra" style={{ fontSize: "2.5rem", letterSpacing: "-0.02em" }}>
-            <GraduationCap size={36} className="text-primary" strokeWidth={2.5} />
-            Ask Alumni
-          </motion.h2>
-          <p className="text-muted fw-medium mb-0 ms-1">Connect with graduates, seek mentorship, and get referral guidance.</p>
+          <div className="d-flex align-items-center gap-3 mb-2">
+            <div
+              className="d-flex align-items-center justify-content-center rounded-4 shadow-sm"
+              style={{
+                width: "56px",
+                height: "56px",
+                background: "linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(79, 70, 229, 0.1) 100%)",
+                border: "1.5px solid rgba(124, 58, 237, 0.2)",
+                color: "#7c3aed",
+              }}
+            >
+              <GraduationCap size={30} strokeWidth={2.2} />
+            </div>
+            <motion.h1
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="fw-black mb-0"
+              style={{
+                fontSize: "2.5rem",
+                letterSpacing: "-0.025em",
+                color: "var(--text, #0f172a)",
+              }}
+            >
+              Ask <span style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Alumni</span>
+            </motion.h1>
+          </div>
+          <p className="text-muted fw-medium mb-3 ms-1" style={{ fontSize: "1rem" }}>
+            Connect with graduates, seek mentorship, and get referral guidance.
+          </p>
+
+          {/* Benefit Badges Row */}
+          <div className="d-flex flex-wrap align-items-center gap-2 pt-1">
+            <div
+              className="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill shadow-xs"
+              style={{
+                background: "rgba(124, 58, 237, 0.07)",
+                color: "#6d28d9",
+                border: "1px solid rgba(124, 58, 237, 0.18)",
+                fontSize: "0.82rem",
+                fontWeight: "600",
+              }}
+            >
+              <Users size={14} className="text-primary" />
+              <span>Learn from real experiences</span>
+            </div>
+            <span className="text-muted opacity-40 d-none d-sm-inline">|</span>
+            <div
+              className="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill shadow-xs"
+              style={{
+                background: "rgba(59, 130, 246, 0.07)",
+                color: "#1d4ed8",
+                border: "1px solid rgba(59, 130, 246, 0.18)",
+                fontSize: "0.82rem",
+                fontWeight: "600",
+              }}
+            >
+              <MessageSquare size={14} className="text-info" />
+              <span>Get career guidance</span>
+            </div>
+            <span className="text-muted opacity-40 d-none d-sm-inline">|</span>
+            <div
+              className="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill shadow-xs"
+              style={{
+                background: "rgba(16, 185, 129, 0.07)",
+                color: "#047857",
+                border: "1px solid rgba(16, 185, 129, 0.18)",
+                fontSize: "0.82rem",
+                fontWeight: "600",
+              }}
+            >
+              <TrendingUp size={14} className="text-success" />
+              <span>Build your professional network</span>
+            </div>
+          </div>
         </div>
-        <div className="d-flex gap-2">
-          <div className="input-group" style={{ maxWidth: "300px" }}>
-            <span className="input-group-text bg-transparent border-end-0 text-muted" style={{ borderColor: "var(--border)" }}>
-              <Search size={18} />
-            </span>
+
+        {/* Search & Filter Pill Controls */}
+        <div className="d-flex align-items-center gap-2.5">
+          <div className="position-relative" style={{ width: "320px", maxWidth: "100%" }}>
+            <Search
+              size={17}
+              className="position-absolute top-50 start-0 translate-middle-y ms-3.5 text-muted pointer-events-none"
+            />
             <input
               type="text"
-              className="form-control border-start-0 bg-transparent text-body shadow-none"
+              className="form-control rounded-pill ps-5 pe-3 py-2 bg-white"
               placeholder="Search by name or company..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ borderColor: "var(--border)" }}
+              style={{
+                border: "1.5px solid #e2e8f0",
+                fontSize: "0.88rem",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.03)",
+                color: "#1e293b",
+              }}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                className="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 p-1 text-muted"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
+
+          <div className="position-relative">
+            <button
+              type="button"
+              onClick={() => setShowFilters(!showFilters)}
+              className="btn btn-light rounded-circle d-flex align-items-center justify-content-center shadow-xs"
+              style={{
+                width: "42px",
+                height: "42px",
+                border: showFilters ? "1.5px solid #7c3aed" : "1.5px solid #e2e8f0",
+                background: showFilters ? "rgba(124, 58, 237, 0.08)" : "#ffffff",
+                color: showFilters ? "#7c3aed" : "#64748b",
+              }}
+              title="Filter by Company"
+            >
+              <Filter size={18} />
+            </button>
+
+            {/* Filter Dropdown */}
+            {showFilters && (
+              <div
+                className="position-absolute end-0 mt-2 p-3 bg-white rounded-4 shadow-lg border"
+                style={{
+                  width: "250px",
+                  zIndex: 100,
+                  borderColor: "#e2e8f0",
+                }}
+              >
+                <h6 className="fw-bold small mb-2 text-uppercase tracking-wider text-muted">
+                  Filter by Company
+                </h6>
+                <div className="d-flex flex-column gap-1 max-h-48 overflow-auto">
+                  {companiesList.map((comp) => (
+                    <button
+                      key={comp}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCompanyFilter(comp);
+                        setShowFilters(false);
+                      }}
+                      className={`btn btn-sm text-start rounded-pill px-3 py-1.5 fw-semibold ${
+                        selectedCompanyFilter === comp
+                          ? "btn-primary"
+                          : "btn-light text-muted hover-bg"
+                      }`}
+                      style={{ fontSize: "0.82rem" }}
+                    >
+                      {comp}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
+      {/* Grid of Alumni Cards */}
       {loading ? (
-        <div className="d-flex justify-content-center align-items-center py-5">
-          <span className="spinner-border text-primary" role="status" />
+        <div className="row g-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="col-12 col-md-6 col-lg-4">
+              <div
+                className="card border-0 rounded-4 p-4 shadow-xs"
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #edf2f7",
+                  borderRadius: "22px",
+                  minHeight: "260px",
+                }}
+              >
+                <div className="d-flex align-items-center gap-3 mb-3">
+                  <div className="rounded-circle bg-secondary bg-opacity-10 placeholder" style={{ width: 50, height: 50 }} />
+                  <div className="flex-grow-1">
+                    <div className="placeholder col-7 mb-2 rounded" />
+                    <div className="placeholder col-10 rounded" />
+                  </div>
+                </div>
+                <div className="placeholder col-6 mb-2 rounded" />
+                <div className="placeholder col-5 mb-4 rounded" />
+                <div className="d-flex gap-2 mb-4">
+                  <span className="placeholder col-3 py-2 rounded-pill" />
+                  <span className="placeholder col-4 py-2 rounded-pill" />
+                </div>
+                <div className="placeholder col-12 py-3 rounded-pill mt-auto" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="row g-4">
           {filteredAlumni.length > 0 ? (
-            filteredAlumni.map((alum) => {
+            filteredAlumni.map((alum, idx) => {
               const alumName = alum.name || alum.user?.name || "Alumni Mentor";
-              const alumCompany = alum.company || alum.companyName || "Tech Industry";
-              const alumRole = alum.title || alum.currentRole || "Engineer";
-              const isMentorshipAvail = alum.mentorshipAvailable ?? alum.availableForMentorship ?? true;
-              const avatarSrc = alum.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(alumName)}&background=random&color=fff`;
+              const alumCompany = alum.alumniProfile?.company || alum.company || alum.companyName || "Tech Industry";
+              const alumRole = alum.alumniProfile?.designation || alum.title || alum.currentRole || "Software Engineer";
+              const alumLocation = alum.location || alum.alumniProfile?.location || "Remote";
+              const alumBatch = alum.alumniProfile?.batchYear || alum.graduationYear || alum.batchYear || "Alumni";
+              const alumSkills = (alum.alumniProfile?.expertise && alum.alumniProfile.expertise.length > 0)
+                ? alum.alumniProfile.expertise
+                : (alum.expertise && alum.expertise.length > 0)
+                ? alum.expertise
+                : (alum.skills && alum.skills.length > 0)
+                ? alum.skills
+                : ["System Design", "React", "Cloud Architecture"];
+              const isAvailable = alum.available ?? alum.alumniProfile?.available ?? true;
+              const hasPhoto = alum.avatar && alum.avatar.startsWith("http");
+
+              // Deterministic avatar gradient
+              const bgGradients = [
+                "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
+                "linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)",
+                "linear-gradient(135deg, #059669 0%, #0284c7 100%)",
+                "linear-gradient(135deg, #dc2626 0%, #f97316 100%)",
+                "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
+              ];
+              const avatarBg = bgGradients[idx % bgGradients.length];
 
               return (
-                <motion.div key={alum._id || alum.id} className="col-md-6 col-lg-4" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                  <div className="bento-card p-4 h-100 hover-glow d-flex flex-column" style={{ borderColor: "var(--border)" }}>
-                    <div className="d-flex align-items-center gap-3 mb-4">
-                      <img
-                        src={avatarSrc}
-                        alt="Avatar"
-                        className="rounded-circle border"
-                        style={{ width: 56, height: 56, borderColor: "var(--border)", objectFit: "cover" }}
-                      />
-                      <div>
-                        <h6 className="fw-bold mb-0">{alumName}</h6>
-                        <p className="text-primary small fw-semibold mb-0 d-flex align-items-center gap-1">
-                          <Building size={12} /> {alumRole} @ {alumCompany}
-                        </p>
+                <motion.div
+                  key={alum._id || alum.id || idx}
+                  className="col-12 col-md-6 col-lg-4"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05, duration: 0.25 }}
+                >
+                  <div
+                    className="card border-0 h-100 p-4 d-flex flex-column transition-all hover-lift"
+                    style={{
+                      background: "var(--card, #ffffff)",
+                      borderRadius: "22px",
+                      border: "1.5px solid #eef2f6",
+                      boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02)",
+                    }}
+                  >
+                    {/* Top Row: Avatar, Identity, Overflow Action */}
+                    <div className="d-flex align-items-start justify-content-between gap-2 mb-3">
+                      <div className="d-flex align-items-center gap-3">
+                        {hasPhoto ? (
+                          <img
+                            src={alum.avatar}
+                            alt={alumName}
+                            className="rounded-circle shadow-xs"
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              objectFit: "cover",
+                              border: "2px solid #ffffff",
+                              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                            }}
+                          />
+                        ) : (
+                          <div
+                            className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-xs flex-shrink-0"
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              background: avatarBg,
+                              fontSize: "1rem",
+                              letterSpacing: "0.5px",
+                            }}
+                          >
+                            {getInitials(alumName)}
+                          </div>
+                        )}
+
+                        <div className="text-truncate">
+                          <div className="d-flex align-items-center gap-1.5">
+                            <h5
+                              className="fw-bold mb-0 text-truncate"
+                              style={{
+                                color: "var(--text, #0f172a)",
+                                fontSize: "1.05rem",
+                                letterSpacing: "-0.01em",
+                              }}
+                            >
+                              {alumName}
+                            </h5>
+                            {/* Online Status Green Dot Indicator */}
+                            <span
+                              className="rounded-circle d-inline-block flex-shrink-0"
+                              title={isAvailable ? "Online / Open for Mentorship" : "Busy"}
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                background: isAvailable ? "#10b981" : "#94a3b8",
+                                boxShadow: isAvailable ? "0 0 0 2px rgba(16, 185, 129, 0.2)" : "none",
+                              }}
+                            />
+                          </div>
+
+                          <p
+                            className="text-muted small fw-medium mb-0 text-truncate d-flex align-items-center gap-1.5 mt-0.5"
+                            style={{ fontSize: "0.82rem" }}
+                          >
+                            <Briefcase size={13} className="text-muted flex-shrink-0" />
+                            <span className="text-truncate">
+                              {alumRole} @ <strong className="text-dark-emphasis">{alumCompany}</strong>
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Card Overflow Action */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenBooking(alum)}
+                        className="btn btn-link text-muted p-1 hover-text-foreground rounded-circle"
+                        title="More options"
+                        style={{ textDecoration: "none" }}
+                      >
+                        <MoreHorizontal size={18} />
+                      </button>
+                    </div>
+
+                    {/* Metadata Items */}
+                    <div className="d-flex flex-column gap-1.5 mb-3 text-muted" style={{ fontSize: "0.84rem" }}>
+                      <div className="d-flex align-items-center gap-2">
+                        <MapPin size={14} className="text-muted flex-shrink-0" />
+                        <span>{alumLocation}</span>
+                      </div>
+                      <div className="d-flex align-items-center gap-2">
+                        <GraduationCap size={14} className="text-muted flex-shrink-0" />
+                        <span>Class of {alumBatch}</span>
                       </div>
                     </div>
 
-                    <div className="mb-4 flex-grow-1">
-                      <p className="small text-muted mb-2 d-flex align-items-center gap-2">
-                        <MapPin size={14} /> {alum.location || "Remote"}
-                      </p>
-                      <p className="small text-muted mb-2 d-flex align-items-center gap-2">
-                        <GraduationCap size={14} /> Class of {alum.graduationYear || "Alumni"}
-                      </p>
-                      {alum.expertise?.length > 0 && (
-                        <div className="d-flex flex-wrap gap-1 mt-3">
-                          {alum.expertise.map((skill, idx) => (
-                            <span key={idx} className="badge bg-secondary-subtle text-secondary border border-secondary-subtle fw-semibold px-2 py-1">
-                              {skill}
-                            </span>
-                          ))}
-                        </div>
+                    {/* Skill Badges */}
+                    <div className="d-flex flex-wrap gap-1.5 mb-4 flex-grow-1 align-content-start">
+                      {alumSkills.slice(0, 5).map((skill, sIdx) => (
+                        <span
+                          key={sIdx}
+                          className="badge rounded-pill fw-medium"
+                          style={{
+                            background: "#eef2ff",
+                            color: "#4338ca",
+                            border: "1px solid #e0e7ff",
+                            fontSize: "0.78rem",
+                            padding: "5px 11px",
+                            letterSpacing: "0.01em",
+                          }}
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                      {alumSkills.length > 5 && (
+                        <span
+                          className="badge rounded-pill fw-medium text-muted"
+                          style={{
+                            background: "#f8fafc",
+                            border: "1px solid #e2e8f0",
+                            fontSize: "0.75rem",
+                            padding: "5px 9px",
+                          }}
+                        >
+                          +{alumSkills.length - 5}
+                        </span>
                       )}
                     </div>
 
+                    {/* Full-Width Gradient Action Button */}
                     <button
+                      type="button"
                       onClick={() => handleOpenBooking(alum)}
-                      disabled={!isMentorshipAvail}
-                      className={`btn w-100 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm ${isMentorshipAvail ? "btn-primary hover-scale" : "btn-light text-muted"}`}
+                      disabled={!isAvailable}
+                      className="btn w-100 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2 py-2.5 transition-all shadow-sm"
+                      style={{
+                        background: isAvailable
+                          ? "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)"
+                          : "#f1f5f9",
+                        color: isAvailable ? "#ffffff" : "#94a3b8",
+                        border: "none",
+                        fontSize: "0.92rem",
+                        boxShadow: isAvailable ? "0 4px 14px rgba(99, 102, 241, 0.28)" : "none",
+                        marginTop: "auto",
+                      }}
                     >
-                      {isMentorshipAvail ? (
-                        <>
-                          <MessageSquare size={16} /> Request Mentorship
-                        </>
-                      ) : (
-                        <>
-                          <Clock size={16} /> Currently Unavailable
-                        </>
-                      )}
+                      <MessageSquare size={16} />
+                      <span>Request Mentorship</span>
+                      <ArrowRight size={15} className="ms-0.5" />
                     </button>
                   </div>
                 </motion.div>
               );
             })
           ) : (
-            <div className="col-12 text-center py-5">
-              <GraduationCap size={48} className="text-muted mb-3 opacity-50" />
-              <h5 className="fw-bold">No alumni found</h5>
-              <p className="text-muted">Try adjusting your search criteria.</p>
+            <div className="col-12 py-5 text-center">
+              <div
+                className="card border-0 rounded-4 p-5 mx-auto text-center"
+                style={{
+                  maxWidth: "500px",
+                  background: "#ffffff",
+                  border: "1.5px dashed #cbd5e1",
+                  borderRadius: "24px",
+                }}
+              >
+                <GraduationCap size={56} className="text-primary opacity-30 mx-auto mb-3" />
+                <h4 className="fw-bold mb-1">No alumni found</h4>
+                <p className="text-muted small mb-4">
+                  We couldn't find any alumni matching your search & filter criteria.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedCompanyFilter("All");
+                  }}
+                  className="btn btn-outline-primary rounded-pill px-4 fw-bold mx-auto"
+                >
+                  Clear Filters
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -233,7 +590,7 @@ export default function AskAlumni() {
               zIndex: 1060,
               background: "rgba(10, 15, 30, 0.72)",
               backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)"
+              WebkitBackdropFilter: "blur(8px)",
             }}
             onClick={handleCloseBooking}
           >
@@ -242,16 +599,15 @@ export default function AskAlumni() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 16 }}
               transition={{ duration: 0.2 }}
-              className="p-4 p-md-5 position-relative shadow-2xl w-100"
+              className="p-4 p-md-5 position-relative w-100 shadow-2xl"
               style={{
                 maxWidth: "540px",
-                background: "var(--card, #ffffff)",
-                color: "var(--text)",
-                borderRadius: "1.25rem",
-                border: "1px solid var(--border)",
-                boxShadow: "0 25px 60px -15px rgba(0, 0, 0, 0.55)",
+                background: "#ffffff",
+                color: "#0f172a",
+                borderRadius: "24px",
+                border: "1px solid #e2e8f0",
                 maxHeight: "92vh",
-                overflowY: "auto"
+                overflowY: "auto",
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -263,18 +619,18 @@ export default function AskAlumni() {
                     style={{
                       width: 44,
                       height: 44,
-                      background: "rgba(var(--primary-rgb), 0.12)",
-                      border: "1px solid rgba(var(--primary-rgb), 0.25)"
+                      background: "rgba(124, 58, 237, 0.12)",
+                      border: "1px solid rgba(124, 58, 237, 0.25)",
                     }}
                   >
-                    <Calendar size={22} />
+                    <Calendar size={22} className="text-primary" />
                   </div>
                   <div>
-                    <h5 className="fw-bold mb-0" style={{ color: "var(--text)" }}>
+                    <h5 className="fw-bold mb-0 text-dark">
                       Request Mentorship Session
                     </h5>
                     <p className="small text-muted mb-0">
-                      With <strong style={{ color: "var(--text)" }}>{bookingFor.name || bookingFor.user?.name || "Alumni Mentor"}</strong>
+                      With <strong>{bookingFor.name || bookingFor.user?.name || "Alumni Mentor"}</strong>
                     </p>
                   </div>
                 </div>
@@ -295,123 +651,107 @@ export default function AskAlumni() {
               <div
                 className="p-3 rounded-4 mb-4 d-flex align-items-center gap-3"
                 style={{
-                  background: "var(--bg-secondary)",
-                  border: "1px solid var(--border)"
+                  background: "#f8fafc",
+                  border: "1px solid #e2e8f0",
                 }}
               >
-                <img
-                  src={
-                    bookingFor.avatar ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(bookingFor.name || bookingFor.user?.name || "Alumni")}&background=random&color=fff`
-                  }
-                  alt="Mentor"
-                  className="rounded-circle border"
-                  style={{ width: 44, height: 44, objectFit: "cover", borderColor: "var(--border)" }}
-                />
-                <div className="small">
-                  <div className="fw-bold" style={{ color: "var(--text)" }}>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-xs flex-shrink-0"
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    background: "linear-gradient(135deg, #7c3aed, #4f46e5)",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  {getInitials(bookingFor.name || bookingFor.user?.name)}
+                </div>
+                <div className="text-truncate">
+                  <h6 className="fw-bold mb-0 text-truncate text-dark">
                     {bookingFor.name || bookingFor.user?.name || "Alumni Mentor"}
-                  </div>
-                  <div className="text-muted">
-                    {bookingFor.title || bookingFor.currentRole || "Engineer"} @{" "}
-                    <span className="text-primary fw-semibold">{bookingFor.company || bookingFor.companyName || "Tech"}</span>
-                    {bookingFor.location && ` • ${bookingFor.location}`}
-                  </div>
+                  </h6>
+                  <p className="small text-muted mb-0 text-truncate">
+                    {bookingFor.alumniProfile?.designation || bookingFor.title || "Engineer"} @ {bookingFor.alumniProfile?.company || bookingFor.company || "Tech Industry"}
+                  </p>
                 </div>
               </div>
 
-              <form onSubmit={handleBookSession}>
-                {/* Topic Selection */}
-                <div className="mb-3">
-                  <label className="form-label small fw-bold text-muted text-uppercase mb-1">
-                    Mentorship Topic
+              {/* Booking Form */}
+              <form onSubmit={handleBookSession} className="d-flex flex-column gap-3">
+                <div>
+                  <label className="form-label small fw-bold text-muted mb-1">
+                    Discussion Topic
                   </label>
                   <select
-                    className="form-select rounded-3"
+                    className="form-select rounded-3 py-2"
+                    style={{ borderColor: "#cbd5e1", fontSize: "0.9rem" }}
                     value={bookingTopic}
                     onChange={(e) => setBookingTopic(e.target.value)}
-                    style={{
-                      background: "var(--bg-secondary)",
-                      borderColor: "var(--border)",
-                      color: "var(--text)"
-                    }}
+                    disabled={isBooking}
                   >
                     <option value="General Career Guidance">General Career Guidance</option>
+                    <option value="Resume & Portfolio Review">Resume & Portfolio Review</option>
                     <option value="Mock Technical Interview">Mock Technical Interview</option>
-                    <option value="Resume & ATS Review">Resume & ATS Review</option>
-                    <option value="System Design Preparation">System Design Preparation</option>
-                    <option value="Referral & Job Strategy">Referral & Job Search Strategy</option>
+                    <option value="Company Referral Inquiry">Company Referral Inquiry</option>
+                    <option value="Industry & System Design Deep-Dive">Industry & System Design Deep-Dive</option>
                   </select>
                 </div>
 
-                {/* Date & Time Row */}
-                <div className="row g-2 mb-3">
+                <div className="row g-3">
                   <div className="col-7">
-                    <label className="form-label small fw-bold text-muted text-uppercase mb-1">
-                      Preferred Date
+                    <label className="form-label small fw-bold text-muted mb-1">
+                      Proposed Date
                     </label>
                     <input
                       type="date"
-                      min={new Date().toISOString().split("T")[0]}
-                      className="form-control rounded-3"
+                      className="form-control rounded-3 py-2"
+                      style={{ borderColor: "#cbd5e1", fontSize: "0.9rem" }}
+                      min={tomorrowStr}
                       value={bookingDate}
                       onChange={(e) => setBookingDate(e.target.value)}
-                      style={{
-                        background: "var(--bg-secondary)",
-                        borderColor: "var(--border)",
-                        color: "var(--text)"
-                      }}
+                      disabled={isBooking}
                       required
                     />
                   </div>
                   <div className="col-5">
-                    <label className="form-label small fw-bold text-muted text-uppercase mb-1">
+                    <label className="form-label small fw-bold text-muted mb-1">
                       Start Time
                     </label>
                     <input
                       type="time"
-                      className="form-control rounded-3"
+                      className="form-control rounded-3 py-2"
+                      style={{ borderColor: "#cbd5e1", fontSize: "0.9rem" }}
                       value={bookingTime}
                       onChange={(e) => setBookingTime(e.target.value)}
-                      style={{
-                        background: "var(--bg-secondary)",
-                        borderColor: "var(--border)",
-                        color: "var(--text)"
-                      }}
+                      disabled={isBooking}
                       required
                     />
                   </div>
                 </div>
 
-                {/* Note / Message */}
-                <div className="mb-4">
-                  <label className="form-label small fw-bold text-muted text-uppercase mb-1">
-                    Your Message / Questions *
+                <div>
+                  <label className="form-label small fw-bold text-muted mb-1">
+                    Personalized Note / Questions *
                   </label>
                   <textarea
                     className="form-control rounded-3"
+                    style={{ borderColor: "#cbd5e1", fontSize: "0.9rem" }}
                     rows={4}
-                    placeholder="Briefly describe what you'd like guidance on (e.g., preparing for Google SWE interviews, resume feedback, behavioral questions)..."
+                    placeholder="Briefly describe what you're working on and what specific guidance you're seeking from this alumni mentor..."
                     value={bookingMessage}
                     onChange={(e) => setBookingMessage(e.target.value)}
+                    disabled={isBooking}
                     required
-                    style={{
-                      background: "var(--bg-secondary)",
-                      borderColor: "var(--border)",
-                      color: "var(--text)",
-                      resize: "none"
-                    }}
                   />
-                  <div className="form-text small text-muted">
-                    Your message helps the alumni review and accept your 1-on-1 session request.
-                  </div>
+                  <small className="text-muted d-block mt-1">
+                    Include your current focus, relevant links, or specific questions.
+                  </small>
                 </div>
 
-                {/* Actions */}
-                <div className="d-flex gap-3 justify-content-end pt-2">
+                <div className="d-flex justify-content-end gap-2 pt-2">
                   <button
                     type="button"
-                    className="btn btn-outline-secondary rounded-pill px-4 fw-semibold"
+                    className="btn btn-light rounded-pill px-4 fw-semibold"
                     onClick={handleCloseBooking}
                     disabled={isBooking}
                   >
@@ -420,16 +760,21 @@ export default function AskAlumni() {
                   <button
                     type="submit"
                     className="btn btn-primary rounded-pill px-4 fw-bold d-flex align-items-center gap-2 shadow-sm"
-                    disabled={isBooking || !bookingMessage.trim()}
+                    style={{
+                      background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+                      border: "none",
+                    }}
+                    disabled={isBooking}
                   >
                     {isBooking ? (
                       <>
-                        <span className="spinner-border spinner-border-sm" />
-                        <span>Sending Request...</span>
+                        <span className="spinner-border spinner-border-sm" role="status" />
+                        <span>Sending...</span>
                       </>
                     ) : (
                       <>
-                        <Send size={15} /> Send Request
+                        <Send size={15} />
+                        <span>Send Request</span>
                       </>
                     )}
                   </button>

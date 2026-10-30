@@ -36,7 +36,6 @@ export default function AlumniLayout() {
     { name: "Alumni Network", href: "/alumni/network", icon: Users },
     { name: "Availability", href: "/alumni/availability", icon: Clock },
     { name: "Bounties", href: "/alumni/bounties", icon: Award },
-    { name: "Validation Inbox", href: "/alumni/validation-inbox", icon: Award },
     { name: "Community Forum", href: "/alumni/forum", icon: MessageSquare },
   ];
   const getPageTitle = () => {

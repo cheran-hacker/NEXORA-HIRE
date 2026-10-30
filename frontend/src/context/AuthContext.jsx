@@ -26,8 +26,13 @@ export function AuthProvider({ children }) {
         try {
           const response = await api.get("/auth/me");
           if (response.data && response.data.user) {
-            setUser(response.data.user);
-            localStorage.setItem("nexora_user", JSON.stringify(response.data.user));
+            const fetchedUser = response.data.user;
+            const profileImage = fetchedUser.picture || fetchedUser.photoURL || fetchedUser.avatar || fetchedUser.image;
+            if (profileImage && !fetchedUser.avatar) {
+              fetchedUser.avatar = profileImage;
+            }
+            setUser(fetchedUser);
+            localStorage.setItem("nexora_user", JSON.stringify(fetchedUser));
           }
         } catch (error) {
           console.error("Auth hydration failed:", error);
@@ -56,6 +61,11 @@ export function AuthProvider({ children }) {
         return { success: false, message: "Invalid server response" };
       }
 
+      const profileImage = userData.picture || userData.photoURL || userData.avatar || userData.image;
+      if (profileImage && !userData.avatar) {
+        userData.avatar = profileImage;
+      }
+
       localStorage.setItem("nexora_token", token);
       localStorage.setItem("nexora_user", JSON.stringify(userData));
       setUser(userData);
@@ -82,6 +92,11 @@ export function AuthProvider({ children }) {
         user: userData,
         requiresOnboarding,
       } = response.data;
+
+      const profileImage = userData?.picture || userData?.photoURL || userData?.avatar || userData?.image;
+      if (profileImage && !userData.avatar) {
+        userData.avatar = profileImage;
+      }
 
       localStorage.setItem("nexora_token", jwtToken);
       localStorage.setItem("nexora_user", JSON.stringify(userData));

@@ -1,15 +1,15 @@
 import mongoose from 'mongoose';
 
 const questionSchema = new mongoose.Schema({
-  type: { type: String, enum: ['MCQ', 'Coding', 'Subjective'], required: true },
+  type: { type: String, enum: ['MCQ', 'Coding', 'Subjective'], default: 'MCQ', required: true },
   content: { type: String, required: true }, // The question text
   marks: { type: Number, default: 1 },
   difficulty: { type: String, enum: ['Easy', 'Medium', 'Hard'], default: 'Medium' },
   
   // MCQ specific
   options: [{
-    text: String,
-    isCorrect: Boolean
+    text: { type: String, default: '' },
+    isCorrect: { type: Boolean, default: false }
   }],
   
   // Coding specific
@@ -24,11 +24,19 @@ const questionSchema = new mongoose.Schema({
 
 const assessmentSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  description: { type: String },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Faculty or Recruiter
-  type: { type: String, enum: ['Aptitude', 'Technical', 'Coding', 'CompanySpecific'], required: true },
+  description: { type: String, default: '' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  type: { 
+    type: String, 
+    enum: ['Aptitude', 'Technical', 'Coding', 'CompanySpecific', 'Domain Specific', 'General'], 
+    default: 'Technical',
+    required: true 
+  },
+  difficulty: { type: String, enum: ['Easy', 'Medium', 'Hard'], default: 'Medium' },
+  totalMarks: { type: Number, default: 0 },
+  passingPercentage: { type: Number, default: 60 },
   
-  durationMinutes: { type: Number, required: true },
+  durationMinutes: { type: Number, required: true, default: 30 },
   startTime: { type: Date },
   endTime: { type: Date },
   

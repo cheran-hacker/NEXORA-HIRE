@@ -25,7 +25,8 @@ import {
   Zap,
   Tag,
   ShieldAlert,
-  ArrowRight
+  ArrowRight,
+  X
 } from "lucide-react";
 import { useToast } from "../../context/ToastContext";
 
@@ -837,45 +838,54 @@ const MyBounties = () => {
       {/* ── Create / Edit Bounty Modal ── */}
       <AnimatePresence>
         {showModal && (
-          <div
-            className="modal-backdrop-blur position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
-            style={{
-              zIndex: 1050,
-              background: "rgba(0,0,0,0.5)",
-              backdropFilter: "blur(6px)"
-            }}
-            onClick={() => setShowModal(false)}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="nexora-modal-backdrop"
+            onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bento-card p-0 rounded-4 overflow-hidden shadow-lg border"
-              style={{
-                width: "100%",
-                maxWidth: 680,
-                maxHeight: "90vh",
-                background: "var(--surface)",
-                borderColor: "var(--border)",
-                display: "flex",
-                flexDirection: "column"
-              }}
+              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="nexora-modal-container size-md"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-light">
-                <h4 className="fw-bold m-0" style={{ color: "var(--text)" }}>
-                  {isEditing ? "Edit Bounty Opportunity" : "Post a Student Bounty Opportunity"}
-                </h4>
-                <button className="btn-close" onClick={() => setShowModal(false)}></button>
+              {/* Header */}
+              <div className="nexora-modal-header">
+                <div className="nexora-modal-header-left">
+                  <div className="nexora-modal-icon-badge">
+                    <Award size={22} strokeWidth={2.2} />
+                  </div>
+                  <div>
+                    <h4 className="nexora-modal-title">
+                      {isEditing ? "Edit Bounty Opportunity" : "Create Student Bounty"}
+                    </h4>
+                    <p className="nexora-modal-subtitle">
+                      Sponsor real-world engineering challenges for verified students
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="nexora-modal-close-btn"
+                  onClick={() => setShowModal(false)}
+                  title="Close modal"
+                >
+                  <X size={18} strokeWidth={2.2} />
+                </button>
               </div>
 
-              <div className="p-4 overflow-auto">
-                <form onSubmit={handleSubmit}>
+              {/* Form & Body */}
+              <form onSubmit={handleSubmit} className="d-flex flex-column" style={{ minHeight: 0, flex: 1 }}>
+                <div className="nexora-modal-body">
                   {/* Title & AI Enhance */}
                   <div className="mb-3">
                     <div className="d-flex justify-content-between align-items-center mb-1">
-                      <label className="form-label fw-bold small text-muted mb-0">
-                        Bounty Title <span className="text-danger">*</span>
+                      <label className="nexora-form-label mb-0">
+                        Bounty Title <span className="nexora-form-req">*</span>
                       </label>
                       <button
                         type="button"
@@ -885,12 +895,12 @@ const MyBounties = () => {
                         style={{ fontSize: "0.75rem" }}
                       >
                         <Sparkles size={13} />
-                        {aiLoading ? "Enhancing with AI..." : "Enhance with AI"}
+                        {aiLoading ? "Enhancing..." : "Enhance with AI"}
                       </button>
                     </div>
                     <input
                       type="text"
-                      className="form-control"
+                      className="nexora-form-input"
                       placeholder="e.g. Implement Microservices Redis Rate Limiter"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -900,11 +910,11 @@ const MyBounties = () => {
 
                   {/* Description */}
                   <div className="mb-3">
-                    <label className="form-label fw-bold small text-muted">
-                      Overview Description <span className="text-danger">*</span>
+                    <label className="nexora-form-label">
+                      Overview Description <span className="nexora-form-req">*</span>
                     </label>
                     <textarea
-                      className="form-control"
+                      className="nexora-form-textarea"
                       rows={3}
                       placeholder="Explain the background problem, goals, and desired end results..."
                       value={formData.description}
@@ -915,11 +925,11 @@ const MyBounties = () => {
 
                   {/* Task Instructions */}
                   <div className="mb-3">
-                    <label className="form-label fw-bold small text-muted">
+                    <label className="nexora-form-label">
                       Task Deliverables & Instructions
                     </label>
                     <textarea
-                      className="form-control"
+                      className="nexora-form-textarea"
                       rows={3}
                       placeholder="Specify exact deliverables, links to repos, acceptance criteria, or testing commands..."
                       value={formData.taskInstructions}
@@ -930,28 +940,26 @@ const MyBounties = () => {
                   {/* Reward & Currency */}
                   <div className="row g-3 mb-3">
                     <div className="col-md-6">
-                      <label className="form-label fw-bold small text-muted">
-                        Reward Amount <span className="text-danger">*</span>
+                      <label className="nexora-form-label">
+                        Reward Amount ($) <span className="nexora-form-req">*</span>
                       </label>
-                      <div className="input-group">
-                        <span className="input-group-text">$</span>
-                        <input
-                          type="number"
-                          className="form-control"
-                          min={1}
-                          value={formData.rewardAmount}
-                          onChange={(e) => setFormData({ ...formData, rewardAmount: e.target.value })}
-                          required
-                        />
-                      </div>
+                      <input
+                        type="number"
+                        className="nexora-form-input"
+                        min={1}
+                        placeholder="100"
+                        value={formData.rewardAmount}
+                        onChange={(e) => setFormData({ ...formData, rewardAmount: e.target.value })}
+                        required
+                      />
                     </div>
 
                     <div className="col-md-6">
-                      <label className="form-label fw-bold small text-muted">
+                      <label className="nexora-form-label">
                         Difficulty Level
                       </label>
                       <select
-                        className="form-select"
+                        className="nexora-form-select"
                         value={formData.difficulty}
                         onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
                       >
@@ -964,12 +972,12 @@ const MyBounties = () => {
 
                   {/* Required Skills / Tags */}
                   <div className="mb-3">
-                    <label className="form-label fw-bold small text-muted">
+                    <label className="nexora-form-label">
                       Required Skills (comma-separated)
                     </label>
                     <input
                       type="text"
-                      className="form-control"
+                      className="nexora-form-input"
                       placeholder="Node.js, Express, Redis, Docker, React"
                       value={formData.tags}
                       onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
@@ -979,12 +987,12 @@ const MyBounties = () => {
                   {/* Eligibility Criteria & Deadline */}
                   <div className="row g-3 mb-3">
                     <div className="col-md-6">
-                      <label className="form-label fw-bold small text-muted">
+                      <label className="nexora-form-label">
                         Eligibility Criteria
                       </label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="nexora-form-input"
                         placeholder="e.g. CSE/IT students with backend knowledge"
                         value={formData.eligibilityCriteria}
                         onChange={(e) => setFormData({ ...formData, eligibilityCriteria: e.target.value })}
@@ -992,25 +1000,25 @@ const MyBounties = () => {
                     </div>
 
                     <div className="col-md-6">
-                      <label className="form-label fw-bold small text-muted">
+                      <label className="nexora-form-label">
                         Submission Deadline
                       </label>
                       <input
                         type="date"
-                        className="form-control"
+                        className="nexora-form-input"
                         value={formData.deadline}
                         onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                       />
                     </div>
                   </div>
 
-                  {/* Status (Publish as Open vs Save as Draft) */}
-                  <div className="mb-4">
-                    <label className="form-label fw-bold small text-muted">
+                  {/* Status */}
+                  <div className="mb-2">
+                    <label className="nexora-form-label">
                       Publishing Status
                     </label>
                     <select
-                      className="form-select"
+                      className="nexora-form-select"
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     >
@@ -1018,34 +1026,43 @@ const MyBounties = () => {
                       <option value="Draft">Save as Draft (Private)</option>
                     </select>
                   </div>
+                </div>
 
-                  {/* Buttons */}
-                  <div className="d-flex justify-content-end gap-2 pt-3 border-top">
+                {/* Footer */}
+                <div className="nexora-modal-footer">
+                  <span className="nexora-modal-footer-hint d-none d-sm-inline">
+                    * Required fields must be completed
+                  </span>
+                  <div className="nexora-modal-footer-actions">
                     <button
                       type="button"
-                      className="btn btn-light rounded-pill px-4"
+                      className="nexora-modal-btn-cancel"
                       onClick={() => setShowModal(false)}
+                      disabled={submitting}
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"
+                      className="nexora-modal-btn-primary"
                     >
-                      {submitting
-                        ? "Saving..."
-                        : isEditing
-                        ? "Update Bounty"
-                        : formData.status === "Draft"
-                        ? "Save Draft"
-                        : "Publish Bounty"}
+                      {submitting ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm" /> Saving...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 size={18} />
+                          {isEditing ? "Update Bounty" : formData.status === "Draft" ? "Save Draft" : "Publish Bounty"}
+                        </>
+                      )}
                     </button>
                   </div>
-                </form>
-              </div>
+                </div>
+              </form>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

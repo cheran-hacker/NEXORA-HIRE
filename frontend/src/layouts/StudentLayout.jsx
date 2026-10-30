@@ -49,7 +49,6 @@ export default function StudentLayout() {
     { name: "Assessments", href: "/student/assessments", icon: ClipboardCheck },
 
     { name: "CAREER", isSection: true },
-    { name: "AI Interview", href: "/student/interviews", icon: Sparkles },
     { name: "Career Target", href: "/student/learning", icon: Compass },
     { name: "Career Roadmap", href: "/student/roadmap", icon: Map },
     { name: "Alumni & Mentors", href: "/student/alumni-mentors", icon: Users },

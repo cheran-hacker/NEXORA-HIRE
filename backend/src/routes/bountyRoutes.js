@@ -20,6 +20,7 @@ import { protect, authorize, optionalProtect } from '../middleware/auth.js';
 const router = express.Router();
 
 // ── Public / Semi-public listing ──────────────────────────────────────────
+router.get('/', optionalProtect, getOpenBounties);
 router.get('/open', optionalProtect, getOpenBounties);
 
 // ── Authenticated Routes ──────────────────────────────────────────────────

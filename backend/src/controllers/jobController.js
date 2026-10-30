@@ -1,5 +1,7 @@
 import { Job } from '../models/Job.js';
 import { Application } from '../models/Application.js';
+import { User } from '../models/User.js';
+import { Notification } from '../models/Notification.js';
 
 // Get all jobs (with basic filtering and text search)
 export const getJobs = async (req, res, next) => {
@@ -428,3 +430,4 @@ export const approveVacancy = async (req, res, next) => {
     next(error);
   }
 };
+

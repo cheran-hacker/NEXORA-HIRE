@@ -29,6 +29,7 @@ router.use(authorize('Placement', 'Admin'));
 
 router.get('/stats', getPlacementStats);
 router.get('/pipeline', getRecruitmentPipeline);
+router.get('/recruitment-pipeline', getRecruitmentPipeline);
 router.get('/reports', getAnalyticsReports);
 
 router.get('/students', getPlacementStudents);

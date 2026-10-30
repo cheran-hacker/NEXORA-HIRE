@@ -772,24 +772,11 @@ export const createMentorshipRequest = async (req, res, next) => {
     }
 
     const availability = await getOrCreateAvailability(targetAlumniId);
-    if (!availability.isAvailable) {
-      return res.status(400).json({
-        success: false,
-        message: 'This mentor is currently not accepting new mentees.'
-      });
-    }
-
-    // 2. Check maximum active mentees capacity
+    // Allow request to be queued even if mentor is busy or at nominal capacity
     const activeMenteesCount = await MentorshipSession.countDocuments({
       mentor: targetAlumniId,
       status: { $in: ['Active', 'InProgress', 'Scheduled', 'Confirmed'] }
     });
-    if (activeMenteesCount >= (availability.maxActiveMentees || 5)) {
-      return res.status(400).json({
-        success: false,
-        message: `Mentor has reached their active mentee capacity (${availability.maxActiveMentees}). Please check back soon.`
-      });
-    }
 
     // Normalize date
     let rawDate = requestedDate || preferredDate || date;
@@ -832,16 +819,23 @@ export const createMentorshipRequest = async (req, res, next) => {
     }
     requestedStartTime = convertTo24Hour(rawTime);
 
-    // 3. Prevent duplicate pending requests
+    // 3. Update existing pending request gracefully instead of 400 error
     const existingPending = await MentorshipRequest.findOne({
       student: studentId,
       alumni: targetAlumniId,
       status: 'Pending'
     });
     if (existingPending) {
-      return res.status(400).json({
-        success: false,
-        message: 'You already have a pending mentorship request with this mentor.'
+      existingPending.topic = topic || existingPending.topic;
+      existingPending.message = message || existingPending.message;
+      existingPending.requestedDate = dateObj;
+      existingPending.requestedStartTime = requestedStartTime;
+      if (requestedEndTime) existingPending.requestedEndTime = requestedEndTime;
+      await existingPending.save();
+      return res.status(200).json({
+        success: true,
+        message: `Mentorship request with ${mentor.name} successfully updated!`,
+        data: existingPending
       });
     }
 

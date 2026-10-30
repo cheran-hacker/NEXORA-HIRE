@@ -24,6 +24,7 @@ export default function InterviewScheduler() {
   const [modalLoading, setModalLoading] = useState(false);
   const [myJobs, setMyJobs] = useState([]);
   const [jobApps, setJobApps] = useState([]);
+  const [currentMonthDate, setCurrentMonthDate] = useState(new Date(2026, 7, 1));
   const [scheduleData, setScheduleData] = useState({
     jobId: "",
     appId: "",
@@ -59,6 +60,30 @@ export default function InterviewScheduler() {
       console.error(e);
     }
   };
+
+  const handleReschedule = async (interview) => {
+    setShowModal(true);
+    try {
+      const res = await jobService.getMyJobs();
+      setMyJobs(res.data.data || []);
+      const jId = interview.jobId?._id || interview.jobId || (res.data.data[0]?._id ?? "");
+      setScheduleData({
+        jobId: jId,
+        appId: interview.appId?._id || interview.appId || "",
+        title: interview.title || "Technical Round",
+        duration: interview.duration || "45 mins",
+        scheduledAt: interview.scheduledAt ? new Date(interview.scheduledAt).toISOString().slice(0, 16) : "",
+        interviewer: interview.interviewer || "",
+        link: interview.link || "",
+      });
+      if (jId) {
+        const appRes = await jobService.getApplications(jId);
+        setJobApps(appRes.data.data || []);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
   const handleJobChange = async (jobId) => {
     setScheduleData((prev) => ({ ...prev, jobId, appId: "" }));
     setJobApps([]);
@@ -72,6 +97,7 @@ export default function InterviewScheduler() {
       console.error(e);
     }
   };
+
   const handleScheduleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -155,19 +181,21 @@ export default function InterviewScheduler() {
             <div className="d-flex justify-content-between align-items-center mb-4">
               {" "}
               <h5 className="fw-bold m-0" style={{ color: "var(--text)" }}>
-                August 2026
+                {currentMonthDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
               </h5>{" "}
               <div className="d-flex gap-1">
                 {" "}
                 <button
-                  onClick={() => addToast("Previous week", 'info')}
+                  onClick={() => setCurrentMonthDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1))}
                   className="btn btn-sm btn-outline-secondary rounded-circle p-1"
+                  aria-label="Previous month"
                 >
                   <ChevronLeft size={16} />
                 </button>{" "}
                 <button
-                  onClick={() => addToast("Next week", 'info')}
+                  onClick={() => setCurrentMonthDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1))}
                   className="btn btn-sm btn-outline-secondary rounded-circle p-1"
+                  aria-label="Next month"
                 >
                   <ChevronRight size={16} />
                 </button>{" "}
@@ -402,11 +430,10 @@ export default function InterviewScheduler() {
                         <Video size={16} /> Join Video Call{" "}
                       </button>{" "}
                       <button
-                        onClick={() => addToast("Reschedule interview", 'info')}
+                        onClick={() => handleReschedule(interview)}
                         className="btn btn-sm btn-outline-secondary rounded-pill px-4 fw-bold flex-grow-1 flex-md-grow-0"
                       >
-                        {" "}
-                        Reschedule{" "}
+                        Reschedule
                       </button>{" "}
                     </div>{" "}
                   </motion.div>
@@ -429,263 +456,219 @@ export default function InterviewScheduler() {
       <AnimatePresence>
         {" "}
         {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
-            style={{
-              background: "rgba(0,0,0,0.02)",
-              zIndex: 1050,
-              inset: 0,
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-            }}
-            onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
+          <div
+            className="nexora-modal-backdrop"
+            onClick={() => setShowModal(false)}
           >
-            {" "}
             <motion.div
-              initial={{ scale: 0.9, y: 40 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 40 }}
-              className="bento-card p-4 p-lg-5"
-              style={{
-                width: "100%",
-                maxWidth: 600,
-                maxHeight: "90vh",
-                overflowY: "auto",
-                background: "var(--surface)",
-              }}
+              initial={{ scale: 0.95, y: 25, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 25, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="nexora-modal-container size-md"
+              onClick={(e) => e.stopPropagation()}
             >
-              {" "}
-              <div className="d-flex align-items-center justify-content-between mb-4">
-                {" "}
-                <h4
-                  className="fw-black mb-0 d-flex align-items-center gap-2"
-                  style={{ color: "var(--text)" }}
-                >
-                  {" "}
-                  <CalendarIcon size={22} className="text-primary" /> Schedule
-                  Interview{" "}
-                </h4>{" "}
+              <div className="nexora-modal-header">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="nexora-modal-icon-badge">
+                    <CalendarIcon size={22} />
+                  </div>
+                  <div>
+                    <h4 className="nexora-modal-title">Schedule Interview</h4>
+                    <p className="nexora-modal-subtitle">
+                      Coordinate interview round for shortlisted candidate
+                    </p>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="btn btn-sm btn-outline-secondary rounded-circle"
-                  style={{ width: 36, height: 36 }}
+                  className="nexora-modal-close-btn"
+                  aria-label="Close"
                 >
-                  {" "}
-                  <X size={16} />{" "}
-                </button>{" "}
-              </div>{" "}
-              <form
-                onSubmit={handleScheduleSubmit}
-                className="d-flex flex-column gap-3"
-              >
-                {" "}
-                <div>
-                  {" "}
-                  <label
-                    className="form-label fw-semibold small"
-                    style={{ color: "var(--text)" }}
-                  >
-                    Select Job *
-                  </label>{" "}
-                  <select
-                    className="form-select text-body border"
-                    required
-                    value={scheduleData.jobId}
-                    onChange={(e) => handleJobChange(e.target.value)}
-                  >
-                    {" "}
-                    <option value="" disabled>
-                      Select Job
-                    </option>{" "}
-                    {myJobs.map((job) => (
-                      <option key={job._id} value={job._id}>
-                        {job.title}
-                      </option>
-                    ))}{" "}
-                  </select>{" "}
-                </div>{" "}
-                <div>
-                  {" "}
-                  <label
-                    className="form-label fw-semibold small"
-                    style={{ color: "var(--text)" }}
-                  >
-                    Select Candidate *
-                  </label>{" "}
-                  <select
-                    className="form-select text-body border"
-                    required
-                    value={scheduleData.appId}
-                    onChange={(e) =>
-                      setScheduleData((p) => ({ ...p, appId: e.target.value }))
-                    }
-                  >
-                    {" "}
-                    <option value="" disabled>
-                      Select Candidate
-                    </option>{" "}
-                    {jobApps.map((app) => (
-                      <option key={app._id} value={app._id}>
-                        {app.studentId?.name || "Unknown"} (ATS:{" "}
-                        {app.aiMatchScore || 0}%)
-                      </option>
-                    ))}{" "}
-                  </select>{" "}
-                  {jobApps.length === 0 && scheduleData.jobId && (
-                    <small className="text-danger mt-1">
-                      No applicants found for this job.
-                    </small>
-                  )}{" "}
-                </div>{" "}
-                <div className="row g-3">
-                  {" "}
-                  <div className="col-md-6">
-                    {" "}
-                    <label
-                      className="form-label fw-semibold small"
-                      style={{ color: "var(--text)" }}
-                    >
-                      Interview Type
-                    </label>{" "}
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleScheduleSubmit} className="d-flex flex-column" style={{ minHeight: 0, flex: 1 }}>
+                <div className="nexora-modal-body">
+                  <div className="mb-3">
+                    <label className="nexora-form-label">
+                      Select Job <span className="nexora-form-req">*</span>
+                    </label>
                     <select
-                      className="form-select text-body border"
-                      value={scheduleData.title}
-                      onChange={(e) =>
-                        setScheduleData((p) => ({
-                          ...p,
-                          title: e.target.value,
-                        }))
-                      }
+                      className="nexora-form-select"
+                      required
+                      value={scheduleData.jobId}
+                      onChange={(e) => handleJobChange(e.target.value)}
                     >
-                      {" "}
-                      <option>Technical Round</option> <option>HR Round</option>{" "}
-                      <option>Screening Call</option>{" "}
-                      <option>Culture Fit</option>{" "}
-                    </select>{" "}
-                  </div>{" "}
-                  <div className="col-md-6">
-                    {" "}
-                    <label
-                      className="form-label fw-semibold small"
-                      style={{ color: "var(--text)" }}
-                    >
-                      Duration
-                    </label>{" "}
+                      <option value="" disabled>
+                        Select Job
+                      </option>
+                      {myJobs.map((job) => (
+                        <option key={job._id} value={job._id}>
+                          {job.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="nexora-form-label">
+                      Select Candidate <span className="nexora-form-req">*</span>
+                    </label>
                     <select
-                      className="form-select text-body border"
-                      value={scheduleData.duration}
-                      onChange={(e) =>
-                        setScheduleData((p) => ({
-                          ...p,
-                          duration: e.target.value,
-                        }))
-                      }
-                    >
-                      {" "}
-                      <option>30 mins</option> <option>45 mins</option>{" "}
-                      <option>60 mins</option> <option>90 mins</option>{" "}
-                    </select>{" "}
-                  </div>{" "}
-                </div>{" "}
-                <div className="row g-3">
-                  {" "}
-                  <div className="col-md-6">
-                    {" "}
-                    <label
-                      className="form-label fw-semibold small"
-                      style={{ color: "var(--text)" }}
-                    >
-                      Date & Time *
-                    </label>{" "}
-                    <input
-                      type="datetime-local"
-                      className="form-control text-body border"
+                      className="nexora-form-select"
                       required
-                      value={scheduleData.scheduledAt}
+                      value={scheduleData.appId}
                       onChange={(e) =>
-                        setScheduleData((p) => ({
-                          ...p,
-                          scheduledAt: e.target.value,
-                        }))
+                        setScheduleData((p) => ({ ...p, appId: e.target.value }))
                       }
-                    />{" "}
-                  </div>{" "}
-                  <div className="col-md-6">
-                    {" "}
-                    <label
-                      className="form-label fw-semibold small"
-                      style={{ color: "var(--text)" }}
                     >
-                      Interviewer
-                    </label>{" "}
+                      <option value="" disabled>
+                        Select Candidate
+                      </option>
+                      {jobApps.map((app) => (
+                        <option key={app._id} value={app._id}>
+                          {app.studentId?.name || "Unknown"} (ATS:{" "}
+                          {app.aiMatchScore || 0}%)
+                        </option>
+                      ))}
+                    </select>
+                    {jobApps.length === 0 && scheduleData.jobId && (
+                      <small className="text-danger mt-1 d-block fw-medium" style={{ fontSize: "0.75rem" }}>
+                        No applicants found for this job.
+                      </small>
+                    )}
+                  </div>
+
+                  <div className="row g-3 mb-3">
+                    <div className="col-md-6">
+                      <label className="nexora-form-label">
+                        Interview Type
+                      </label>
+                      <select
+                        className="nexora-form-select"
+                        value={scheduleData.title}
+                        onChange={(e) =>
+                          setScheduleData((p) => ({
+                            ...p,
+                            title: e.target.value,
+                          }))
+                        }
+                      >
+                        <option>Technical Round</option>
+                        <option>HR Round</option>
+                        <option>Screening Call</option>
+                        <option>Culture Fit</option>
+                      </select>
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="nexora-form-label">
+                        Duration
+                      </label>
+                      <select
+                        className="nexora-form-select"
+                        value={scheduleData.duration}
+                        onChange={(e) =>
+                          setScheduleData((p) => ({
+                            ...p,
+                            duration: e.target.value,
+                          }))
+                        }
+                      >
+                        <option>30 mins</option>
+                        <option>45 mins</option>
+                        <option>60 mins</option>
+                        <option>90 mins</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="row g-3 mb-3">
+                    <div className="col-md-6">
+                      <label className="nexora-form-label">
+                        Date & Time <span className="nexora-form-req">*</span>
+                      </label>
+                      <input
+                        type="datetime-local"
+                        className="nexora-form-input"
+                        required
+                        value={scheduleData.scheduledAt}
+                        onChange={(e) =>
+                          setScheduleData((p) => ({
+                            ...p,
+                            scheduledAt: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="nexora-form-label">
+                        Interviewer Name <span className="nexora-form-req">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="nexora-form-input"
+                        placeholder="e.g. Lead Engineer, Hiring Manager"
+                        required
+                        value={scheduleData.interviewer}
+                        onChange={(e) =>
+                          setScheduleData((p) => ({
+                            ...p,
+                            interviewer: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-2">
+                    <label className="nexora-form-label">
+                      Meeting Link (Google Meet / Zoom)
+                    </label>
                     <input
-                      type="text"
-                      className="form-control text-body border"
-                      required
-                      value={scheduleData.interviewer}
+                      type="url"
+                      className="nexora-form-input"
+                      placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                      value={scheduleData.link}
                       onChange={(e) =>
-                        setScheduleData((p) => ({
-                          ...p,
-                          interviewer: e.target.value,
-                        }))
+                        setScheduleData((p) => ({ ...p, link: e.target.value }))
                       }
-                    />{" "}
-                  </div>{" "}
-                </div>{" "}
-                <div>
-                  {" "}
-                  <label
-                    className="form-label fw-semibold small"
-                    style={{ color: "var(--text)" }}
-                  >
-                    Meeting Link
-                  </label>{" "}
-                  <input
-                    type="url"
-                    className="form-control text-body border"
-                    value={scheduleData.link}
-                    onChange={(e) =>
-                      setScheduleData((p) => ({ ...p, link: e.target.value }))
-                    }
-                  />{" "}
-                </div>{" "}
-                <div className="d-flex gap-3 mt-4">
-                  {" "}
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="btn btn-outline-secondary rounded-pill flex-fill fw-semibold"
-                  >
-                    {" "}
-                    Cancel{" "}
-                  </button>{" "}
-                  <button
-                    type="submit"
-                    disabled={modalLoading}
-                    className="btn btn-primary rounded-pill flex-fill fw-bold d-flex align-items-center justify-content-center gap-2"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, var(--primary), var(--purple))",
-                      border: "none",
-                    }}
-                  >
-                    {" "}
-                    {modalLoading ? (
-                      <span className="spinner-border spinner-border-sm" />
-                    ) : (
-                      <CheckCircle size={18} />
-                    )}{" "}
-                    {modalLoading ? "Scheduling..." : "Schedule Now"}{" "}
-                  </button>{" "}
-                </div>{" "}
-              </form>{" "}
-            </motion.div>{" "}
-          </motion.div>
+                    />
+                  </div>
+                </div>
+
+                <div className="nexora-modal-footer">
+                  <span className="nexora-modal-footer-hint">
+                    * Required fields must be completed
+                  </span>
+                  <div className="nexora-modal-footer-actions">
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                      className="nexora-modal-btn-cancel"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={modalLoading}
+                      className="nexora-modal-btn-primary"
+                    >
+                      {modalLoading ? (
+                        <span className="spinner-border spinner-border-sm" />
+                      ) : (
+                        <CheckCircle size={18} />
+                      )}
+                      {modalLoading ? "Scheduling..." : "Schedule Now"}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </motion.div>
+          </div>
         )}{" "}
       </AnimatePresence>{" "}
     </div>

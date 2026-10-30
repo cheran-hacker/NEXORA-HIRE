@@ -38,6 +38,7 @@ import {
   Cell
 } from "recharts";
 import { placementService, jobService } from "../../services/api";
+import { formatSalaryRange, formatLPA, toRupeesStorage, validateSalaryLPA } from "../../utils/salaryHelper.js";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -201,6 +202,12 @@ export default function PlacementDashboard() {
       return;
     }
 
+    const salaryCheck = validateSalaryLPA(newJobForm.salaryMin, newJobForm.salaryMax);
+    if (!salaryCheck.isValid) {
+      addToast(salaryCheck.error, "warning");
+      return;
+    }
+
     try {
       setCreatingJob(true);
       const skillsArray = newJobForm.skills
@@ -214,8 +221,8 @@ export default function PlacementDashboard() {
         type: newJobForm.type,
         location: newJobForm.location,
         salary: {
-          min: newJobForm.salaryMin ? Number(newJobForm.salaryMin) : undefined,
-          max: newJobForm.salaryMax ? Number(newJobForm.salaryMax) : undefined
+          min: toRupeesStorage(newJobForm.salaryMin),
+          max: toRupeesStorage(newJobForm.salaryMax)
         },
         deadline: newJobForm.deadline ? new Date(newJobForm.deadline) : new Date(Date.now() + 14 * 86400000),
         skills: skillsArray.length > 0 ? skillsArray : ["General"],
@@ -526,7 +533,7 @@ export default function PlacementDashboard() {
                 <div className="p-3 rounded-4 mb-3" style={{ background: "var(--surface-2, rgba(0,0,0,0.03))", border: "1px solid var(--border)" }}>
                   <div className="small text-muted fw-bold text-uppercase">Highest Offer Package</div>
                   <h3 className="fw-black mb-0 text-success" style={{ fontSize: "1.8rem" }}>
-                    ₹{stats.highestPackage ? Math.round(stats.highestPackage / 100000) : 24} LPA
+                    {formatLPA(stats.highestPackage, "₹24 LPA")}
                   </h3>
                   <small className="text-muted">Top tiered offer secured</small>
                 </div>
@@ -534,7 +541,7 @@ export default function PlacementDashboard() {
                 <div className="p-3 rounded-4" style={{ background: "var(--surface-2, rgba(0,0,0,0.03))", border: "1px solid var(--border)" }}>
                   <div className="small text-muted fw-bold text-uppercase">Average Cohort CTC</div>
                   <h3 className="fw-black mb-0 text-primary" style={{ fontSize: "1.8rem" }}>
-                    ₹{stats.avgPackage ? Math.round(stats.avgPackage / 100000) : 8.5} LPA
+                    {formatLPA(stats.avgPackage, "₹8.5 LPA")}
                   </h3>
                   <small className="text-muted">Median benchmark across offers</small>
                 </div>
@@ -860,7 +867,7 @@ export default function PlacementDashboard() {
 
                   <div className="d-flex align-items-center justify-content-between pt-2 border-top" style={{ borderColor: "var(--border)" }}>
                     <span className="small fw-bold text-success">
-                      {job.salary?.max ? `₹${Math.round(job.salary.max / 100000)} LPA` : "Competitive CTC"}
+                      {formatSalaryRange(job.salary, "Competitive CTC")}
                     </span>
                     <button
                       onClick={() => navigate(`/placement/jobs`)}
@@ -1052,26 +1059,36 @@ export default function PlacementDashboard() {
 
               <div className="row g-2">
                 <div className="col-6">
-                  <label className="form-label small fw-bold">CTC Min (INR)</label>
+                  <label className="form-label small fw-bold">Minimum Salary (LPA)</label>
                   <input
                     type="number"
+                    step="any"
+                    min="0"
                     value={newJobForm.salaryMin}
                     onChange={(e) => setNewJobForm({ ...newJobForm, salaryMin: e.target.value })}
-                    placeholder="e.g. 600000"
+                    placeholder="e.g. 3.5"
                     className="form-control"
                     style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
                   />
+                  <div className="form-text small text-muted" style={{ fontSize: "0.72rem" }}>
+                    Enter annual salary in Lakhs Per Annum (LPA).
+                  </div>
                 </div>
                 <div className="col-6">
-                  <label className="form-label small fw-bold">CTC Max (INR)</label>
+                  <label className="form-label small fw-bold">Maximum Salary (LPA)</label>
                   <input
                     type="number"
+                    step="any"
+                    min="0"
                     value={newJobForm.salaryMax}
                     onChange={(e) => setNewJobForm({ ...newJobForm, salaryMax: e.target.value })}
-                    placeholder="e.g. 1200000"
+                    placeholder="e.g. 8.0"
                     className="form-control"
                     style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
                   />
+                  <div className="form-text small text-muted" style={{ fontSize: "0.72rem" }}>
+                    Enter annual salary in Lakhs Per Annum (LPA).
+                  </div>
                 </div>
               </div>
 

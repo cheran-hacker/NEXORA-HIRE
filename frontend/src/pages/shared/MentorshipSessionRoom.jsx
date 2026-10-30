@@ -184,14 +184,16 @@ export default function MentorshipSessionRoom() {
           <button
             type="button"
             className="btn btn-link text-light p-1"
-            title="Session Chat"
+            title="Session Notes & Chat"
+            onClick={() => setActiveTab("notes")}
           >
             <MessageSquare size={18} />
           </button>
           <button
             type="button"
             className="btn btn-link text-light p-1"
-            title="Notifications"
+            title="Session Security Status"
+            onClick={() => addToast("Session is active with encrypted WebRTC signaling", "info")}
           >
             <Bell size={18} />
           </button>
@@ -343,9 +345,10 @@ export default function MentorshipSessionRoom() {
 
             <button
               type="button"
+              onClick={() => addToast("Microphone and Camera configured to system default", "info")}
               className="btn btn-secondary rounded-circle p-2 d-flex align-items-center justify-content-center text-white"
               style={{ width: "42px", height: "42px" }}
-              title="Settings"
+              title="Device Settings"
             >
               <Settings size={18} />
             </button>

@@ -90,14 +90,14 @@ export const getAdminStats = async (req, res) => {
     const adminCount = await User.countDocuments({ role: 'Admin' });
 
     // Placement & Operational Real Counts
-    const openJobs = await Job.countDocuments({ status: { $in: ['Active', 'Published'] } });
+    const openJobs = await Job.countDocuments({ status: { $in: ['Active', 'Published', 'Open'] } });
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - 7);
     const applicationsToday = await Application.countDocuments({ createdAt: { $gte: startOfToday } });
     const applicationsThisWeek = await Application.countDocuments({ createdAt: { $gte: startOfWeek } });
-    const activeMentorships = await MentorshipSession.countDocuments({ status: 'Active' });
+    const activeMentorships = await MentorshipSession.countDocuments({ status: { $in: ['Active', 'Scheduled', 'Approved', 'Confirmed', 'InProgress'] } });
     const communityPosts = await Post.countDocuments();
 
     // Role-Skill Intelligence

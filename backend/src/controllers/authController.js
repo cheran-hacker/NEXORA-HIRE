@@ -99,7 +99,9 @@ export const login = async (req, res, next) => {
       token,
       user: {
         ...user.toObject(),
-        avatar: user.avatarUrl,
+        avatar: user.avatar || user.avatarUrl || '',
+        picture: user.avatar || '',
+        photoURL: user.avatar || '',
         status: user.status
       }
     });
@@ -158,11 +160,15 @@ export const activateAlumniAccount = async (req, res, next) => {
 export const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    const userObj = user.toObject();
     res.status(200).json({
       success: true,
       user: {
-        ...user.toObject(),
-        avatar: user.avatarUrl
+        ...userObj,
+        avatar: user.avatar || user.avatarUrl || '',
+        picture: user.avatar || '',
+        photoURL: user.avatar || ''
       }
     });
   } catch (error) {
@@ -325,7 +331,9 @@ export const googleAuth = async (req, res, next) => {
         requiresOnboarding: false,
         user: {
           ...user.toObject(),
-          avatar: user.avatar || user.avatarUrl || '',
+          avatar: picture || user.avatar || user.avatarUrl || '',
+          picture: picture || user.avatar || '',
+          photoURL: picture || user.avatar || '',
           provider: 'google'
         }
       });
@@ -373,7 +381,10 @@ export const googleAuth = async (req, res, next) => {
       requiresOnboarding,
       user: {
         ...user.toObject(),
-        avatar: user.avatar || user.avatarUrl || ''
+        avatar: picture || user.avatar || user.avatarUrl || '',
+        picture: picture || user.avatar || '',
+        photoURL: picture || user.avatar || '',
+        provider: 'google'
       }
     });
   } catch (error) {
@@ -423,7 +434,9 @@ export const completeProfile = async (req, res, next) => {
       token,
       user: {
         ...user.toObject(),
-        avatar: user.avatarUrl,
+        avatar: user.avatar || user.avatarUrl || '',
+        picture: user.avatar || '',
+        photoURL: user.avatar || '',
         status: user.status
       }
     });

@@ -1,0 +1,588 @@
+/* ========================================================
+   NEXORA — Premium Assessments UI & Fullscreen Engine CSS
+   ======================================================== */
+
+.nexora-assessments-page {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  position: relative;
+  overflow-x: hidden;
+}
+
+[data-theme="light"] .nexora-assessments-page {
+  background: 
+    radial-gradient(circle at 10% 10%, rgba(224, 231, 255, 0.55) 0%, transparent 40%),
+    radial-gradient(circle at 90% 25%, rgba(243, 232, 255, 0.6) 0%, transparent 45%),
+    radial-gradient(circle at 50% 80%, rgba(238, 242, 255, 0.45) 0%, transparent 50%),
+    #f8fafc;
+}
+
+/* ── Hero Banner ── */
+.nexora-assessment-hero {
+  position: relative;
+  background: transparent;
+  padding: 1.5rem 0 2rem 0;
+}
+
+.nexora-assessment-header-badge {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.4);
+  flex-shrink: 0;
+}
+
+.nexora-assessment-title {
+  font-size: 2.25rem;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+  line-height: 1.15;
+}
+
+[data-theme="dark"] .nexora-assessment-title {
+  color: #f8fafc;
+}
+
+.nexora-assessment-subtitle {
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+[data-theme="dark"] .nexora-assessment-subtitle {
+  color: #94a3b8;
+}
+
+/* ── Decorative 3D Checklist Banner on Right ── */
+.nexora-assessment-illustration-card {
+  position: relative;
+  width: 280px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 991px) {
+  .nexora-assessment-illustration-card {
+    display: none;
+  }
+}
+
+/* ── Tabs Navigation ── */
+.nexora-assessment-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .nexora-assessment-tabs {
+  background: rgba(24, 24, 27, 0.8);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.nexora-tab-btn {
+  border: none;
+  border-radius: 9999px;
+  padding: 0.55rem 1.4rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: #64748b;
+}
+
+[data-theme="dark"] .nexora-tab-btn {
+  color: #94a3b8;
+}
+
+.nexora-tab-btn.active {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+.nexora-tab-btn:hover:not(.active) {
+  background: rgba(99, 102, 241, 0.08);
+  color: #4f46e5;
+}
+
+/* ── Assessment Cards Grid ── */
+.nexora-assessment-card {
+  background: #ffffff;
+  border: 1px solid #eef2f6;
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.06), 0 2px 6px -2px rgba(0, 0, 0, 0.02);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .nexora-assessment-card {
+  background: rgba(24, 24, 27, 0.85);
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+}
+
+.nexora-assessment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 35px -8px rgba(99, 102, 241, 0.16);
+  border-color: #c7d2fe;
+}
+
+[data-theme="dark"] .nexora-assessment-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 20px 40px -8px rgba(99, 102, 241, 0.2);
+}
+
+/* Difficulty Badges */
+.nexora-badge-diff-medium {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  padding: 4px 12px;
+}
+
+.nexora-badge-diff-easy {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  padding: 4px 12px;
+}
+
+.nexora-badge-diff-hard {
+  background: #ffe4e6;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  padding: 4px 12px;
+}
+
+[data-theme="dark"] .nexora-badge-diff-medium {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+[data-theme="dark"] .nexora-badge-diff-easy {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+[data-theme="dark"] .nexora-badge-diff-hard {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Duration Pill */
+.nexora-badge-duration {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+[data-theme="dark"] .nexora-badge-duration {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Category Icon Badge */
+.nexora-category-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Metrics Row */
+.nexora-metric-box {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.nexora-metric-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nexora-metric-number {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+[data-theme="dark"] .nexora-metric-number {
+  color: #f8fafc;
+}
+
+.nexora-metric-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: capitalize;
+}
+
+[data-theme="dark"] .nexora-metric-label {
+  color: #94a3b8;
+}
+
+/* Start Assessment Button */
+.nexora-btn-start-assessment {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #ffffff !important;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 700;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.45);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.nexora-btn-start-assessment:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px -4px rgba(99, 102, 241, 0.55);
+  opacity: 0.96;
+}
+
+.nexora-btn-start-assessment:active {
+  transform: translateY(0);
+}
+
+/* ========================================================
+   FULLSCREEN ASSESSMENT ENGINE STYLING
+   ======================================================== */
+
+.nexora-fullscreen-engine {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+[data-theme="dark"] .nexora-fullscreen-engine {
+  background: #090d16;
+}
+
+/* Fullscreen Top Header */
+.nexora-engine-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.85rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  z-index: 10;
+  flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="dark"] .nexora-engine-header {
+  background: #111827;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Timer Badge */
+.nexora-engine-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-weight: 800;
+  font-size: 1.15rem;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.nexora-engine-timer.warning {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.nexora-engine-timer.danger {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+  animation: pulse-danger 1s infinite;
+}
+
+@keyframes pulse-danger {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+[data-theme="dark"] .nexora-engine-timer {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="dark"] .nexora-engine-timer.warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+[data-theme="dark"] .nexora-engine-timer.danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Main Body Split */
+.nexora-engine-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.nexora-engine-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2.25rem 3rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .nexora-engine-content {
+    padding: 1.25rem;
+  }
+}
+
+/* Question Option Card */
+.nexora-mcq-option {
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.15rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  margin-bottom: 0.85rem;
+}
+
+[data-theme="dark"] .nexora-mcq-option {
+  background: rgba(24, 24, 27, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.nexora-mcq-option:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateX(3px);
+}
+
+[data-theme="dark"] .nexora-mcq-option:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.nexora-mcq-option.selected {
+  background: rgba(99, 102, 241, 0.07);
+  border-color: #6366f1;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="dark"] .nexora-mcq-option.selected {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: #818cf8;
+}
+
+.nexora-mcq-letter {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.nexora-mcq-option.selected .nexora-mcq-letter {
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.nexora-mcq-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #0f172a;
+  line-height: 1.45;
+  flex: 1;
+}
+
+[data-theme="dark"] .nexora-mcq-text {
+  color: #f1f5f9;
+}
+
+/* Question Map Sidebar */
+.nexora-engine-palette {
+  width: 320px;
+  border-left: 1px solid #e2e8f0;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 1.5rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 991px) {
+  .nexora-engine-palette {
+    display: none;
+  }
+}
+
+[data-theme="dark"] .nexora-engine-palette {
+  background: #111827;
+  border-left-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Palette Buttons */
+.nexora-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.6rem;
+}
+
+.nexora-palette-btn {
+  height: 42px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nexora-palette-btn.unanswered {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.nexora-palette-btn.answered {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+.nexora-palette-btn.current {
+  border: 2px solid #6366f1 !important;
+  color: #6366f1;
+  font-weight: 900;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+
+.nexora-palette-btn.current.answered {
+  background: #10b981;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .nexora-palette-btn.unanswered {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Footer Controls */
+.nexora-engine-footer {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+[data-theme="dark"] .nexora-engine-footer {
+  background: #111827;
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+

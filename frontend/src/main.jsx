@@ -7,6 +7,7 @@ import "./styles/globals.css";
 import "./styles/glassmorphism.css";
 import "./styles/theme.css";
 import "./styles/dashboard.css";
+import "./shared/components/modal.css";
 
 const loader = document.getElementById("initial-loader");
 if (loader) {

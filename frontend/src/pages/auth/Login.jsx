@@ -166,20 +166,20 @@ const Login = () => {
     setActiveRole(roleId);
     setErrorMsg(null);
     if (roleId === 'alumni') {
-      setValue("email", "ravi.k@alumni.edu");
-      setValue("password", "password123");
+      setValue("email", "ravi.k@alumni.edu", { shouldValidate: true, shouldDirty: true });
+      setValue("password", "password123", { shouldValidate: true, shouldDirty: true });
     } else if (roleId === 'placement') {
-      setValue("email", "placement@nexora.com");
-      setValue("password", "password123");
+      setValue("email", "placement@nexora.com", { shouldValidate: true, shouldDirty: true });
+      setValue("password", "password123", { shouldValidate: true, shouldDirty: true });
     } else if (roleId === 'admin') {
-      setValue("email", "cheran@it");
-      setValue("password", "admin123");
+      setValue("email", "cheran@it", { shouldValidate: true, shouldDirty: true });
+      setValue("password", "admin123", { shouldValidate: true, shouldDirty: true });
     } else if (roleId === 'student') {
-      setValue("email", "cheran.it23@bitsathy.ac.in");
-      setValue("password", "password123");
+      setValue("email", "cheran.it23@bitsathy.ac.in", { shouldValidate: true, shouldDirty: true });
+      setValue("password", "password123", { shouldValidate: true, shouldDirty: true });
     } else {
-      setValue("email", "");
-      setValue("password", "");
+      setValue("email", "", { shouldValidate: true, shouldDirty: true });
+      setValue("password", "", { shouldValidate: true, shouldDirty: true });
     }
   };
 
@@ -484,7 +484,7 @@ const Login = () => {
                         <div className="p-2 px-3 rounded-3 d-flex justify-content-between align-items-center" style={{ background: 'rgba(37, 99, 235, 0.1)', border: '1px solid rgba(37, 99, 235, 0.25)' }}>
                           <div className="small">
                             <span className="text-muted">Student: </span>
-                            <strong className="text-white">cheran.it23@bitsathy.ac.in</strong>
+                            <strong className="fw-bold" style={{ color: "var(--text)" }}>cheran.it23@bitsathy.ac.in</strong>
                             <span className="text-muted ms-2">Pass: </span>
                             <code className="text-primary">password123</code>
                           </div>
@@ -493,8 +493,9 @@ const Login = () => {
                             className="btn btn-sm btn-outline-primary rounded-pill px-2 py-0 fw-semibold"
                             style={{ fontSize: '0.75rem' }}
                             onClick={() => {
-                              setValue('email', 'cheran.it23@bitsathy.ac.in');
-                              setValue('password', 'password123');
+                              setValue('email', 'cheran.it23@bitsathy.ac.in', { shouldValidate: true, shouldDirty: true });
+                              setValue('password', 'password123', { shouldValidate: true, shouldDirty: true });
+                              setErrorMsg(null);
                             }}
                           >
                             Auto Fill
@@ -508,7 +509,7 @@ const Login = () => {
                       <div className="p-2 px-3 rounded-3 d-flex justify-content-between align-items-center" style={{ background: 'rgba(147, 51, 234, 0.1)', border: '1px solid rgba(147, 51, 234, 0.25)' }}>
                         <div className="small">
                           <span className="text-muted">Placement Login: </span>
-                          <strong className="text-white">placement@nexora.com</strong>
+                          <strong className="fw-bold" style={{ color: "var(--text)" }}>placement@nexora.com</strong>
                           <span className="text-muted ms-2">Pass: </span>
                           <code className="text-primary">password123</code>
                         </div>
@@ -517,8 +518,9 @@ const Login = () => {
                           className="btn btn-sm btn-outline-primary rounded-pill px-2 py-0 fw-semibold"
                           style={{ fontSize: '0.75rem' }}
                           onClick={() => {
-                            setValue('email', 'placement@nexora.com');
-                            setValue('password', 'password123');
+                            setValue('email', 'placement@nexora.com', { shouldValidate: true, shouldDirty: true });
+                            setValue('password', 'password123', { shouldValidate: true, shouldDirty: true });
+                            setErrorMsg(null);
                           }}
                         >
                           Auto Fill
@@ -530,7 +532,7 @@ const Login = () => {
                       <div className="p-2 px-3 rounded-3 d-flex justify-content-between align-items-center" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.25)' }}>
                         <div className="small">
                           <span className="text-muted">Alumni Login: </span>
-                          <strong className="text-white">ravi.k@alumni.edu</strong>
+                          <strong className="fw-bold" style={{ color: "var(--text)" }}>ravi.k@alumni.edu</strong>
                           <span className="text-muted ms-2">Pass: </span>
                           <code className="text-info">password123</code>
                         </div>
@@ -539,8 +541,9 @@ const Login = () => {
                           className="btn btn-sm btn-outline-info rounded-pill px-2 py-0 fw-semibold"
                           style={{ fontSize: '0.75rem' }}
                           onClick={() => {
-                            setValue('email', 'ravi.k@alumni.edu');
-                            setValue('password', 'password123');
+                            setValue('email', 'ravi.k@alumni.edu', { shouldValidate: true, shouldDirty: true });
+                            setValue('password', 'password123', { shouldValidate: true, shouldDirty: true });
+                            setErrorMsg(null);
                           }}
                         >
                           Auto Fill
@@ -552,7 +555,7 @@ const Login = () => {
                       <div className="p-2 px-3 rounded-3 d-flex justify-content-between align-items-center" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
                         <div className="small">
                           <span className="text-muted">Admin Login: </span>
-                          <strong className="text-white">cheran@it</strong>
+                          <strong className="fw-bold" style={{ color: "var(--text)" }}>cheran@it</strong>
                           <span className="text-muted ms-2">Pass: </span>
                           <code className="text-danger">admin123</code>
                         </div>
@@ -561,8 +564,9 @@ const Login = () => {
                           className="btn btn-sm btn-outline-danger rounded-pill px-2 py-0 fw-semibold"
                           style={{ fontSize: '0.75rem' }}
                           onClick={() => {
-                            setValue('email', 'cheran@it');
-                            setValue('password', 'admin123');
+                            setValue('email', 'cheran@it', { shouldValidate: true, shouldDirty: true });
+                            setValue('password', 'admin123', { shouldValidate: true, shouldDirty: true });
+                            setErrorMsg(null);
                           }}
                         >
                           Auto Fill

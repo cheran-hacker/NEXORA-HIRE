@@ -18,65 +18,94 @@ import { jobService } from "../../services/api.js";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 import CompanyLogo from "../../components/common/CompanyLogo.jsx";
+import { formatSalaryRange } from "../../utils/salaryHelper.js";
 
 const FILTER_PILLS = ["All", "Full-time", "Internship", "Remote", "On-site"];
 
 const DEFAULT_SEED_JOBS = [
   {
-    _id: "seed-google-swe",
+    _id: "seed-swe",
     title: "Software Engineer",
     company: {
       name: "Google",
     },
-    salaryText: "₹12-18 LPA",
+    salaryText: "₹5–12 LPA",
     location: "Remote",
     jobType: "Full-time",
     description: "Join Google's Core Engineering team to design, build, and deploy distributed systems at global scale. You will work on low-latency microservices, cloud infrastructure, and modern web applications.",
     requirements: ["Proficiency in Go, Java, or C++", "Strong knowledge of Data Structures & Algorithms", "Experience with scalable microservices and Docker"],
     skills: ["Data Structures", "Algorithms", "Go", "Java", "Cloud", "System Design"],
-    matchScore: 88,
+    matchScore: 92,
   },
   {
-    _id: "seed-amazon-da",
-    title: "Data Analyst",
+    _id: "seed-fullstack",
+    title: "Full Stack Developer",
     company: {
-      name: "Amazon",
+      name: "Atlassian",
     },
-    salaryText: "₹8-12 LPA",
+    salaryText: "₹6–12 LPA",
     location: "Bangalore",
     jobType: "Full-time",
-    description: "Amazon Customer Delivery Experience team is seeking a Data Analyst to transform petabytes of operational data into actionable logistics intelligence and machine learning pipelines.",
-    requirements: ["Strong proficiency in SQL & Python", "Hands-on experience with Tableau or PowerBI", "Statistical modeling and hypothesis testing"],
-    skills: ["SQL", "Python", "Tableau", "Statistics", "Data Pipelines"],
-    matchScore: 82,
+    description: "Build robust, high-performance web applications using React, TypeScript, Node.js, and cloud backends with end-to-end reliability and exceptional user experiences.",
+    requirements: ["Proficiency in React & Node.js", "Hands-on experience with REST APIs and databases", "Knowledge of CI/CD pipelines"],
+    skills: ["React", "Node.js", "TypeScript", "MongoDB", "REST APIs"],
+    matchScore: 89,
   },
   {
-    _id: "seed-msft-intern",
-    title: "Product Intern",
+    _id: "seed-backend",
+    title: "Backend Developer",
     company: {
       name: "Microsoft",
     },
-    salaryText: "₹6-8 LPA",
+    salaryText: "₹4–8 LPA",
     location: "Hyderabad",
-    jobType: "Internship",
-    description: "Work directly with Microsoft Teams product leadership to define feature requirements, conduct user empathy research, and drive developer productivity metrics.",
-    requirements: ["Pursuing B.Tech or M.Tech in CS/IT", "Passion for product strategy & UX design", "Excellent communication and user research acumen"],
-    skills: ["Product Strategy", "Agile", "User Research", "Wireframing"],
-    matchScore: 78,
+    jobType: "Full-time",
+    description: "Design and implement high-throughput RESTful services, database schemas, and message queues supporting enterprise cloud services.",
+    requirements: ["Solid backend engineering in Java / Node.js", "Experience with relational and NoSQL databases", "Understanding of API security and caching"],
+    skills: ["Node.js", "Java", "SQL", "Redis", "Microservices"],
+    matchScore: 86,
   },
   {
-    _id: "seed-ibm-ai",
-    title: "Machine Learning Intern",
+    _id: "seed-frontend",
+    title: "Frontend Developer",
     company: {
-      name: "IBM",
+      name: "Amazon",
     },
-    salaryText: "₹5-7 LPA",
+    salaryText: "₹5–10 LPA",
+    location: "Bangalore",
+    jobType: "Full-time",
+    description: "Create pixel-perfect, accessible, and responsive user interfaces for millions of customers using modern React workflows and component systems.",
+    requirements: ["Extensive experience with modern React & CSS", "Responsive design and performance optimization", "Familiarity with state management"],
+    skills: ["React", "JavaScript", "CSS3", "Tailwind", "HTML5"],
+    matchScore: 84,
+  },
+  {
+    _id: "seed-ai-ml",
+    title: "AI/ML Engineer",
+    company: {
+      name: "NVIDIA",
+    },
+    salaryText: "₹6–15 LPA",
     location: "Remote",
-    jobType: "Internship",
-    description: "IBM Research is looking for AI Research Interns to train foundation models, fine-tune open-source LLMs, and build automated enterprise evaluation benchmarks.",
-    requirements: ["Experience with PyTorch or TensorFlow", "Knowledge of Transformers & NLP", "Hands-on model training and evaluation scripts"],
-    skills: ["PyTorch", "NLP", "Machine Learning", "Python", "Transformers"],
-    matchScore: 92,
+    jobType: "Full-time",
+    description: "Train, evaluate, and optimize machine learning models and deep learning pipelines for inference acceleration across edge and datacenter GPU clusters.",
+    requirements: ["Strong foundations in PyTorch / TensorFlow", "Experience fine-tuning neural networks and transformers", "Python and CUDA performance awareness"],
+    skills: ["Python", "PyTorch", "Machine Learning", "Deep Learning", "TensorFlow"],
+    matchScore: 90,
+  },
+  {
+    _id: "seed-data-analyst",
+    title: "Data Analyst",
+    company: {
+      name: "Uber",
+    },
+    salaryText: "₹4–7 LPA",
+    location: "Bangalore",
+    jobType: "Full-time",
+    description: "Translate complex transactional data into actionable operational and business intelligence using modern analytics tooling and SQL dashboards.",
+    requirements: ["Strong SQL queries and aggregation skills", "Proficiency in Python data stack (pandas, numpy)", "Dashboarding with Tableau or PowerBI"],
+    skills: ["SQL", "Python", "Tableau", "Data Analysis", "Statistics"],
+    matchScore: 81,
   },
 ];
 
@@ -123,9 +152,7 @@ const JobBoard = () => {
             ? Math.round((matchedSkills.length / reqSkills.length) * 100)
             : 75;
 
-          const salMin = j.salary?.min ? `₹${j.salary.min / 100000}` : "";
-          const salMax = j.salary?.max ? `-${j.salary.max / 100000} LPA` : "";
-          const salaryFormatted = salMin && salMax ? `${salMin}${salMax}` : (j.salaryText || "₹10-15 LPA");
+          const salaryFormatted = formatSalaryRange(j.salary, j.salaryText || "₹6-12 LPA");
 
           return {
             _id: j._id,
@@ -203,7 +230,7 @@ const JobBoard = () => {
         });
       }
       setAppliedJobs((prev) => new Set(prev).add(selectedJob._id));
-      addToast(`Applied to ${selectedJob.title} at ${selectedJob.company.name}! 🎉`, "success");
+      addToast(`Applied to ${selectedJob.title} at ${selectedJob.company?.name || selectedJob.company || "company"}! 🎉`, "success");
       setShowApplyModal(false);
       setCoverNote("");
     } catch (err) {

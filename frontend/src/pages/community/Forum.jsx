@@ -1265,11 +1265,13 @@ export default function Forum() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Start a New Campus Discussion"
+        subtitle="Share technical insights, ask interview questions, or start career discussions"
+        icon={MessageSquare}
       >
         <form onSubmit={handleCreatePost} className="d-flex flex-column gap-3">
           <div>
-            <label className="form-label small fw-bold text-foreground">
-              Discussion Title *
+            <label className="nexora-form-label">
+              Discussion Title <span className="nexora-form-req">*</span>
             </label>
             <input
               type="text"
@@ -1277,21 +1279,19 @@ export default function Forum() {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="e.g., Tips for Google SWE Intern behavioral interview?"
-              className="form-control bg-transparent text-foreground"
-              style={{ borderColor: "var(--border)" }}
+              className="nexora-form-input"
             />
           </div>
 
-          <div className="row g-2">
+          <div className="row g-3">
             <div className="col-md-6">
-              <label className="form-label small fw-bold text-foreground">
-                Primary Topic *
+              <label className="nexora-form-label">
+                Primary Topic <span className="nexora-form-req">*</span>
               </label>
               <select
-                className="form-select bg-transparent text-foreground"
+                className="nexora-form-select"
                 value={newTopic}
                 onChange={(e) => setNewTopic(e.target.value)}
-                style={{ borderColor: "var(--border)" }}
               >
                 {STANDARD_TOPICS.map((top) => (
                   <option key={top} value={top}>
@@ -1302,7 +1302,7 @@ export default function Forum() {
             </div>
 
             <div className="col-md-6">
-              <label className="form-label small fw-bold text-foreground">
+              <label className="nexora-form-label">
                 Custom Tags (comma-separated)
               </label>
               <input
@@ -1310,15 +1310,14 @@ export default function Forum() {
                 value={newTags}
                 onChange={(e) => setNewTags(e.target.value)}
                 placeholder="e.g. Google, SystemDesign, Tips"
-                className="form-control bg-transparent text-foreground"
-                style={{ borderColor: "var(--border)" }}
+                className="nexora-form-input"
               />
             </div>
           </div>
 
           <div>
-            <label className="form-label small fw-bold text-foreground">
-              Discussion Content *
+            <label className="nexora-form-label">
+              Discussion Content <span className="nexora-form-req">*</span>
             </label>
             <textarea
               required
@@ -1326,34 +1325,38 @@ export default function Forum() {
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
               placeholder="Share your context, questions, takeaways, or tips with fellow students and alumni..."
-              className="form-control bg-transparent text-foreground"
-              style={{ borderColor: "var(--border)" }}
+              className="nexora-form-textarea"
             />
           </div>
 
-          <div className="d-flex justify-content-end gap-2 pt-2 border-top" style={{ borderColor: "var(--border)" }}>
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="btn btn-sm btn-outline-secondary rounded-pill px-3.5 fw-semibold"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submittingPost}
-              className="btn btn-sm btn-primary rounded-pill px-4 fw-bold d-flex align-items-center gap-1.5"
-            >
-              {submittingPost ? (
-                <>
-                  <span className="spinner-border spinner-border-sm" /> Posting...
-                </>
-              ) : (
-                <>
-                  <Send size={14} /> Post Discussion
-                </>
-              )}
-            </button>
+          <div className="d-flex align-items-center justify-content-between pt-3 mt-1 border-top" style={{ borderColor: "#f1f5f9" }}>
+            <span className="nexora-modal-footer-hint d-none d-sm-inline">
+              * Required fields must be completed
+            </span>
+            <div className="d-flex align-items-center gap-2 ms-auto">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="nexora-modal-btn-cancel"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submittingPost}
+                className="nexora-modal-btn-primary"
+              >
+                {submittingPost ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm" /> Posting...
+                  </>
+                ) : (
+                  <>
+                    <Send size={16} /> Post Discussion
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </Modal>

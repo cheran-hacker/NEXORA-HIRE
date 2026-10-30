@@ -18,6 +18,7 @@ import {
 import { placementService } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import { motion, AnimatePresence } from "framer-motion";
+import "../../shared/components/modal.css";
 
 export default function CompaniesDatabase() {
   const [companies, setCompanies] = useState([]);
@@ -305,7 +306,7 @@ export default function CompaniesDatabase() {
                       )}
                     </div>
                     <div className="flex-grow-1 min-w-0">
-                      <h5 className="fw-bold mb-1 text-wrap text-break" title={companyName}>
+                      <h5 className="fw-bold mb-1" style={{ wordBreak: "normal", overflowWrap: "break-word" }} title={companyName}>
                         {companyName}
                       </h5>
                       {websiteUrl ? (
@@ -403,161 +404,143 @@ export default function CompaniesDatabase() {
       {/* Add / Edit Partner Modal */}
       <AnimatePresence>
         {modalOpen && (
-          <div
-            className="modal show d-block"
-            tabIndex="-1"
-            style={{
-              backgroundColor: "rgba(0, 0, 0, 0.65)",
-              backdropFilter: "blur(6px)",
-              zIndex: 1060,
-            }}
-            onClick={() => setModalOpen(false)}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="nexora-modal-backdrop"
+            style={{ zIndex: 9999 }}
+            onClick={(e) => e.target === e.currentTarget && setModalOpen(false)}
           >
-            <div
-              className="modal-dialog modal-dialog-centered"
+            <motion.div
+              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="nexora-modal-container size-md"
               onClick={(e) => e.stopPropagation()}
             >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="modal-content border-0 shadow-lg"
-                style={{
-                  background: "var(--surface-1)",
-                  color: "var(--text)",
-                  borderRadius: "1.25rem",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  className="modal-header border-bottom py-3 px-4 d-flex align-items-center justify-content-between"
-                  style={{ borderColor: "var(--border)" }}
-                >
-                  <h5 className="modal-title fw-bold m-0">
-                    {modalMode === "add" ? "Add Corporate Partner" : "Edit Partner Company"}
-                  </h5>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-icon rounded-circle border-0 text-muted"
-                    onClick={() => setModalOpen(false)}
-                  >
-                    <X size={18} />
-                  </button>
+              {/* Master Header */}
+              <div className="nexora-modal-header">
+                <div className="nexora-modal-header-left">
+                  <div className="nexora-modal-icon-badge">
+                    <Building2 size={22} strokeWidth={2.2} />
+                  </div>
+                  <div>
+                    <h4 className="nexora-modal-title">
+                      {modalMode === "add" ? "Add Corporate Partner" : "Edit Partner Company"}
+                    </h4>
+                    <p className="nexora-modal-subtitle">
+                      {modalMode === "add"
+                        ? "Register a verified recruiting organization for campus hiring"
+                        : "Update partner recruiting details and primary contacts"}
+                    </p>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  className="nexora-modal-close-btn"
+                  onClick={() => setModalOpen(false)}
+                  title="Close modal"
+                >
+                  <X size={18} strokeWidth={2.2} />
+                </button>
+              </div>
 
-                <form onSubmit={handleSubmitForm}>
-                  <div className="modal-body p-4">
-                    <div className="mb-3">
-                      <label className="form-label small fw-bold">Company Name *</label>
+              <form onSubmit={handleSubmitForm} className="d-flex flex-column" style={{ minHeight: 0, flex: 1 }}>
+                <div className="nexora-modal-body">
+                  <div className="mb-3">
+                    <label className="nexora-form-label">
+                      Company Name <span className="nexora-form-req">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="nexora-form-input"
+                      placeholder="e.g. Google India, Amazon AWS, Stripe"
+                      value={formData.companyName}
+                      onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="nexora-form-label">Company Website</label>
+                    <input
+                      type="text"
+                      className="nexora-form-input"
+                      placeholder="e.g. https://careers.google.com"
+                      value={formData.companyWebsite}
+                      onChange={(e) => setFormData({ ...formData, companyWebsite: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="row g-3 mb-3">
+                    <div className="col-12 col-md-6">
+                      <label className="nexora-form-label">
+                        Recruiter Name <span className="nexora-form-req">*</span>
+                      </label>
                       <input
                         type="text"
-                        className="form-control rounded-pill px-3"
-                        placeholder="e.g. Google India, Amazon AWS, Stripe"
-                        value={formData.companyName}
-                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                        className="nexora-form-input"
+                        placeholder="e.g. Marcus Vance"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
-                        style={{
-                          background: "var(--surface-2)",
-                          borderColor: "var(--border)",
-                          color: "var(--text)",
-                          height: "44px",
-                        }}
                       />
                     </div>
-
-                    <div className="mb-3">
-                      <label className="form-label small fw-bold">Company Website</label>
+                    <div className="col-12 col-md-6">
+                      <label className="nexora-form-label">
+                        Contact Email <span className="nexora-form-req">*</span>
+                      </label>
                       <input
-                        type="text"
-                        className="form-control rounded-pill px-3"
-                        placeholder="e.g. https://careers.google.com"
-                        value={formData.companyWebsite}
-                        onChange={(e) => setFormData({ ...formData, companyWebsite: e.target.value })}
-                        style={{
-                          background: "var(--surface-2)",
-                          borderColor: "var(--border)",
-                          color: "var(--text)",
-                          height: "44px",
-                        }}
+                        type="email"
+                        className="nexora-form-input"
+                        placeholder="recruiter@company.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        required
                       />
                     </div>
+                  </div>
 
-                    <div className="row g-3 mb-3">
-                      <div className="col-12 col-md-6">
-                        <label className="form-label small fw-bold">Recruiter Name *</label>
-                        <input
-                          type="text"
-                          className="form-control rounded-pill px-3"
-                          placeholder="e.g. Marcus Vance"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          required
-                          style={{
-                            background: "var(--surface-2)",
-                            borderColor: "var(--border)",
-                            color: "var(--text)",
-                            height: "44px",
-                          }}
-                        />
-                      </div>
-                      <div className="col-12 col-md-6">
-                        <label className="form-label small fw-bold">Contact Email *</label>
-                        <input
-                          type="email"
-                          className="form-control rounded-pill px-3"
-                          placeholder="recruiter@company.com"
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          required
-                          style={{
-                            background: "var(--surface-2)",
-                            borderColor: "var(--border)",
-                            color: "var(--text)",
-                            height: "44px",
-                          }}
-                        />
-                      </div>
+                  <div className="mb-3">
+                    <label className="nexora-form-label">Designation</label>
+                    <input
+                      type="text"
+                      className="nexora-form-input"
+                      placeholder="e.g. Lead Campus Recruiter"
+                      value={formData.designation}
+                      onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="p-3 rounded-3 mt-3 d-flex align-items-center justify-content-between" style={{ background: "#ffffff", border: "1px solid #e2e8f0" }}>
+                    <div>
+                      <div className="fw-bold small text-dark">Verified Partnership</div>
+                      <div className="text-muted" style={{ fontSize: "0.78rem" }}>Mark this organization as an officially accredited campus recruiter</div>
                     </div>
-
-                    <div className="mb-3">
-                      <label className="form-label small fw-bold">Designation</label>
-                      <input
-                        type="text"
-                        className="form-control rounded-pill px-3"
-                        placeholder="e.g. Lead Campus Recruiter"
-                        value={formData.designation}
-                        onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                        style={{
-                          background: "var(--surface-2)",
-                          borderColor: "var(--border)",
-                          color: "var(--text)",
-                          height: "44px",
-                        }}
-                      />
-                    </div>
-
-                    <div className="form-check form-switch mt-3">
+                    <div className="form-check form-switch m-0">
                       <input
                         className="form-check-input"
                         type="checkbox"
                         role="switch"
                         id="verifiedSwitch"
+                        style={{ cursor: "pointer", width: "2.4em", height: "1.25em" }}
                         checked={formData.verified}
                         onChange={(e) => setFormData({ ...formData, verified: e.target.checked })}
                       />
-                      <label className="form-check-label small fw-semibold" htmlFor="verifiedSwitch">
-                        Mark as Verified Partner
-                      </label>
                     </div>
                   </div>
+                </div>
 
-                  <div
-                    className="modal-footer py-2 px-4 border-top d-flex justify-content-end gap-2"
-                    style={{ borderColor: "var(--border)" }}
-                  >
+                <div className="nexora-modal-footer">
+                  <span className="nexora-modal-footer-hint d-none d-sm-inline">
+                    * Required fields must be completed
+                  </span>
+                  <div className="nexora-modal-footer-actions">
                     <button
                       type="button"
-                      className="btn btn-secondary rounded-pill px-4"
+                      className="nexora-modal-btn-cancel"
                       onClick={() => setModalOpen(false)}
                       disabled={submitting}
                     >
@@ -565,16 +548,25 @@ export default function CompaniesDatabase() {
                     </button>
                     <button
                       type="submit"
-                      className="btn btn-primary rounded-pill px-4 fw-bold"
+                      className="nexora-modal-btn-primary"
                       disabled={submitting}
                     >
-                      {submitting ? "Saving..." : modalMode === "add" ? "Add Partner" : "Save Changes"}
+                      {submitting ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm" /> Saving...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle size={18} />
+                          {modalMode === "add" ? "Add Partner" : "Save Changes"}
+                        </>
+                      )}
                     </button>
                   </div>
-                </form>
-              </motion.div>
-            </div>
-          </div>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 

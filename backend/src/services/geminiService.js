@@ -118,7 +118,13 @@ export const geminiService = {
     
     console.error('Gemini API Error:', error.message);
     
-    if (error.status === 403 || error.message.includes('API_KEY_INVALID')) {
+    if (
+      error.status === 403 ||
+      error.status === 400 ||
+      error.message.includes('API_KEY_INVALID') ||
+      error.message.includes('API key not valid') ||
+      error.message.includes('API_KEY')
+    ) {
       throw new Error('Gemini API authentication failed. Replace GEMINI_API_KEY with a valid Gemini API key.');
     }
     

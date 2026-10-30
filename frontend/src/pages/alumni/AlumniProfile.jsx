@@ -89,29 +89,29 @@ export default function AlumniProfile() {
 
       <div className="d-flex flex-column gap-4 mx-auto position-relative z-1" style={{ maxWidth: "1000px" }}>
         {/* Header */}
-        <div className="premium-glass-panel p-4 rounded-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 shadow-sm border border-subtle">
+        <div className="premium-glass-panel p-4 rounded-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 shadow-sm border" style={{ borderColor: 'var(--border, #e2e8f0)', background: 'var(--surface-1, #ffffff)' }}>
           <div className="d-flex align-items-center gap-4">
             <div className="position-relative">
               <img 
                 src={getAvatarUrl(profile.name || user?.name, user?.avatar)} 
                 alt="Avatar" 
                 onError={(e) => handleImageError(e, profile.name || user?.name)}
-                className="rounded-circle shadow-lg" 
-                style={{ width: 90, height: 90, border: '4px solid rgba(255,255,255,0.1)', objectFit: 'cover' }} 
+                className="rounded-circle shadow-sm" 
+                style={{ width: 90, height: 90, border: '4px solid rgba(99, 102, 241, 0.2)', objectFit: 'cover' }} 
               />
             </div>
             <div>
-              <h2 className="fw-bolder mb-1 text-white">{profile.name || 'Alumni User'}</h2>
-              <p className="mb-0 text-muted fs-5 d-flex align-items-center gap-2">
-                <Briefcase size={18} /> {profile.designation || 'Your Designation'} at {profile.company || 'Company'}
+              <h2 className="fw-bolder mb-1" style={{ color: 'var(--text, #0f172a)' }}>{profile.name || 'Alumni User'}</h2>
+              <p className="mb-0 fs-6 d-flex align-items-center gap-2" style={{ color: 'var(--text-muted, #64748b)' }}>
+                <Briefcase size={18} className="text-primary" /> {profile.designation || 'Your Designation'} at {profile.company || 'Company'}
               </p>
             </div>
           </div>
           <button 
             onClick={handleSave} 
             disabled={saving}
-            className="btn btn-primary rounded-pill px-5 py-3 fw-bold d-flex align-items-center gap-2 shadow-lg"
-            style={{ background: 'linear-gradient(135deg, #9333ea, #3b82f6)', border: 'none' }}
+            className="btn btn-primary rounded-pill px-5 py-3 fw-bold d-flex align-items-center gap-2 shadow-sm"
+            style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', border: 'none' }}
           >
             {saving ? <span className="spinner-border spinner-border-sm" /> : <Save size={20} />} 
             Save Profile
@@ -122,61 +122,78 @@ export default function AlumniProfile() {
         <div className="row g-4">
           {/* Tabs Navigation */}
           <div className="col-lg-3">
-            <div className="premium-glass-panel p-3 rounded-4 border border-subtle h-100 d-flex flex-column gap-2">
+            <div className="premium-glass-panel p-3 rounded-4 border h-100 d-flex flex-column gap-2" style={{ borderColor: 'var(--border, #e2e8f0)', background: 'var(--surface-1, #ffffff)' }}>
               <button 
                 onClick={() => setActiveTab('basic')}
-                className={`btn d-flex align-items-center gap-3 text-start px-4 py-3 rounded-3 fw-bold w-100 border-0 ${activeTab === 'basic' ? 'bg-primary bg-opacity-25 text-white' : 'text-muted'}`}
-                style={{ background: activeTab === 'basic' ? 'linear-gradient(90deg, rgba(147,51,234,0.2) 0%, transparent 100%)' : 'transparent', transition: 'all 0.3s' }}
+                className={`btn d-flex align-items-center gap-3 text-start px-4 py-3 rounded-3 fw-bold w-100 border-0`}
+                style={{ 
+                  background: activeTab === 'basic' ? 'rgba(99, 102, 241, 0.12)' : 'transparent', 
+                  color: activeTab === 'basic' ? '#4f46e5' : '#64748b',
+                  borderLeft: activeTab === 'basic' ? '3px solid #6366f1' : '3px solid transparent',
+                  transition: 'all 0.2s ease' 
+                }}
               >
-                <User size={20} className={activeTab === 'basic' ? 'text-purple' : ''} /> Basic Info
+                <User size={20} className={activeTab === 'basic' ? 'text-primary' : ''} /> Basic Info
               </button>
               <button 
                 onClick={() => setActiveTab('professional')}
-                className={`btn d-flex align-items-center gap-3 text-start px-4 py-3 rounded-3 fw-bold w-100 border-0 ${activeTab === 'professional' ? 'bg-primary bg-opacity-25 text-white' : 'text-muted'}`}
-                style={{ background: activeTab === 'professional' ? 'linear-gradient(90deg, rgba(59,130,246,0.2) 0%, transparent 100%)' : 'transparent', transition: 'all 0.3s' }}
+                className={`btn d-flex align-items-center gap-3 text-start px-4 py-3 rounded-3 fw-bold w-100 border-0`}
+                style={{ 
+                  background: activeTab === 'professional' ? 'rgba(99, 102, 241, 0.12)' : 'transparent', 
+                  color: activeTab === 'professional' ? '#4f46e5' : '#64748b',
+                  borderLeft: activeTab === 'professional' ? '3px solid #6366f1' : '3px solid transparent',
+                  transition: 'all 0.2s ease' 
+                }}
               >
                 <Award size={20} className={activeTab === 'professional' ? 'text-primary' : ''} /> Professional
               </button>
               <button 
                 onClick={() => setActiveTab('mentoring')}
-                className={`btn d-flex align-items-center gap-3 text-start px-4 py-3 rounded-3 fw-bold w-100 border-0 ${activeTab === 'mentoring' ? 'bg-primary bg-opacity-25 text-white' : 'text-muted'}`}
-                style={{ background: activeTab === 'mentoring' ? 'linear-gradient(90deg, rgba(236,72,153,0.2) 0%, transparent 100%)' : 'transparent', transition: 'all 0.3s' }}
+                className={`btn d-flex align-items-center gap-3 text-start px-4 py-3 rounded-3 fw-bold w-100 border-0`}
+                style={{ 
+                  background: activeTab === 'mentoring' ? 'rgba(99, 102, 241, 0.12)' : 'transparent', 
+                  color: activeTab === 'mentoring' ? '#4f46e5' : '#64748b',
+                  borderLeft: activeTab === 'mentoring' ? '3px solid #6366f1' : '3px solid transparent',
+                  transition: 'all 0.2s ease' 
+                }}
               >
-                <HeartHandshake size={20} className={activeTab === 'mentoring' ? 'text-pink' : ''} /> Mentoring
+                <HeartHandshake size={20} className={activeTab === 'mentoring' ? 'text-primary' : ''} /> Mentoring
               </button>
             </div>
           </div>
 
           {/* Tab Content */}
           <div className="col-lg-9">
-            <div className="premium-glass-panel p-5 rounded-4 border border-subtle min-vh-50">
+            <div className="premium-glass-panel p-4 p-md-5 rounded-4 border min-vh-50" style={{ borderColor: 'var(--border, #e2e8f0)', background: 'var(--surface-1, #ffffff)' }}>
               <AnimatePresence mode="wait">
                 {activeTab === 'basic' && (
                   <motion.div key="basic" variants={tabVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.2 }}>
-                    <h4 className="fw-bold mb-4 d-flex align-items-center gap-2"><User className="text-purple" /> Basic Information</h4>
+                    <h4 className="fw-bold mb-4 d-flex align-items-center gap-2" style={{ color: 'var(--text, #0f172a)' }}>
+                      <User className="text-primary" /> Basic Information
+                    </h4>
                     <div className="row g-4">
                       <div className="col-md-6">
-                        <label className="form-label text-muted small fw-bold text-uppercase">Full Name</label>
+                        <label className="form-label small fw-bold text-uppercase" style={{ color: '#475569', letterSpacing: '0.04em', fontSize: '0.75rem' }}>Full Name</label>
                         <input type="text" className="form-control premium-input rounded-3 py-2" name="name" value={profile.name} onChange={handleChange} />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label text-muted small fw-bold text-uppercase">Graduation Year</label>
+                        <label className="form-label small fw-bold text-uppercase" style={{ color: '#475569', letterSpacing: '0.04em', fontSize: '0.75rem' }}>Graduation Year</label>
                         <input type="number" className="form-control premium-input rounded-3 py-2" name="graduationYear" value={profile.graduationYear} onChange={handleChange} />
                       </div>
                       <div className="col-md-12">
-                        <label className="form-label text-muted small fw-bold text-uppercase">Department / Major</label>
+                        <label className="form-label small fw-bold text-uppercase" style={{ color: '#475569', letterSpacing: '0.04em', fontSize: '0.75rem' }}>Department / Major</label>
                         <input type="text" className="form-control premium-input rounded-3 py-2" name="department" value={profile.department} onChange={handleChange} />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label text-muted small fw-bold text-uppercase">Location</label>
+                        <label className="form-label small fw-bold text-uppercase" style={{ color: '#475569', letterSpacing: '0.04em', fontSize: '0.75rem' }}>Location</label>
                         <input type="text" className="form-control premium-input rounded-3 py-2" name="location" value={profile.location} onChange={handleChange} />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label text-muted small fw-bold text-uppercase">Portfolio / LinkedIn</label>
+                        <label className="form-label small fw-bold text-uppercase" style={{ color: '#475569', letterSpacing: '0.04em', fontSize: '0.75rem' }}>Portfolio / LinkedIn</label>
                         <input type="url" className="form-control premium-input rounded-3 py-2" name="portfolioUrl" value={profile.portfolioUrl} onChange={handleChange} />
                       </div>
                       <div className="col-md-12">
-                        <label className="form-label text-muted small fw-bold text-uppercase">Bio</label>
+                        <label className="form-label small fw-bold text-uppercase" style={{ color: '#475569', letterSpacing: '0.04em', fontSize: '0.75rem' }}>Bio</label>
                         <textarea className="form-control premium-input rounded-3 py-2" name="bio" value={profile.bio} onChange={handleChange} rows="4"></textarea>
                       </div>
                     </div>
@@ -185,20 +202,24 @@ export default function AlumniProfile() {
 
                 {activeTab === 'professional' && (
                   <motion.div key="professional" variants={tabVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.2 }}>
-                    <h4 className="fw-bold mb-4 d-flex align-items-center gap-2"><Award className="text-primary" /> Professional Details</h4>
+                    <h4 className="fw-bold mb-4 d-flex align-items-center gap-2" style={{ color: 'var(--text, #0f172a)' }}>
+                      <Award className="text-primary" /> Professional Details
+                    </h4>
                     <div className="row g-4">
                       <div className="col-md-6">
-                        <label className="form-label text-muted small fw-bold text-uppercase">Current Job Title</label>
-                        <input type="text" className="form-control premium-input rounded-3 py-2" name="designation" value={profile.designation} onChange={handleChange} />
+                        <label className="form-label small fw-bold text-uppercase" style={{ color: '#475569', letterSpacing: '0.04em', fontSize: '0.75rem' }}>Current Job Title</label>
+                        <input type="text" className="form-control premium-input rounded-3 py-2" name="designation" value={profile.designation} onChange={handleChange} placeholder="e.g. Senior Software Engineer" />
                       </div>
                       <div className="col-md-6">
-                        <label className="form-label text-muted small fw-bold text-uppercase">Current Company</label>
-                        <input type="text" className="form-control premium-input rounded-3 py-2" name="company" value={profile.company} onChange={handleChange} />
+                        <label className="form-label small fw-bold text-uppercase" style={{ color: '#475569', letterSpacing: '0.04em', fontSize: '0.75rem' }}>Current Company</label>
+                        <input type="text" className="form-control premium-input rounded-3 py-2" name="company" value={profile.company} onChange={handleChange} placeholder="e.g. Google India" />
                       </div>
                       <div className="col-md-12">
-                        <label className="form-label text-muted small fw-bold text-uppercase">Professional Skills (Comma separated)</label>
-                        <input type="text" className="form-control premium-input rounded-3 py-2" name="skills" value={profile.skills} onChange={handleChange} placeholder="e.g. React, System Design, Product Management" />
-                        <div className="form-text mt-2 text-muted"><BookOpen size={14} className="me-1" /> These skills help us match you with students looking for mentorship.</div>
+                        <label className="form-label small fw-bold text-uppercase" style={{ color: '#475569', letterSpacing: '0.04em', fontSize: '0.75rem' }}>Professional Skills (Comma separated)</label>
+                        <input type="text" className="form-control premium-input rounded-3 py-2" name="skills" value={profile.skills} onChange={handleChange} placeholder="e.g. React, TypeScript, System Design, Web Performance" />
+                        <div className="form-text mt-2 d-flex align-items-center gap-1" style={{ color: '#64748b', fontSize: '0.825rem' }}>
+                          <BookOpen size={14} className="text-primary flex-shrink-0" /> These skills help us match you with students looking for mentorship.
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -206,13 +227,27 @@ export default function AlumniProfile() {
 
                 {activeTab === 'mentoring' && (
                   <motion.div key="mentoring" variants={tabVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.2 }}>
-                    <h4 className="fw-bold mb-3 d-flex align-items-center gap-2"><HeartHandshake className="text-pink" /> Mentoring Preferences</h4>
-                    <p className="text-muted mb-4">Select how you would like to contribute back to the student ecosystem. Your selections directly power the student recommendations and requests.</p>
+                    <h4 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: 'var(--text, #0f172a)' }}>
+                      <HeartHandshake className="text-pink" /> Mentoring Preferences
+                    </h4>
+                    <p className="mb-4" style={{ color: '#64748b' }}>Select how you would like to contribute back to the student ecosystem. Your selections directly power the student recommendations and requests.</p>
                     <div className="row g-4">
                       {Object.keys(profile.contributionPreferences || {}).map(pref => (
                         <div className="col-md-6" key={pref}>
-                          <div className="premium-glass-panel p-3 rounded-3 border d-flex align-items-center justify-content-between h-100" style={{ borderColor: profile.contributionPreferences[pref] ? 'rgba(236,72,153,0.3)' : 'rgba(255,255,255,0.05)', background: profile.contributionPreferences[pref] ? 'rgba(236,72,153,0.05)' : 'rgba(255,255,255,0.02)' }}>
-                            <label className="form-check-label fw-bold text-capitalize text-white mb-0" htmlFor={pref} style={{ cursor: 'pointer' }}>
+                          <div 
+                            className="p-3 rounded-3 border d-flex align-items-center justify-content-between h-100" 
+                            style={{ 
+                              borderColor: profile.contributionPreferences[pref] ? 'rgba(99, 102, 241, 0.4)' : '#e2e8f0', 
+                              background: profile.contributionPreferences[pref] ? 'rgba(99, 102, 241, 0.06)' : '#ffffff',
+                              boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <label 
+                              className="form-check-label fw-bold text-capitalize mb-0" 
+                              htmlFor={pref} 
+                              style={{ cursor: 'pointer', color: 'var(--text, #0f172a)' }}
+                            >
                               {pref.replace(/([A-Z])/g, ' $1').trim()}
                             </label>
                             <div className="form-check form-switch m-0 p-0 d-flex align-items-center">
@@ -240,18 +275,41 @@ export default function AlumniProfile() {
       
       <style>{`
         .premium-input {
-          background: rgba(255,255,255,0.03) !important;
-          border: 1px solid rgba(255,255,255,0.1) !important;
-          color: white !important;
-          transition: all 0.2s;
+          background: #ffffff !important;
+          border: 1px solid #cbd5e1 !important;
+          color: #0f172a !important;
+          font-weight: 500 !important;
+          font-size: 0.95rem !important;
+          box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04) !important;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
         }
         .premium-input:focus {
-          background: rgba(255,255,255,0.05) !important;
-          border-color: var(--bs-primary) !important;
-          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+          background: #ffffff !important;
+          border-color: #6366f1 !important;
+          color: #0f172a !important;
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18) !important;
+          outline: none !important;
         }
-        .text-purple { color: #d8b4fe !important; }
-        .text-pink { color: #f9a8d4 !important; }
+        .premium-input::placeholder {
+          color: #94a3b8 !important;
+          font-weight: 400 !important;
+        }
+        [data-theme="dark"] .premium-input {
+          background: rgba(30, 41, 59, 0.75) !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+          color: #f8fafc !important;
+        }
+        [data-theme="dark"] .premium-input:focus {
+          background: rgba(30, 41, 59, 0.95) !important;
+          border-color: #818cf8 !important;
+          color: #ffffff !important;
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important;
+        }
+        [data-theme="dark"] .premium-input::placeholder {
+          color: #64748b !important;
+        }
+        .text-purple { color: #8b5cf6 !important; }
+        .text-pink { color: #ec4899 !important; }
         .bg-purple { background-color: #9333ea !important; }
       `}</style>
     </div>

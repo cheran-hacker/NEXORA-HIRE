@@ -560,113 +560,159 @@ const AlumniManagement = () => {
       {/* CREATE / INVITE MODAL */}
       <AnimatePresence>
         {showCreateModal && (
-          <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ background: "rgba(0,0,0,0.75)", zIndex: 1050, backdropFilter: 'blur(5px)' }}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="nexora-modal-backdrop"
+            onClick={(e) => e.target === e.currentTarget && setShowCreateModal(false)}
+          >
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bento-card p-4 shadow-2xl w-100"
-              style={{ maxWidth: 600, maxHeight: "90vh", overflowY: "auto", border: "1px solid var(--primary)" }}
+              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="nexora-modal-container size-md"
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h4 className="fw-black mb-0 d-flex align-items-center gap-2 text-white">
-                  <Plus size={22} className="text-primary" /> Invite New Alumni Mentor
-                </h4>
-                <button className="btn btn-sm btn-outline-secondary rounded-circle p-1" onClick={() => setShowCreateModal(false)}>
-                  <X size={18} />
+              {/* Master Header */}
+              <div className="nexora-modal-header">
+                <div className="nexora-modal-header-left">
+                  <div className="nexora-modal-icon-badge">
+                    <Mail size={22} strokeWidth={2.2} />
+                  </div>
+                  <div>
+                    <h4 className="nexora-modal-title">Invite New Alumni Mentor</h4>
+                    <p className="nexora-modal-subtitle">
+                      Dispatch a single-use onboarding invitation to a verified graduate
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="nexora-modal-close-btn"
+                  onClick={() => setShowCreateModal(false)}
+                  title="Close modal"
+                >
+                  <X size={18} strokeWidth={2.2} />
                 </button>
               </div>
 
-              <form onSubmit={handleInviteAlumni}>
-                <div className="row g-3 mb-3">
-                  <div className="col-md-6">
-                    <label className="form-label fw-bold small text-muted text-uppercase">Full Name *</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="e.g. Priya Sharma"
-                      value={newAlumni.name}
-                      onChange={(e) => setNewAlumni((p) => ({ ...p, name: e.target.value }))}
-                      required
-                    />
+              {/* Form & Body */}
+              <form onSubmit={handleInviteAlumni} className="d-flex flex-column" style={{ minHeight: 0, flex: 1 }}>
+                <div className="nexora-modal-body">
+                  <div className="row g-3 mb-3">
+                    <div className="col-md-6">
+                      <label className="nexora-form-label">
+                        Full Name <span className="nexora-form-req">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="nexora-form-input"
+                        placeholder="e.g. Priya Sharma"
+                        value={newAlumni.name}
+                        onChange={(e) => setNewAlumni((p) => ({ ...p, name: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="nexora-form-label">
+                        Email Address <span className="nexora-form-req">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        className="nexora-form-input"
+                        placeholder="priya@google.com"
+                        value={newAlumni.email}
+                        onChange={(e) => setNewAlumni((p) => ({ ...p, email: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="nexora-form-label">Department</label>
+                      <input
+                        type="text"
+                        className="nexora-form-input"
+                        placeholder="Computer Science & Eng"
+                        value={newAlumni.department}
+                        onChange={(e) => setNewAlumni((p) => ({ ...p, department: e.target.value }))}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="nexora-form-label">Graduation Year</label>
+                      <input
+                        type="text"
+                        className="nexora-form-input"
+                        placeholder="e.g. 2021"
+                        value={newAlumni.graduationYear}
+                        onChange={(e) => setNewAlumni((p) => ({ ...p, graduationYear: e.target.value }))}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="nexora-form-label">Company / Organization</label>
+                      <input
+                        type="text"
+                        className="nexora-form-input"
+                        placeholder="e.g. Microsoft / Google"
+                        value={newAlumni.company}
+                        onChange={(e) => setNewAlumni((p) => ({ ...p, company: e.target.value }))}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="nexora-form-label">Job Title / Role</label>
+                      <input
+                        type="text"
+                        className="nexora-form-input"
+                        placeholder="e.g. Senior Software Engineer"
+                        value={newAlumni.role}
+                        onChange={(e) => setNewAlumni((p) => ({ ...p, role: e.target.value }))}
+                      />
+                    </div>
                   </div>
-                  <div className="col-md-6">
-                    <label className="form-label fw-bold small text-muted text-uppercase">Email Address *</label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      placeholder="priya@google.com"
-                      value={newAlumni.email}
-                      onChange={(e) => setNewAlumni((p) => ({ ...p, email: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label fw-bold small text-muted text-uppercase">Department</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Computer Science & Eng"
-                      value={newAlumni.department}
-                      onChange={(e) => setNewAlumni((p) => ({ ...p, department: e.target.value }))}
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label fw-bold small text-muted text-uppercase">Graduation Year</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="e.g. 2021"
-                      value={newAlumni.graduationYear}
-                      onChange={(e) => setNewAlumni((p) => ({ ...p, graduationYear: e.target.value }))}
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label fw-bold small text-muted text-uppercase">Company / Org</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="e.g. Microsoft / Amazon"
-                      value={newAlumni.company}
-                      onChange={(e) => setNewAlumni((p) => ({ ...p, company: e.target.value }))}
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label fw-bold small text-muted text-uppercase">Job Title / Role</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="e.g. Senior Software Engineer"
-                      value={newAlumni.role}
-                      onChange={(e) => setNewAlumni((p) => ({ ...p, role: e.target.value }))}
-                    />
+
+                  <div className="p-3 rounded-3 d-flex gap-2" style={{ background: "#ffffff", border: "1px solid #e2e8f0" }}>
+                    <Shield size={18} className="text-primary mt-0.5 flex-shrink-0" />
+                    <div className="small">
+                      <strong className="text-dark d-block mb-0.5">Secure Token Invitation:</strong>
+                      <span className="text-muted">The mentor will receive an official email containing a single-use onboarding URL to verify credentials and setup their profile.</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="alert alert-info small d-flex gap-2">
-                  <Shield size={16} className="mt-1 flex-shrink-0" />
-                  <div>
-                    <strong>Secure Token Invitation:</strong> The mentor will receive an email containing a secure single-use registration URL to onboard and setup credentials.
+                {/* Footer */}
+                <div className="nexora-modal-footer">
+                  <span className="nexora-modal-footer-hint d-none d-sm-inline">
+                    * Required fields must be completed
+                  </span>
+                  <div className="nexora-modal-footer-actions">
+                    <button
+                      type="button"
+                      className="nexora-modal-btn-cancel"
+                      onClick={() => setShowCreateModal(false)}
+                      disabled={saving}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="nexora-modal-btn-primary"
+                    >
+                      {saving ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm" /> Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Mail size={18} /> Dispatch Invitation
+                        </>
+                      )}
+                    </button>
                   </div>
-                </div>
-
-                <div className="d-flex gap-2 justify-content-end">
-                  <button type="button" className="btn btn-outline-secondary rounded-pill px-4 fw-bold" onClick={() => setShowCreateModal(false)}>
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary rounded-pill px-4 fw-bold d-flex align-items-center gap-2"
-                    style={{ background: "linear-gradient(135deg, var(--primary), #8b5cf6)", border: "none" }}
-                    disabled={saving}
-                  >
-                    {saving ? <span className="spinner-border spinner-border-sm" /> : <Mail size={16} />}
-                    {saving ? "Sending..." : "Dispatch Invitation"}
-                  </button>
                 </div>
               </form>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

@@ -11,12 +11,53 @@ import {
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useToast } from "../../context/ToastContext.jsx";
 import { geoService } from "../../services/api";
+import Modal from "../../shared/components/Modal";
+
 const Events = () => {
   const { user } = useAuth();
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
   const [events, setEvents] = useState([]);
+  const [showProposeModal, setShowProposeModal] = useState(false);
+  const [proposalForm, setProposalForm] = useState({
+    title: "",
+    type: "Tech",
+    location: "",
+    date: "",
+    attendees: 50,
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800",
+  });
+
+  const handleProposeEvent = (e) => {
+    e.preventDefault();
+    if (!proposalForm.title.trim()) {
+      addToast("Please provide an event title", "error");
+      return;
+    }
+    const newEvt = {
+      id: "evt_" + Date.now(),
+      _id: "evt_" + Date.now(),
+      title: proposalForm.title,
+      type: proposalForm.type,
+      location: proposalForm.location || "Campus Auditorium",
+      date: proposalForm.date ? new Date(proposalForm.date).toISOString() : new Date().toISOString(),
+      attendees: 1,
+      registered: true,
+      image: proposalForm.image,
+    };
+    setEvents([newEvt, ...events]);
+    setShowProposeModal(false);
+    setProposalForm({
+      title: "",
+      type: "Tech",
+      location: "",
+      date: "",
+      attendees: 50,
+      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800",
+    });
+    addToast("Campus event proposed successfully!", "success");
+  };
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -82,7 +123,7 @@ const Events = () => {
         </div>{" "}
         <button
           className="btn btn-primary rounded-pill fw-bold px-4 d-flex align-items-center gap-2"
-          onClick={() => addToast("Opening event proposal form...", "info")}
+          onClick={() => setShowProposeModal(true)}
         >
           {" "}
           <Plus size={18} /> Propose Event{" "}
@@ -174,6 +215,76 @@ const Events = () => {
           </div>
         )}{" "}
       </div>{" "}
+
+      <Modal
+        isOpen={showProposeModal}
+        onClose={() => setShowProposeModal(false)}
+        title="Propose Campus Event"
+        actions={
+          <>
+            <button
+              className="btn btn-secondary rounded-pill px-4"
+              onClick={() => setShowProposeModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="btn btn-primary rounded-pill px-4 fw-bold"
+              onClick={handleProposeEvent}
+            >
+              Submit Proposal
+            </button>
+          </>
+        }
+      >
+        <form onSubmit={handleProposeEvent} className="d-flex flex-column gap-3">
+          <div>
+            <label className="form-label small fw-bold">Event Title *</label>
+            <input
+              type="text"
+              required
+              className="form-control"
+              placeholder="e.g. AI & Robotics Hack Showcase"
+              value={proposalForm.title}
+              onChange={(e) => setProposalForm({ ...proposalForm, title: e.target.value })}
+            />
+          </div>
+          <div className="row g-3">
+            <div className="col-md-6">
+              <label className="form-label small fw-bold">Category</label>
+              <select
+                className="form-select"
+                value={proposalForm.type}
+                onChange={(e) => setProposalForm({ ...proposalForm, type: e.target.value })}
+              >
+                <option value="Tech">Tech</option>
+                <option value="Seminar">Seminar</option>
+                <option value="Sports">Sports</option>
+                <option value="Cultural">Cultural</option>
+              </select>
+            </div>
+            <div className="col-md-6">
+              <label className="form-label small fw-bold">Date & Time</label>
+              <input
+                type="datetime-local"
+                className="form-control"
+                value={proposalForm.date}
+                onChange={(e) => setProposalForm({ ...proposalForm, date: e.target.value })}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="form-label small fw-bold">Location / Venue</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="e.g. Main Auditorium / Innovation Lab 4"
+              value={proposalForm.location}
+              onChange={(e) => setProposalForm({ ...proposalForm, location: e.target.value })}
+            />
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

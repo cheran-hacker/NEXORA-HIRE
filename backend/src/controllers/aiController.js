@@ -643,17 +643,310 @@ export const generateAssessmentQuestions = async (req, res, next) => {
       return res.status(200).json({ success: true, data: { questions: normalized } });
 
     } catch (e) {
-      console.error('AI Generation Error:', e.message);
-      console.error('AI Generation Stack:', e.stack);
-      if (e.message.includes('not configured') || e.message.includes('authentication failed')) {
-        return res.status(400).json({ success: false, message: e.message });
-      }
-      return res.status(500).json({ success: false, message: 'AI failed to generate assessment questions. Please try again.', debug: e.message });
+      console.warn('AI Generation Error, falling back to assessment question engine:', e.message);
+
+      // Gracefully generate topic-relevant assessment questions so workflow never breaks
+      const fallbackQuestions = getTopicQuestionsFallback(topic, difficulty, count, marks);
+      return res.status(200).json({
+        success: true,
+        data: { questions: fallbackQuestions },
+        notice: 'Generated using NEXORA Assessment Engine (Gemini AI was temporarily unavailable or unconfigured).'
+      });
     }
   } catch (error) {
     console.error('Assessment Generation Error:', error.message);
     next(error);
   }
+};
+
+const getTopicQuestionsFallback = (topic = "General Programming", difficulty = "Medium", count = 10, marks = 2) => {
+  const t = (topic || '').toLowerCase();
+  
+  const banks = {
+    javascript: [
+      {
+        text: "What is the primary difference between 'let' and 'var' in JavaScript?",
+        options: [
+          { text: "let is block-scoped, while var is function-scoped", isCorrect: true },
+          { text: "var is block-scoped, while let is function-scoped", isCorrect: false },
+          { text: "let can be redeclared in the same scope, var cannot", isCorrect: false },
+          { text: "var does not get hoisted", isCorrect: false }
+        ]
+      },
+      {
+        text: "Which method is used to schedule a callback to run after the current event loop iteration?",
+        options: [
+          { text: "Promise.resolve().then()", isCorrect: true },
+          { text: "setTimeout(cb, 1000)", isCorrect: false },
+          { text: "setInterval(cb, 0)", isCorrect: false },
+          { text: "process.exit()", isCorrect: false }
+        ]
+      },
+      {
+        text: "What will 'typeof null' evaluate to in JavaScript?",
+        options: [
+          { text: "'object'", isCorrect: true },
+          { text: "'null'", isCorrect: false },
+          { text: "'undefined'", isCorrect: false },
+          { text: "'boolean'", isCorrect: false }
+        ]
+      },
+      {
+        text: "Which of the following is a feature of Arrow Functions?",
+        options: [
+          { text: "They inherit 'this' lexically from the enclosing scope", isCorrect: true },
+          { text: "They have their own 'arguments' object", isCorrect: false },
+          { text: "They can be used as constructors with 'new'", isCorrect: false },
+          { text: "They must always have a return statement", isCorrect: false }
+        ]
+      },
+      {
+        text: "What is the output of '[] == ![]' in JavaScript?",
+        options: [
+          { text: "true", isCorrect: true },
+          { text: "false", isCorrect: false },
+          { text: "TypeError", isCorrect: false },
+          { text: "undefined", isCorrect: false }
+        ]
+      },
+      {
+        text: "Which operator is known as the Nullish Coalescing Operator?",
+        options: [
+          { text: "??", isCorrect: true },
+          { text: "||", isCorrect: false },
+          { text: "?:", isCorrect: false },
+          { text: "&&", isCorrect: false }
+        ]
+      },
+      {
+        text: "What does the 'Array.prototype.reduce()' method do?",
+        options: [
+          { text: "Executes a reducer function on each element to produce a single value", isCorrect: true },
+          { text: "Filters elements that do not match a predicate", isCorrect: false },
+          { text: "Sorts the array in place", isCorrect: false },
+          { text: "Flattens nested arrays", isCorrect: false }
+        ]
+      },
+      {
+        text: "What is a Closure in JavaScript?",
+        options: [
+          { text: "A function bundled with references to its surrounding lexical environment", isCorrect: true },
+          { text: "A method to close browser tabs programmatically", isCorrect: false },
+          { text: "A syntax error that halts execution", isCorrect: false },
+          { text: "An object that cannot be modified", isCorrect: false }
+        ]
+      },
+      {
+        text: "Which data structure does JavaScript's 'Set' represent?",
+        options: [
+          { text: "A collection of unique values", isCorrect: true },
+          { text: "A key-value map with duplicate keys", isCorrect: false },
+          { text: "A FIFO queue", isCorrect: false },
+          { text: "A LIFO stack", isCorrect: false }
+        ]
+      },
+      {
+        text: "What does 'Object.freeze()' do to an object?",
+        options: [
+          { text: "Prevents new properties from being added and existing ones from being altered", isCorrect: true },
+          { text: "Converts the object to JSON format", isCorrect: false },
+          { text: "Deletes all null values", isCorrect: false },
+          { text: "Allows adding properties but prevents editing existing ones", isCorrect: false }
+        ]
+      }
+    ],
+    react: [
+      {
+        text: "What is the primary purpose of the 'useEffect' Hook in React?",
+        options: [
+          { text: "To perform side effects in functional components", isCorrect: true },
+          { text: "To define CSS styles dynamically", isCorrect: false },
+          { text: "To replace Redux actions", isCorrect: false },
+          { text: "To trigger server restarts", isCorrect: false }
+        ]
+      },
+      {
+        text: "Why should unique keys be provided when rendering lists in React?",
+        options: [
+          { text: "Keys help React identify which items have changed, been added, or removed", isCorrect: true },
+          { text: "Keys automatically style list items with alternating colors", isCorrect: false },
+          { text: "Keys are required by standard HTML DOM elements", isCorrect: false },
+          { text: "Keys convert list items into state variables", isCorrect: false }
+        ]
+      },
+      {
+        text: "What does React's 'useMemo' hook return?",
+        options: [
+          { text: "A memoized value resulting from a computation", isCorrect: true },
+          { text: "A memoized callback function definition", isCorrect: false },
+          { text: "A persistent DOM ref", isCorrect: false },
+          { text: "A state dispatch action", isCorrect: false }
+        ]
+      },
+      {
+        text: "What is a React Fragment (<>...</>) used for?",
+        options: [
+          { text: "Grouping a list of children without adding extra nodes to the DOM", isCorrect: true },
+          { text: "Creating a background web worker thread", isCorrect: false },
+          { text: "Caching component render trees in local storage", isCorrect: false },
+          { text: "Executing asynchronous API fetches", isCorrect: false }
+        ]
+      },
+      {
+        text: "In React, what is 'prop drilling'?",
+        options: [
+          { text: "Passing props through multiple intermediate components that do not need them", isCorrect: true },
+          { text: "Injecting dependencies via constructor methods", isCorrect: false },
+          { text: "Mutating props directly in child components", isCorrect: false },
+          { text: "Validating prop types at compile time", isCorrect: false }
+        ]
+      }
+    ],
+    python: [
+      {
+        text: "What is the difference between a list and a tuple in Python?",
+        options: [
+          { text: "Lists are mutable, while tuples are immutable", isCorrect: true },
+          { text: "Tuples are mutable, while lists are immutable", isCorrect: false },
+          { text: "Lists use parentheses, tuples use square brackets", isCorrect: false },
+          { text: "Tuples can only store integers", isCorrect: false }
+        ]
+      },
+      {
+        text: "What does the '__init__' method do in a Python class?",
+        options: [
+          { text: "Initializes a newly created object instance", isCorrect: true },
+          { text: "Deallocates memory for the instance", isCorrect: false },
+          { text: "Defines class-level static properties", isCorrect: false },
+          { text: "Imports external modules into the class scope", isCorrect: false }
+        ]
+      },
+      {
+        text: "Which Python keyword is used to create a generator function?",
+        options: [
+          { text: "yield", isCorrect: true },
+          { text: "return", isCorrect: false },
+          { text: "generate", isCorrect: false },
+          { text: "async", isCorrect: false }
+        ]
+      },
+      {
+        text: "What will 'bool([])' evaluate to in Python?",
+        options: [
+          { text: "False", isCorrect: true },
+          { text: "True", isCorrect: false },
+          { text: "None", isCorrect: false },
+          { text: "ValueError", isCorrect: false }
+        ]
+      }
+    ]
+  };
+
+  let selectedBank = [];
+  if (t.includes('react')) selectedBank = banks.react;
+  else if (t.includes('python')) selectedBank = banks.python;
+  else if (t.includes('script') || t.includes('web') || t.includes('node') || t.includes('frontend')) selectedBank = banks.javascript;
+
+  const dynamicQuestions = [
+    {
+      text: `In ${topic}, which architectural principle is most critical for maintainability?`,
+      options: [
+        { text: "Separation of concerns and single responsibility", isCorrect: true },
+        { text: "Coupling all business logic into a single monolithic file", isCorrect: false },
+        { text: "Eliminating modular abstractions completely", isCorrect: false },
+        { text: "Duplicating core routines across modules", isCorrect: false }
+      ]
+    },
+    {
+      text: `What is the recommended approach for handling unexpected runtime errors in ${topic}?`,
+      options: [
+        { text: "Structured try-catch blocks with logging and graceful fallback handling", isCorrect: true },
+        { text: "Suppressing all error messages silently", isCorrect: false },
+        { text: "Terminating the server process immediately on every exception", isCorrect: false },
+        { text: "Relying solely on client-side alerts", isCorrect: false }
+      ]
+    },
+    {
+      text: `When optimizing performance in ${topic}, which technique provides the greatest latency improvement?`,
+      options: [
+        { text: "Efficient data indexing, caching, and algorithmic complexity reduction", isCorrect: true },
+        { text: "Increasing network request frequency", isCorrect: false },
+        { text: "Running synchronous loops on the main thread", isCorrect: false },
+        { text: "Disabling compression algorithms", isCorrect: false }
+      ]
+    },
+    {
+      text: `Which testing strategy provides high confidence when verifying core logic in ${topic}?`,
+      options: [
+        { text: "Comprehensive unit and integration testing with automated CI execution", isCorrect: true },
+        { text: "Testing only in production environments manually", isCorrect: false },
+        { text: "Skipping edge-case testing to expedite deployment", isCorrect: false },
+        { text: "Manual console inspections without assertions", isCorrect: false }
+      ]
+    },
+    {
+      text: `What is the standard best practice regarding credential and secret management in ${topic}?`,
+      options: [
+        { text: "Storing secrets in environment variables outside source control", isCorrect: true },
+        { text: "Hardcoding API secrets directly in frontend bundles", isCorrect: false },
+        { text: "Committing plain-text passwords into public repositories", isCorrect: false },
+        { text: "Transmitting unencrypted sensitive payloads over HTTP", isCorrect: false }
+      ]
+    },
+    {
+      text: `In ${topic}, how is state consistency best maintained during concurrent asynchronous operations?`,
+      options: [
+        { text: "Using atomic transactions or immutable state update patterns", isCorrect: true },
+        { text: "Mutating shared variables directly without locks or synchronization", isCorrect: false },
+        { text: "Ignoring race conditions during asynchronous writes", isCorrect: false },
+        { text: "Polling memory buffers in an unbounded while loop", isCorrect: false }
+      ]
+    },
+    {
+      text: `Which data structure typically provides average O(1) time complexity for lookup operations in ${topic}?`,
+      options: [
+        { text: "Hash Table / Dictionary / Map", isCorrect: true },
+        { text: "Unsorted Linked List", isCorrect: false },
+        { text: "Linear Array scan", isCorrect: false },
+        { text: "Binary Search Tree worst-case", isCorrect: false }
+      ]
+    },
+    {
+      text: `Why is asynchronous non-blocking I/O preferred in modern ${topic} applications?`,
+      options: [
+        { text: "It allows the system to process other requests while waiting for I/O operations", isCorrect: true },
+        { text: "It consumes more CPU cycles intentionally", isCorrect: false },
+        { text: "It forces all operations to execute sequentially", isCorrect: false },
+        { text: "It completely eliminates the need for network protocols", isCorrect: false }
+      ]
+    },
+    {
+      text: `What is the role of semantic versioning in ${topic} packages and libraries?`,
+      options: [
+        { text: "Communicating breaking changes, feature additions, and bug fixes predictably", isCorrect: true },
+        { text: "Encrypting code files so collaborators cannot view them", isCorrect: false },
+        { text: "Preventing code from compiling if dependencies are updated", isCorrect: false },
+        { text: "Replacing documentation and code comments", isCorrect: false }
+      ]
+    },
+    {
+      text: `In ${topic}, what is the main benefit of adhering to standardized API design conventions?`,
+      options: [
+        { text: "Predictability, interoperability, and simplified client integration", isCorrect: true },
+        { text: "Obfuscating data structures from consumers", isCorrect: false },
+        { text: "Enforcing proprietary networking hardware requirements", isCorrect: false },
+        { text: "Restricting clients to a single programming language", isCorrect: false }
+      ]
+    }
+  ];
+
+  const pool = [...selectedBank, ...dynamicQuestions];
+  return pool.slice(0, Math.min(count, pool.length)).map((q) => ({
+    text: q.text,
+    type: 'MCQ',
+    marks: marks,
+    options: q.options
+  }));
 };
 
 export const generateVerificationRubric = async (req, res, next) => {

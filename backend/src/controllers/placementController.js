@@ -376,15 +376,56 @@ export const createPlacementPartner = async (req, res) => {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const existing = await User.findOne({ email: cleanEmail });
-    if (existing) {
-      return res.status(400).json({ success: false, message: 'A user or partner with this email already exists.' });
-    }
-
     const cleanCompany = companyName.trim();
     let cleanWebsite = (companyWebsite || '').trim();
     if (cleanWebsite && !cleanWebsite.startsWith('http://') && !cleanWebsite.startsWith('https://')) {
       cleanWebsite = `https://${cleanWebsite}`;
+    }
+
+    const existing = await User.findOne({ email: cleanEmail });
+    if (existing) {
+      if (['Placement', 'Recruiter', 'Admin'].includes(existing.role)) {
+        existing.company = cleanCompany;
+        existing.companyName = cleanCompany;
+        if (cleanWebsite) existing.companyWebsite = cleanWebsite;
+        if (name && name.trim()) existing.name = name.trim();
+
+        if (!existing.placementProfile) existing.placementProfile = {};
+        existing.placementProfile.companyName = cleanCompany;
+        if (cleanWebsite) existing.placementProfile.companyWebsite = cleanWebsite;
+        existing.placementProfile.designation = (designation || existing.placementProfile.designation || 'Lead Campus Recruiter').trim();
+        existing.placementProfile.verified = Boolean(verified !== false);
+
+        if (!existing.recruiterProfile) existing.recruiterProfile = {};
+        existing.recruiterProfile.company = cleanCompany;
+        existing.recruiterProfile.companyName = cleanCompany;
+        if (cleanWebsite) existing.recruiterProfile.companyWebsite = cleanWebsite;
+        existing.recruiterProfile.designation = (designation || existing.recruiterProfile.designation || 'Lead Campus Recruiter').trim();
+        existing.recruiterProfile.verified = Boolean(verified !== false);
+
+        await existing.save();
+
+        return res.status(200).json({
+          success: true,
+          message: `Partner "${cleanCompany}" updated with existing recruiter profile!`,
+          data: {
+            _id: existing._id,
+            name: existing.name,
+            email: existing.email,
+            companyName: cleanCompany,
+            companyWebsite: cleanWebsite || existing.companyWebsite,
+            jobsCount: 0,
+            hiredCount: 0,
+            designation: designation || existing.placementProfile?.designation || 'Lead Campus Recruiter',
+            verified: Boolean(verified !== false)
+          }
+        });
+      } else {
+        return res.status(400).json({ 
+          success: false, 
+          message: `An account with email "${cleanEmail}" is already registered as a ${existing.role}. Please provide a recruiter or corporate email.` 
+        });
+      }
     }
 
     const newPartner = await User.create({
@@ -886,8 +927,12 @@ export const getAnalyticsReports = async (req, res) => {
 
     const formatLPA = (num) => {
       if (!num) return '₹12.0 LPA';
-      const lpa = num > 100000 ? (num / 100000).toFixed(1) : Number(num).toFixed(1);
-      return `₹${lpa} LPA`;
+      const n = Number(num);
+      let lpa = 0;
+      if (n >= 100000) lpa = (n / 100000).toFixed(1);
+      else if (n >= 100) lpa = (n / 100).toFixed(1);
+      else lpa = n.toFixed(1);
+      return '₹' + lpa + ' LPA';
     };
 
     // Generate placement trend for the past 6 months

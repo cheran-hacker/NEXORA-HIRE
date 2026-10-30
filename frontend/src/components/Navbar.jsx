@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Bell,
   Search,
@@ -22,18 +22,64 @@ import { notificationService } from "../services/api.js";
 import { useTheme } from "../context/ThemeContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { getAvatarUrl, handleImageError } from "../utils/avatar.js";
+
 export default function Navbar({ pageTitle, user, onToggleSidebar }) {
   const navigate = useNavigate();
   const { theme, actualTheme, setTheme, toggleTheme } = useTheme();
+  const { user: authUser, logout } = useAuth();
+  const currentUser = user || authUser;
+
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const { logout } = useAuth();
+
+  const themeRef = useRef(null);
+  const notifRef = useRef(null);
+  const profileRef = useRef(null);
+
   useEffect(() => {
-    if (user) fetchNotifications();
-  }, [user]);
+    if (currentUser) fetchNotifications();
+  }, [currentUser]);
+
+  // Handle outside click to close menus
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (themeRef.current && !themeRef.current.contains(e.target)) {
+        setShowThemeMenu(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotifications(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const formatRole = (role) => {
+    if (!role) return "Student";
+    const r = role.toString().trim().toLowerCase();
+    if (r === "placement") return "Placement Officer";
+    if (r === "admin") return "Administrator";
+    if (r === "alumni") return "Alumni";
+    if (r === "student") return "Student";
+    if (r === "recruiter") return "Recruiter";
+    return role;
+  };
+
+  const roleLower = (currentUser?.role || "student").toLowerCase();
+  const profilePath = roleLower === "alumni" ? "/alumni/profile" : roleLower === "admin" ? "/admin/settings" : roleLower === "placement" ? "/placement/dashboard" : "/student/profile";
+  const settingsPath = roleLower === "alumni" ? "/alumni/settings" : roleLower === "admin" ? "/admin/settings" : roleLower === "placement" ? "/placement/dashboard" : "/student/settings";
+
+  const avatarSrc = getAvatarUrl(
+    currentUser?.name,
+    currentUser?.picture || currentUser?.photoURL || currentUser?.image || currentUser?.avatar || currentUser?.avatarUrl
+  );
+
   const fetchNotifications = async () => {
     try {
       const res = await notificationService.getNotifications();
@@ -45,6 +91,7 @@ export default function Navbar({ pageTitle, user, onToggleSidebar }) {
       console.error("Failed to load notifications:", err);
     }
   };
+
   const markAsRead = async (id) => {
     try {
       await notificationService.markAsRead(id);
@@ -53,6 +100,7 @@ export default function Navbar({ pageTitle, user, onToggleSidebar }) {
       console.error(err);
     }
   };
+
   const markAllAsRead = async () => {
     try {
       await notificationService.markAllAsRead();
@@ -61,41 +109,44 @@ export default function Navbar({ pageTitle, user, onToggleSidebar }) {
       console.error(err);
     }
   };
+
   const triggerSearch = () => {
     window.dispatchEvent(
       new KeyboardEvent("keydown", { key: "k", ctrlKey: true }),
     );
   };
+
   const handleProfileClick = () => {
     setShowProfileMenu(!showProfileMenu);
   };
+
   const handleNavigate = (path) => {
     setShowProfileMenu(false);
     navigate(path);
   };
+
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
   return (
     <header className="nexora-navbar">
-      {" "}
       <div className="navbar-brand d-flex align-items-center gap-3">
-        {" "}
         <button className="navbar-icon-btn d-lg-none" onClick={onToggleSidebar}>
-          {" "}
-          <Menu size={24} style={{ color: "var(--text)" }} />{" "}
-        </button>{" "}
+          <Menu size={24} style={{ color: "var(--text)" }} />
+        </button>
         <h4
           className="m-0 fw-bold tracking-tight d-none d-sm-block"
           style={{ color: "var(--text)" }}
         >
           {pageTitle}
-        </h4>{" "}
-      </div>{" "}
-      <div className="navbar-actions">
-        {" "}
-        <div className="position-relative">
+        </h4>
+      </div>
+
+      <div className="navbar-actions d-flex align-items-center gap-2">
+        {/* Theme Menu */}
+        <div className="position-relative" ref={themeRef}>
           <button
             className="navbar-icon-btn"
             onClick={() => setShowThemeMenu(!showThemeMenu)}
@@ -168,16 +219,19 @@ export default function Navbar({ pageTitle, user, onToggleSidebar }) {
               </button>
             </div>
           )}
-        </div>{" "}
+        </div>
+
+        {/* Global Search */}
         <button
           className="navbar-icon-btn"
           onClick={triggerSearch}
           title="Global Search (Ctrl+K)"
         >
-          {" "}
-          <Search size={20} style={{ color: "var(--text-muted)" }} />{" "}
-        </button>{" "}
-        <div className="position-relative">
+          <Search size={20} style={{ color: "var(--text-muted)" }} />
+        </button>
+
+        {/* Notifications */}
+        <div className="position-relative" ref={notifRef}>
           <button
             className="navbar-icon-btn position-relative"
             onClick={() => setShowNotifications(!showNotifications)}
@@ -286,106 +340,131 @@ export default function Navbar({ pageTitle, user, onToggleSidebar }) {
             </div>
           )}
         </div>
-        <div className="position-relative">
+
+        {/* User Profile Header (Google Photo with Violet Border / Glow) */}
+        <div className="position-relative" ref={profileRef}>
           <div
-            className="user-profile-btn d-flex align-items-center gap-2"
+            className="user-profile-btn d-flex align-items-center gap-2 px-2 py-1 rounded-3"
             onClick={handleProfileClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") handleProfileClick();
+            }}
             style={{
               cursor: "pointer",
-              padding: "4px 12px 4px 4px",
-              borderRadius: "50px",
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
-              transition: "all 0.2s ease"
+              background: showProfileMenu ? "rgba(139, 92, 246, 0.08)" : "transparent",
+              transition: "all 0.15s ease",
             }}
           >
+            {/* Circular Google / Uploaded / Initials Profile Photo */}
             <div
-              className="user-avatar overflow-hidden rounded-circle position-relative"
+              className="user-avatar-wrapper position-relative rounded-circle d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0"
               style={{
-                background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-                color: "white",
-                width: "32px",
-                height: "32px",
-                padding: "1.5px",
-                boxShadow: "0 2px 6px rgba(79, 70, 229, 0.25)"
+                width: "38px",
+                height: "38px",
+                border: "2px solid #8b5cf6",
+                boxShadow: "0 0 10px rgba(139, 92, 246, 0.35)",
+                background: "var(--surface)",
               }}
             >
               <img
-                src={getAvatarUrl(user?.name, user?.avatar || user?.avatarUrl)}
-                alt="Avatar"
-                onError={(e) => handleImageError(e, user?.name)}
+                src={avatarSrc}
+                alt={currentUser?.name || "User Avatar"}
+                onError={(e) => handleImageError(e, currentUser?.name)}
                 className="w-100 h-100 object-fit-cover rounded-circle"
+                style={{ display: "block" }}
               />
             </div>
-            <div className="user-info pr-1 d-none d-md-block">
+
+            {/* User display name and role */}
+            <div className="user-info text-start d-none d-md-block" style={{ lineHeight: 1.2 }}>
               <div
-                className="user-name fw-semibold lh-1"
-                style={{ color: "var(--text)", fontSize: "0.85rem" }}
+                className="user-name fw-bold text-truncate"
+                style={{
+                  color: "var(--text)",
+                  fontSize: "0.875rem",
+                  letterSpacing: "-0.01em",
+                  maxWidth: "140px",
+                }}
               >
-                {user?.name || "User"}
+                {currentUser?.name || "User"}
               </div>
               <div
-                className="user-role lh-1 mt-1 text-muted"
-                style={{ fontSize: "0.7rem" }}
+                className="user-role text-muted text-truncate"
+                style={{
+                  fontSize: "0.725rem",
+                  color: "var(--text-muted)",
+                  marginTop: "1px",
+                  maxWidth: "140px",
+                }}
               >
-                {user?.role || "Guest"}
+                {formatRole(currentUser?.role)}
               </div>
             </div>
-            <ChevronDown size={14} className="text-muted ms-1" />
-          </div>{" "}
+
+            <ChevronDown
+              size={15}
+              className="text-muted ms-1"
+              style={{
+                transform: showProfileMenu ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s ease",
+              }}
+            />
+          </div>
+
           {showProfileMenu && (
             <div
               className="position-absolute end-0 mt-2 rounded-3 shadow-lg p-2 d-flex flex-column gap-1"
               style={{
-                width: "200px",
+                width: "210px",
                 background: "var(--surface)",
                 border: "1px solid var(--border)",
                 zIndex: 1000,
               }}
             >
-              {" "}
+              <div className="px-3 py-2 border-bottom mb-1" style={{ borderColor: "var(--border)" }}>
+                <div className="fw-bold small text-truncate" style={{ color: "var(--text)" }}>
+                  {currentUser?.name || "User"}
+                </div>
+                <div className="text-muted small text-truncate" style={{ fontSize: "0.75rem" }}>
+                  {currentUser?.email || ""}
+                </div>
+              </div>
+
               <button
-                onClick={() =>
-                  handleNavigate(
-                    `/${user?.role?.toLowerCase() || "student"}/profile`,
-                  )
-                }
+                onClick={() => handleNavigate(profilePath)}
                 className="btn btn-sm text-start border-0 fw-semibold d-flex align-items-center gap-2 rounded-2 hover-bg-subtle text-muted"
               >
-                {" "}
-                <User size={16} /> View Profile{" "}
-              </button>{" "}
+                <User size={16} /> View Profile
+              </button>
+
               <button
-                onClick={() =>
-                  handleNavigate(
-                    `/${user?.role?.toLowerCase() || "student"}/settings`,
-                  )
-                }
+                onClick={() => handleNavigate(settingsPath)}
                 className="btn btn-sm text-start border-0 fw-semibold d-flex align-items-center gap-2 rounded-2 hover-bg-subtle text-muted"
               >
-                {" "}
-                <Settings size={16} /> Settings{" "}
-              </button>{" "}
+                <Settings size={16} /> Settings
+              </button>
+
               <button
                 onClick={() => handleNavigate("/faq")}
                 className="btn btn-sm text-start border-0 fw-semibold d-flex align-items-center gap-2 rounded-2 hover-bg-subtle text-muted"
               >
-                {" "}
-                <HelpCircle size={16} /> Help & Support{" "}
-              </button>{" "}
-              <hr className="my-1 border opacity-25" />{" "}
+                <HelpCircle size={16} /> Help & Support
+              </button>
+
+              <hr className="my-1 border opacity-25" />
+
               <button
                 onClick={handleLogout}
                 className="btn btn-sm text-start border-0 fw-semibold d-flex align-items-center gap-2 rounded-2 hover-bg-subtle text-danger"
               >
-                {" "}
-                <LogOut size={16} /> Logout{" "}
-              </button>{" "}
+                <LogOut size={16} /> Sign Out
+              </button>
             </div>
-          )}{" "}
-        </div>{" "}
-      </div>{" "}
+          )}
+        </div>
+      </div>
     </header>
   );
 }

@@ -11,7 +11,9 @@ import {
   GripVertical,
 } from "lucide-react";
 import axios from "axios";
-import { jobService } from "../../services/api"; // The valid statuses matching the backend Application model
+import { jobService } from "../../services/api";
+import "../../shared/components/modal.css";
+// The valid statuses matching the backend Application model
 const COLUMNS = [
   "Applied",
   "Screening",
@@ -27,6 +29,7 @@ const ATSDashboard = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [draggedCardId, setDraggedCardId] = useState(null);
+  const [inspectingCandidate, setInspectingCandidate] = useState(null);
   useEffect(() => {
     fetchJobs();
   }, []);
@@ -249,8 +252,9 @@ const ATSDashboard = () => {
                               {candidate.name}
                             </h6>{" "}
                             <button
-                              onClick={() => addToast("View candidate details", 'info')}
+                              onClick={() => setInspectingCandidate(candidate)}
                               className="btn btn-link p-0 text-muted hover-glow"
+                              title="View Candidate Details"
                             >
                               <MoreVertical size={16} />
                             </button>{" "}
@@ -321,6 +325,101 @@ const ATSDashboard = () => {
           ))}{" "}
         </div>{" "}
       </div>{" "}
+
+      {/* Candidate Details Inspection Modal */}
+      <AnimatePresence>
+        {inspectingCandidate && (
+          <div
+            className="nexora-modal-backdrop"
+            onClick={() => setInspectingCandidate(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="nexora-modal-container size-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="nexora-modal-header">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="nexora-modal-icon-badge">
+                    <GraduationCap size={22} />
+                  </div>
+                  <div>
+                    <h4 className="nexora-modal-title">{inspectingCandidate.name}</h4>
+                    <p className="nexora-modal-subtitle">{inspectingCandidate.college || "Candidate Profile"}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="nexora-modal-close-btn"
+                  onClick={() => setInspectingCandidate(null)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="nexora-modal-body">
+                <div className="row g-3 mb-3">
+                  <div className="col-6">
+                    <div className="p-3 rounded-3 bg-light">
+                      <small className="text-muted d-block fw-semibold" style={{ fontSize: "0.72rem" }}>ATS MATCH SCORE</small>
+                      <h4 className="fw-black text-primary mb-0">{inspectingCandidate.score}%</h4>
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div className="p-3 rounded-3 bg-light">
+                      <small className="text-muted d-block fw-semibold" style={{ fontSize: "0.72rem" }}>PIPELINE STAGE</small>
+                      <h4 className="fw-black text-success mb-0">{inspectingCandidate.status}</h4>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="nexora-form-label">Core Skills</label>
+                  <div className="d-flex flex-wrap gap-1.5 mt-1">
+                    {(inspectingCandidate.skills || []).map((sk, idx) => (
+                      <span key={idx} className="badge bg-secondary-subtle text-body rounded-pill px-2.5 py-1">
+                        {sk}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {inspectingCandidate.resumeUrl && (
+                  <div className="p-3 rounded-3 border bg-white d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center gap-2">
+                      <Briefcase size={16} className="text-primary" />
+                      <span className="small fw-bold">Candidate Resume</span>
+                    </div>
+                    <a
+                      href={inspectingCandidate.resumeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold"
+                    >
+                      Open PDF
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              <div className="nexora-modal-footer">
+                <span className="nexora-modal-footer-hint">Stage: {inspectingCandidate.status}</span>
+                <div className="nexora-modal-footer-actions">
+                  <button
+                    type="button"
+                    className="nexora-modal-btn-cancel"
+                    onClick={() => setInspectingCandidate(null)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

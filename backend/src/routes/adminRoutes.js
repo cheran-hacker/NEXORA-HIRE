@@ -38,6 +38,7 @@ router.delete('/users/:id', deleteUser);
 
 // Audit Logs
 router.get('/audit-logs', getAuditLogs);
+router.get('/security-logs', getAuditLogs);
 
 // Announcements
 router.get('/announcements', getAnnouncements);
@@ -45,7 +46,11 @@ router.post('/announcements', createAnnouncement);
 router.delete('/announcements/:id', deleteAnnouncement);
 
 router.get('/health', getSystemHealth);
+router.get('/system-health', getSystemHealth);
 router.get('/db/stats', getDatabaseStats);
+router.get('/database-stats', getDatabaseStats);
+router.get('/database/overview', getDatabaseStats);
+router.get('/db/overview', getDatabaseStats);
 router.get('/db/collections', getCollections);
 router.get('/db/:collection/documents', getDocuments);
 router.post('/db/:collection/documents', createDocument);

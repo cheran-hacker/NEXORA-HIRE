@@ -17,6 +17,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config();
 
 // Route imports
@@ -120,7 +121,7 @@ app.set('io', io);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use(helmet({ crossOriginOpenerPolicy: { policy: "unsafe-none" }, crossOriginResourcePolicy: { policy: "cross-origin" }, contentSecurityPolicy: false }));
+app.use(helmet({ crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }, crossOriginResourcePolicy: { policy: "cross-origin" }, contentSecurityPolicy: false }));
 app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', process.env.CORS_ORIGIN, process.env.FRONTEND_URL], credentials: true }));
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
@@ -315,4 +316,6 @@ if (process.env.NODE_ENV !== 'test') {
 export { app };
  
  
+
+
 

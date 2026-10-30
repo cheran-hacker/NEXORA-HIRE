@@ -18,6 +18,8 @@ export default function PlacementAnalytics() {
   const [downloading, setDownloading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [trendPeriod, setTrendPeriod] = useState("6M");
+
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
@@ -31,12 +33,34 @@ export default function PlacementAnalytics() {
     };
     fetchAnalytics();
   }, [addToast]);
+
   const handleDownload = () => {
-    setDownloading(true);
-    setTimeout(() => {
+    try {
+      setDownloading(true);
+      const rows = [
+        ["Metric", "Value"],
+        ["Total Offers", data?.overview?.totalOffers || 0],
+        ["Placed Students", data?.overview?.placedStudents || 0],
+        ["Average Package (LPA)", data?.overview?.avgPackage || "0"],
+        ["Highest Package (LPA)", data?.overview?.highestPackage || "0"],
+        [],
+        ["Month", "Offers"],
+        ...(data?.placementTrend || []).map(t => [t.month, t.offers])
+      ];
+      const csvContent = "data:text/csv;charset=utf-8," + rows.map(r => r.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `placement_analytics_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      addToast("Placement analytics exported successfully!", "success");
+    } catch {
+      addToast("Export failed", "error");
+    } finally {
       setDownloading(false);
-      addToast("Placement Analytics exported to Excel!", "success");
-    }, 1500);
+    }
   };
   if (loading)
     return (
@@ -88,11 +112,15 @@ export default function PlacementAnalytics() {
             <div className="d-flex justify-content-between align-items-center mb-4">
               {" "}
               <h5 className="fw-bold m-0">
-                Placement Trend (Last 6 Months)
+                Placement Trend ({trendPeriod === "6M" ? "Last 6 Months" : "Full Year View"})
               </h5>{" "}
-              <button className="btn btn-sm btn-outline-secondary rounded-pill d-flex align-items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setTrendPeriod(p => p === "6M" ? "1Y" : "6M")}
+                className="btn btn-sm btn-outline-secondary rounded-pill d-flex align-items-center gap-2"
+              >
                 {" "}
-                <Filter size={14} /> This Year{" "}
+                <Filter size={14} /> {trendPeriod === "6M" ? "Show Full Year" : "Last 6 Months"}{" "}
               </button>{" "}
             </div>{" "}
             {data?.placementTrend?.length > 0 ? (

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Shield, User, Bell, Monitor, Save, CheckCircle2, ChevronRight,
@@ -30,6 +30,22 @@ const ResumeReviewModal = ({ analysis, user, onClose, onApply, applying }) => {
   const [newSkill, setNewSkill] = useState("");
   const [projects, setProjects] = useState(analysis.projects || []);
   const [certificates, setCertificates] = useState(analysis.certificates || []);
+
+  useEffect(() => {
+    if ((!profile.name || profile.name.trim() === "") && user?.name) {
+      setProfile((prev) => ({
+        ...prev,
+        name: prev.name || user.name || "",
+        phone: prev.phone || user.phone || user.studentProfile?.phone || "",
+        location: prev.location || user.studentProfile?.location || "",
+        bio: prev.bio || user.studentProfile?.bio || "",
+        college: prev.college || user.studentProfile?.college || "",
+        branch: prev.branch || user.studentProfile?.branch || user.studentProfile?.department || "",
+        batchYear: prev.batchYear || user.studentProfile?.batchYear || "",
+        cgpa: prev.cgpa || user.studentProfile?.cgpa || "",
+      }));
+    }
+  }, [user]);
 
   const existingSkillsList = analysis.existingSkills || user?.studentProfile?.skills || [];
   const existingSkillsSet = new Set(existingSkillsList.map((s) => s.toLowerCase().trim()));

@@ -112,268 +112,250 @@ export default function EvidenceValidationModal({ isOpen, onClose, onSuccess, in
   return (
     <AnimatePresence>
       <div
-        className="d-flex align-items-center justify-content-center position-fixed top-0 start-0 w-100 h-100"
-        style={{
-          background: "rgba(0, 0, 0, 0.65)",
-          zIndex: 1060,
-          backdropFilter: "blur(5px)"
-        }}
+        className="nexora-modal-backdrop"
         onClick={onClose}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.93, y: 15 }}
+          initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.93, y: 15 }}
+          exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.18 }}
-          className="bento-card p-4 shadow-lg text-start"
-          style={{
-            maxWidth: "580px",
-            width: "92%",
-            borderRadius: "22px",
-            background: "var(--surface, #ffffff)",
-            border: "1px solid var(--border)",
-            maxHeight: "90vh",
-            overflowY: "auto"
-          }}
+          className="nexora-modal-container size-md"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-            <div className="d-flex align-items-center gap-2.5">
-              <div
-                className="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
-                style={{
-                  width: "44px",
-                  height: "44px",
-                  background: "linear-gradient(135deg, var(--primary, #6366f1), var(--purple, #a855f7))",
-                  color: "#fff"
-                }}
-              >
-                <ShieldCheck size={24} />
+          <div className="nexora-modal-header">
+            <div className="d-flex align-items-center gap-3">
+              <div className="nexora-modal-icon-badge">
+                <ShieldCheck size={22} />
               </div>
               <div>
-                <h5 className="fw-black mb-0 text-foreground">Request Evidence Validation</h5>
-                <span className="text-muted small">Submit your work to an industry alumni for verification</span>
+                <h4 className="nexora-modal-title">Request Evidence Validation</h4>
+                <p className="nexora-modal-subtitle">Submit your work to an industry alumni for verification</p>
               </div>
             </div>
 
             <button
               type="button"
-              className="btn btn-sm btn-link text-muted p-1"
+              className="nexora-modal-close-btn"
               onClick={onClose}
+              aria-label="Close"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
 
-          {errorMsg && (
-            <div className="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 rounded-3 mb-3">
-              <AlertCircle size={16} className="flex-shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            {/* 1. Validation Type: Skill vs Project */}
-            <div className="mb-3">
-              <label className="form-label small fw-bold text-muted text-uppercase mb-1.5" style={{ fontSize: "0.72rem" }}>
-                Validation Category
-              </label>
-              <div className="d-flex gap-2">
-                {[
-                  { id: "skill", label: "Technical Skill", icon: FileCode },
-                  { id: "project", label: "Project Evidence", icon: FolderGit2 },
-                  { id: "certification", label: "Certification", icon: Award }
-                ].map((item) => {
-                  const Icon = item.icon;
-                  const isSelected = type === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setType(item.id)}
-                      className={`btn btn-sm flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2 rounded-3 fw-bold transition-all ${
-                        isSelected ? "btn-primary shadow-sm" : "btn-outline-secondary"
-                      }`}
-                      style={
-                        isSelected
-                          ? { background: "var(--primary, #6366f1)", border: "none", color: "white" }
-                          : { border: "1px solid var(--border)", background: "transparent" }
-                      }
-                    >
-                      <Icon size={15} />
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 2. Title & Suggestions */}
-            <div className="mb-3">
-              <label className="form-label small fw-bold text-muted text-uppercase mb-1" style={{ fontSize: "0.72rem" }}>
-                {type === "project" ? "Project Title" : type === "certification" ? "Certification Name" : "Skill Name"} *
-              </label>
-              <input
-                type="text"
-                className="form-control rounded-3"
-                placeholder={
-                  type === "project"
-                    ? "e.g., AI Diagnostic Radiograph Classifier"
-                    : type === "certification"
-                    ? "e.g., AWS Certified Solutions Architect"
-                    : "e.g., React.js, Docker, FastAPI"
-                }
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-
-              {/* Quick suggestions from profile */}
-              {type === "skill" && profileSkills.length > 0 && (
-                <div className="d-flex flex-wrap gap-1.5 mt-2">
-                  <span className="text-muted small me-1 align-self-center" style={{ fontSize: "0.72rem" }}>Quick select:</span>
-                  {profileSkills.slice(0, 5).map((sk, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setTitle(sk)}
-                      className="badge rounded-pill border small bg-transparent text-primary hover-lift"
-                      style={{ padding: "4px 8px", cursor: "pointer" }}
-                    >
-                      + {sk}
-                    </button>
-                  ))}
+          <form onSubmit={handleSubmit} className="d-flex flex-column" style={{ minHeight: 0, flex: 1 }}>
+            <div className="nexora-modal-body">
+              {errorMsg && (
+                <div className="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 rounded-3 mb-3">
+                  <AlertCircle size={16} className="flex-shrink-0" />
+                  <span>{errorMsg}</span>
                 </div>
               )}
 
-              {type === "project" && profileProjects.length > 0 && (
-                <div className="d-flex flex-wrap gap-1.5 mt-2">
-                  <span className="text-muted small me-1 align-self-center" style={{ fontSize: "0.72rem" }}>From your profile:</span>
-                  {profileProjects.slice(0, 3).map((proj, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setTitle(proj.name || "");
-                        if (proj.github) setEvidenceUrl(proj.github);
-                        if (proj.desc) setEvidenceDescription(proj.desc);
-                      }}
-                      className="badge rounded-pill border small bg-transparent text-primary hover-lift"
-                      style={{ padding: "4px 8px", cursor: "pointer" }}
-                    >
-                      + {proj.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* 3. Alumni Member Selection */}
-            <div className="mb-3">
-              <label className="form-label small fw-bold text-muted text-uppercase mb-1" style={{ fontSize: "0.72rem" }}>
-                Select Alumni Reviewer *
-              </label>
-              {loadingAlumni ? (
-                <div className="form-control text-muted small d-flex align-items-center gap-2">
-                  <span className="spinner-border spinner-border-sm" role="status" />
-                  <span>Loading alumni directory...</span>
-                </div>
-              ) : alumniList.length === 0 ? (
-                <div className="alert alert-warning py-2 small mb-0">
-                  No registered alumni found. You can submit when alumni register.
-                </div>
-              ) : (
-                <select
-                  className="form-select rounded-3"
-                  value={alumniId}
-                  onChange={(e) => setAlumniId(e.target.value)}
-                  required
-                >
-                  <option value="" disabled>-- Select an Alumni Reviewer --</option>
-                  {alumniList.map((alumnus) => {
-                    const id = alumnus._id || alumnus.id;
-                    const company = alumnus.company || alumnus.companyName || alumnus.alumniProfile?.company || "";
-                    const designation = alumnus.title || alumnus.currentRole || alumnus.alumniProfile?.designation || "";
-                    const details = [designation, company].filter(Boolean).join(" @ ");
+              {/* 1. Validation Type: Skill vs Project */}
+              <div className="mb-3">
+                <label className="nexora-form-label">
+                  Validation Category
+                </label>
+                <div className="d-flex gap-2">
+                  {[
+                    { id: "skill", label: "Technical Skill", icon: FileCode },
+                    { id: "project", label: "Project Evidence", icon: FolderGit2 },
+                    { id: "certification", label: "Certification", icon: Award }
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    const isSelected = type === item.id;
                     return (
-                      <option key={id} value={id}>
-                        {alumnus.name} {details ? `(${details})` : ""}
-                      </option>
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setType(item.id)}
+                        className={`btn btn-sm flex-grow-1 d-flex align-items-center justify-content-center gap-2 py-2 rounded-3 fw-bold transition-all ${
+                          isSelected ? "btn-primary shadow-sm" : "btn-outline-secondary"
+                        }`}
+                        style={
+                          isSelected
+                            ? { background: "var(--primary, #6366f1)", border: "none", color: "white" }
+                            : { border: "1px solid var(--border)", background: "#ffffff", color: "#1e293b" }
+                        }
+                      >
+                        <Icon size={15} />
+                        <span>{item.label}</span>
+                      </button>
                     );
                   })}
-                </select>
-              )}
-            </div>
+                </div>
+              </div>
 
-            {/* 4. Evidence Link (URL) */}
-            <div className="mb-3">
-              <label className="form-label small fw-bold text-muted text-uppercase mb-1" style={{ fontSize: "0.72rem" }}>
-                Supporting Evidence Link (GitHub, Demo, or Document) *
-              </label>
-              <div className="input-group">
-                <span className="input-group-text bg-transparent border-end-0">
-                  <LinkIcon size={16} className="text-muted" />
-                </span>
+              {/* 2. Title & Suggestions */}
+              <div className="mb-3">
+                <label className="nexora-form-label">
+                  {type === "project" ? "Project Title" : type === "certification" ? "Certification Name" : "Skill Name"} <span className="nexora-form-req">*</span>
+                </label>
                 <input
-                  type="url"
-                  className="form-control border-start-0 ps-1 rounded-end-3"
-                  placeholder="https://github.com/your-username/repo-name or https://demo-app.com"
-                  value={evidenceUrl}
-                  onChange={(e) => setEvidenceUrl(e.target.value)}
+                  type="text"
+                  className="nexora-form-input"
+                  placeholder={
+                    type === "project"
+                      ? "e.g., AI Diagnostic Radiograph Classifier"
+                      : type === "certification"
+                      ? "e.g., AWS Certified Solutions Architect"
+                      : "e.g., React.js, Docker, FastAPI"
+                  }
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   required
                 />
-              </div>
-              <small className="text-muted" style={{ fontSize: "0.74rem" }}>
-                Provide a public GitHub repo, pull request, live hosted project, or portfolio documentation link.
-              </small>
-            </div>
 
-            {/* 5. Evidence Description */}
-            <div className="mb-4">
-              <label className="form-label small fw-bold text-muted text-uppercase mb-1" style={{ fontSize: "0.72rem" }}>
-                Evidence Description & Implementation Highlights
-              </label>
-              <textarea
-                className="form-control rounded-3"
-                rows={3}
-                placeholder="Briefly describe what you built, key architectural patterns used, test coverage, and problems solved..."
-                value={evidenceDescription}
-                onChange={(e) => setEvidenceDescription(e.target.value)}
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="d-flex justify-content-end gap-2 pt-2 border-top">
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm px-3 py-2 rounded-2 fw-semibold"
-                onClick={onClose}
-                disabled={submitting}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={submitting || !title.trim() || !evidenceUrl.trim() || !alumniId}
-                className="btn btn-primary btn-sm px-4 py-2 rounded-2 fw-bold d-inline-flex align-items-center gap-2 shadow-sm"
-                style={{
-                  background: "linear-gradient(135deg, var(--primary, #6366f1), var(--purple, #a855f7))",
-                  border: "none"
-                }}
-              >
-                {submitting ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm" role="status" />
-                    <span>Submitting Request...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send size={15} />
-                    <span>Submit for Alumni Review</span>
-                  </>
+                {/* Quick suggestions from profile */}
+                {type === "skill" && profileSkills.length > 0 && (
+                  <div className="d-flex flex-wrap gap-1.5 mt-2">
+                    <span className="text-muted small me-1 align-self-center" style={{ fontSize: "0.72rem" }}>Quick select:</span>
+                    {profileSkills.slice(0, 5).map((sk, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setTitle(sk)}
+                        className="badge rounded-pill border small bg-white text-primary hover-lift"
+                        style={{ padding: "4px 8px", cursor: "pointer", borderColor: "#cbd5e1" }}
+                      >
+                        + {sk}
+                      </button>
+                    ))}
+                  </div>
                 )}
-              </button>
+
+                {type === "project" && profileProjects.length > 0 && (
+                  <div className="d-flex flex-wrap gap-1.5 mt-2">
+                    <span className="text-muted small me-1 align-self-center" style={{ fontSize: "0.72rem" }}>From your profile:</span>
+                    {profileProjects.slice(0, 3).map((proj, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setTitle(proj.name || "");
+                          if (proj.github) setEvidenceUrl(proj.github);
+                          if (proj.desc) setEvidenceDescription(proj.desc);
+                        }}
+                        className="badge rounded-pill border small bg-white text-primary hover-lift"
+                        style={{ padding: "4px 8px", cursor: "pointer", borderColor: "#cbd5e1" }}
+                      >
+                        + {proj.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Alumni Member Selection */}
+              <div className="mb-3">
+                <label className="nexora-form-label">
+                  Select Alumni Reviewer <span className="nexora-form-req">*</span>
+                </label>
+                {loadingAlumni ? (
+                  <div className="form-control text-muted small d-flex align-items-center gap-2">
+                    <span className="spinner-border spinner-border-sm" role="status" />
+                    <span>Loading alumni directory...</span>
+                  </div>
+                ) : alumniList.length === 0 ? (
+                  <div className="alert alert-warning py-2 small mb-0">
+                    No registered alumni found. You can submit when alumni register.
+                  </div>
+                ) : (
+                  <select
+                    className="nexora-form-select"
+                    value={alumniId}
+                    onChange={(e) => setAlumniId(e.target.value)}
+                    required
+                  >
+                    <option value="" disabled>-- Select an Alumni Reviewer --</option>
+                    {alumniList.map((alumnus) => {
+                      const id = alumnus._id || alumnus.id;
+                      const company = alumnus.company || alumnus.companyName || alumnus.alumniProfile?.company || "";
+                      const designation = alumnus.title || alumnus.currentRole || alumnus.alumniProfile?.designation || "";
+                      const details = [designation, company].filter(Boolean).join(" @ ");
+                      return (
+                        <option key={id} value={id}>
+                          {alumnus.name} {details ? `(${details})` : ""}
+                        </option>
+                      );
+                    })}
+                  </select>
+                )}
+              </div>
+
+              {/* 4. Evidence Link (URL) */}
+              <div className="mb-3">
+                <label className="nexora-form-label">
+                  Supporting Evidence Link (GitHub, Demo, or Document) <span className="nexora-form-req">*</span>
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text bg-white border-end-0" style={{ borderColor: "#cbd5e1" }}>
+                    <LinkIcon size={16} className="text-muted" />
+                  </span>
+                  <input
+                    type="url"
+                    className="nexora-form-input border-start-0 ps-1 rounded-end-3"
+                    placeholder="https://github.com/your-username/repo-name or https://demo-app.com"
+                    value={evidenceUrl}
+                    onChange={(e) => setEvidenceUrl(e.target.value)}
+                    required
+                  />
+                </div>
+                <small className="text-muted mt-1 d-block" style={{ fontSize: "0.74rem" }}>
+                  Provide a public GitHub repo, pull request, live hosted project, or portfolio documentation link.
+                </small>
+              </div>
+
+              {/* 5. Evidence Description */}
+              <div className="mb-2">
+                <label className="nexora-form-label">
+                  Evidence Description & Implementation Highlights
+                </label>
+                <textarea
+                  className="nexora-form-textarea"
+                  rows={3}
+                  placeholder="Briefly describe what you built, key architectural patterns used, test coverage, and problems solved..."
+                  value={evidenceDescription}
+                  onChange={(e) => setEvidenceDescription(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Actions / Footer */}
+            <div className="nexora-modal-footer">
+              <span className="nexora-modal-footer-hint">
+                * Required fields must be completed
+              </span>
+              <div className="nexora-modal-footer-actions">
+                <button
+                  type="button"
+                  className="nexora-modal-btn-cancel"
+                  onClick={onClose}
+                  disabled={submitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting || !title.trim() || !evidenceUrl.trim() || !alumniId}
+                  className="nexora-modal-btn-primary"
+                >
+                  {submitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm" role="status" />
+                      <span>Submitting Request...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send size={16} />
+                      <span>Submit for Alumni Review</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </form>
         </motion.div>

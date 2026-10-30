@@ -30,6 +30,7 @@ import {
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 import { alumniService, mentorshipService, jobService, studentService, postService } from "../../services/api";
+import { formatSalaryRange, toRupeesStorage, validateSalaryLPA } from "../../utils/salaryHelper.js";
 
 export default function AlumniDashboard() {
   const { addToast } = useToast();
@@ -344,6 +345,12 @@ export default function AlumniDashboard() {
       return;
     }
 
+    const salaryCheck = validateSalaryLPA(opportunityForm.salaryMin, opportunityForm.salaryMax);
+    if (!salaryCheck.isValid) {
+      addToast(salaryCheck.error, "warning");
+      return;
+    }
+
     try {
       setPostingOpportunity(true);
       const skillsArray = opportunityForm.skills
@@ -356,6 +363,11 @@ export default function AlumniDashboard() {
         company: opportunityForm.company.trim(),
         type: opportunityForm.type,
         location: opportunityForm.location,
+        salary: {
+          min: toRupeesStorage(opportunityForm.salaryMin),
+          max: toRupeesStorage(opportunityForm.salaryMax),
+          currency: "INR"
+        },
         description: opportunityForm.description || "Alumni-shared career opportunity.",
         skills: skillsArray.length > 0 ? skillsArray : ["General"],
         source: "Alumni",
@@ -1340,6 +1352,41 @@ export default function AlumniDashboard() {
                     className="form-control"
                     style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
                   />
+                </div>
+              </div>
+
+              <div className="row g-2">
+                <div className="col-6">
+                  <label className="form-label small fw-bold">Minimum Salary (LPA)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    value={opportunityForm.salaryMin}
+                    onChange={(e) => setOpportunityForm({ ...opportunityForm, salaryMin: e.target.value })}
+                    placeholder="e.g. 3.5"
+                    className="form-control"
+                    style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
+                  />
+                  <div className="form-text small text-muted" style={{ fontSize: "0.72rem" }}>
+                    Enter annual salary in Lakhs Per Annum (LPA).
+                  </div>
+                </div>
+                <div className="col-6">
+                  <label className="form-label small fw-bold">Maximum Salary (LPA)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    value={opportunityForm.salaryMax}
+                    onChange={(e) => setOpportunityForm({ ...opportunityForm, salaryMax: e.target.value })}
+                    placeholder="e.g. 8.0"
+                    className="form-control"
+                    style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
+                  />
+                  <div className="form-text small text-muted" style={{ fontSize: "0.72rem" }}>
+                    Enter annual salary in Lakhs Per Annum (LPA).
+                  </div>
                 </div>
               </div>
 

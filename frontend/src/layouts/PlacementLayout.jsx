@@ -36,7 +36,6 @@ export default function PlacementLayout() {
     { name: "Analytics", href: "/placement/analytics", icon: BarChart3 },
     { name: "Placement Tracking", href: "/placement/tracking", icon: Search },
     { name: "Placement Jobs", href: "/placement/recruiter-jobs", icon: Briefcase },
-    { name: "Candidates", href: "/placement/candidates", icon: GraduationCap },
     { name: "Jobs & Drives", href: "/placement/jobs", icon: Briefcase },
     { name: "Student Database", href: "/placement/students", icon: GraduationCap },
     { name: "Career Guidance", href: "/placement/guidance", icon: Target },

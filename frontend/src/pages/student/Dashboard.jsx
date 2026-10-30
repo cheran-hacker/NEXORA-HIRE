@@ -22,6 +22,7 @@ import {
 import { useNavigate, Link } from "react-router-dom";
 import ChartWidget from "../../widgets/ChartWidget.jsx";
 import { studentService, bountyService, mentorshipService } from "../../services/api.js";
+import { formatSalaryRange } from "../../utils/salaryHelper.js";
 import { DollarSign, Zap, Video, CheckCircle2, Clock, Check, RotateCcw, Sparkles } from "lucide-react";
 import TrajectoryVisualizer from "../../components/student/TrajectoryVisualizer.jsx";
 import { useAuth } from "../../context/AuthContext";
@@ -237,18 +238,7 @@ const StudentDashboard = () => {
   const profileCompletion = profileSummary?.readiness || 0;
 
   const formatSalary = (salary) => {
-    if (!salary) return "Competitive";
-    if (typeof salary === "string") return salary;
-    if (typeof salary === "object") {
-      if (salary.hidden) return "Competitive";
-      if (salary.min && salary.max) {
-        return `₹${Math.round(salary.min / 100000)}-${Math.round(salary.max / 100000)} LPA`;
-      }
-      if (salary.min) return `₹${Math.round(salary.min / 100000)} LPA+`;
-      if (salary.max) return `Up to ₹${Math.round(salary.max / 100000)} LPA`;
-      return "Competitive";
-    }
-    return String(salary);
+    return formatSalaryRange(salary, "Competitive");
   };
 
   const formatLocation = (loc) => {
@@ -504,24 +494,24 @@ const StudentDashboard = () => {
                   id: "rec-1",
                   title: "Software Engineer",
                   company: "Google",
-                  salary: "₹12-18 LPA",
+                  salary: "₹5–12 LPA",
                   location: "Remote",
                   type: "Full-time",
                 },
                 {
                   id: "rec-2",
-                  title: "Data Analyst",
-                  company: "Amazon",
-                  salary: "₹8-12 LPA",
-                  location: "Bangalore",
+                  title: "Backend Developer",
+                  company: "Microsoft",
+                  salary: "₹4–8 LPA",
+                  location: "Hyderabad",
                   type: "Full-time",
                 },
                 {
                   id: "rec-3",
                   title: "Frontend Developer",
-                  company: "Microsoft",
-                  salary: "₹10-15 LPA",
-                  location: "Hyderabad",
+                  company: "Amazon",
+                  salary: "₹5–10 LPA",
+                  location: "Bangalore",
                   type: "Full-time",
                 },
               ]

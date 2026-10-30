@@ -1462,115 +1462,156 @@ export default function AdminDashboard() {
       )}
 
       {/* ── MODAL 4: CREATE USER ── */}
-      {showCreateModal && (
-        <div
-          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
-          style={{ background: "rgba(0,0,0,0.6)", zIndex: 1050, backdropFilter: "blur(4px)" }}
-        >
-          <div
-            className="bento-card p-4 rounded-4 shadow-lg w-100"
-            style={{ maxWidth: "480px", background: "var(--surface)", border: "1px solid var(--border)" }}
+      <AnimatePresence>
+        {showCreateModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="nexora-modal-backdrop"
+            onClick={(e) => e.target === e.currentTarget && setShowCreateModal(false)}
           >
-            <div className="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
-              <h5 className="fw-bold m-0" style={{ color: "var(--text)" }}>
-                Add New User Account
-              </h5>
-              <button onClick={() => setShowCreateModal(false)} className="btn btn-link p-0 text-muted">
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateUser} className="space-y-3">
-              <div>
-                <label className="form-label small fw-bold">Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={newUser.name}
-                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                  placeholder="e.g. Anand Kumar"
-                  className="form-control"
-                  style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
-                />
-              </div>
-
-              <div>
-                <label className="form-label small fw-bold">Email Address *</label>
-                <input
-                  type="email"
-                  required
-                  value={newUser.email}
-                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  placeholder="anand@institution.edu"
-                  className="form-control"
-                  style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
-                />
-              </div>
-
-              <div>
-                <label className="form-label small fw-bold">Initial Password *</label>
-                <input
-                  type="password"
-                  required
-                  minLength={6}
-                  value={newUser.password}
-                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                  placeholder="Minimum 6 characters"
-                  className="form-control"
-                  style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
-                />
-              </div>
-
-              <div className="row g-2">
-                <div className="col-6">
-                  <label className="form-label small fw-bold">Role *</label>
-                  <select
-                    value={newUser.role}
-                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                    className="form-select"
-                    style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
-                  >
-                    <option value="Student">Student</option>
-                    <option value="Alumni">Alumni</option>
-                    <option value="Placement">Placement Officer</option>
-                    <option value="Admin">Administrator</option>
-                  </select>
+            <motion.div
+              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="nexora-modal-container size-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="nexora-modal-header">
+                <div className="nexora-modal-header-left">
+                  <div className="nexora-modal-icon-badge">
+                    <UserPlus size={22} strokeWidth={2.2} />
+                  </div>
+                  <div>
+                    <h4 className="nexora-modal-title">Add New User Account</h4>
+                    <p className="nexora-modal-subtitle">
+                      Provision a new platform identity with role and credentials
+                    </p>
+                  </div>
                 </div>
-
-                <div className="col-6">
-                  <label className="form-label small fw-bold">Status</label>
-                  <select
-                    value={newUser.status}
-                    onChange={(e) => setNewUser({ ...newUser, status: e.target.value })}
-                    className="form-select"
-                    style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Pending">Pending</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="d-flex justify-content-end gap-2 pt-3">
                 <button
                   type="button"
+                  className="nexora-modal-close-btn"
                   onClick={() => setShowCreateModal(false)}
-                  className="btn btn-outline-secondary rounded-pill px-4 fw-bold small"
+                  title="Close modal"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="btn btn-primary rounded-pill px-4 fw-bold small text-white"
-                >
-                  {actionLoading ? "Creating..." : "Create Account"}
+                  <X size={18} strokeWidth={2.2} />
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+
+              <form onSubmit={handleCreateUser} className="d-flex flex-column" style={{ minHeight: 0, flex: 1 }}>
+                <div className="nexora-modal-body">
+                  <div className="mb-3">
+                    <label className="nexora-form-label">
+                      Full Name <span className="nexora-form-req">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newUser.name}
+                      onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                      placeholder="e.g. Anand Kumar"
+                      className="nexora-form-input"
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="nexora-form-label">
+                      Email Address <span className="nexora-form-req">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={newUser.email}
+                      onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                      placeholder="anand@institution.edu"
+                      className="nexora-form-input"
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="nexora-form-label">
+                      Initial Password <span className="nexora-form-req">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      minLength={6}
+                      value={newUser.password}
+                      onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                      placeholder="Minimum 6 characters"
+                      className="nexora-form-input"
+                    />
+                  </div>
+
+                  <div className="row g-3">
+                    <div className="col-6">
+                      <label className="nexora-form-label">
+                        Role <span className="nexora-form-req">*</span>
+                      </label>
+                      <select
+                        value={newUser.role}
+                        onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                        className="nexora-form-select"
+                      >
+                        <option value="Student">Student</option>
+                        <option value="Alumni">Alumni</option>
+                        <option value="Placement">Placement Officer</option>
+                        <option value="Admin">Administrator</option>
+                      </select>
+                    </div>
+
+                    <div className="col-6">
+                      <label className="nexora-form-label">Status</label>
+                      <select
+                        value={newUser.status}
+                        onChange={(e) => setNewUser({ ...newUser, status: e.target.value })}
+                        className="nexora-form-select"
+                      >
+                        <option value="Active">Active</option>
+                        <option value="Pending">Pending</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="nexora-modal-footer">
+                  <span className="nexora-modal-footer-hint d-none d-sm-inline">
+                    * Required fields must be completed
+                  </span>
+                  <div className="nexora-modal-footer-actions">
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateModal(false)}
+                      className="nexora-modal-btn-cancel"
+                      disabled={actionLoading}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={actionLoading}
+                      className="nexora-modal-btn-primary"
+                    >
+                      {actionLoading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm" /> Creating...
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus size={18} /> Create Account
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
